@@ -1,28 +1,39 @@
+/* This is the NEW App.js from the project initalization, i am leaving it here as a reference for now */
 import React from 'react'
-import { StatusBar } from 'expo-status-bar';
-import exampleComponent from './exampleComponent';
+
 /* Import all core react native components here */
-import { StyleSheet, Text, View } from 'react-native';
+/*
+SafeAreaView can wrap our entire app to ensure elements are visible to all supported devices
+StyleSheet is for our custom styles, this can be used to avoid the 'bad form' of inline styles
+*/
+
+import { StyleSheet, SafeAreaView, Text, View } from 'react-native'
+
+import helloWorldComponent from './src/helloWorldComponent'
 
 // This is an example of JSX, an extenstion of javascript. JSX is used to create our elements
-export default function App() {
-  const message = "Goodbye, World"
-  console.log("Hello, World")
+const App = () => {
   return (
-    <View style={{height:500, width:500, backgroundColor: 'blue'}}>
-      <Text>Hello, World!</Text>
-      <Text>{message}</Text>
-      {exampleComponent}
-      <Text>Fuck</Text>
-    </View>
-  );
+    <SafeAreaView style={styles.wrapper}>
+      <View style={styles.container}>
+        <Text style={{ color: 'yellow' }}>Goodbye World!</Text>
+      </View>
+      {helloWorldComponent()}
+    </SafeAreaView>
+  )
 }
+/* If our newly added style inexplicably doesnt work, we likely messed up the prop name.
+check this: https://reactnative.dev/docs/view-style-props */
 
+/* Here is our global stylesheet, consider migrating it to it's own file eventually? */
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: 'grey',
+    alignItems: 'center'
   },
-});
+  wrapper: {
+    flex: 1
+  }
+})
+export default App
