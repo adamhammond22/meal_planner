@@ -38,42 +38,38 @@ const App = () => {
 }
 
 const Unit = Object.freeze({
-  None: Symbol(0),
-  Teaspoon: Symbol(1),
-  TableSpoon: Symbol(2),
-  FLOunce: Symbol(3),
-  Cup: Symbol(4),
-  Pint: Symbol(5),
-  Quart: Symbol(6),
-  Gallon: Symbol(7),
-  Ounce: Symbol(8),
-  Pound: Symbol(9)
+  None: ' ',
+  Teaspoon: ' teaspoon ',
+  TableSpoon: ' tablespoon ',
+  FLOunce: ' fl oz ',
+  Cup: ' cup ',
+  Pint: ' pint ',
+  Quart: ' quart ',
+  Gallon: ' gallon ',
+  Ounce: ' oz ',
+  Pound: ' lb '
 })
 
 let saveARecipe = {
   name: 'Recipe A',
-  ingredients: ['Letters', 'Purple'],
-  ingredientUnits: [Unit.Cup, Unit.Ounce],
-  ingredientQuantity: [0.25, 19.5],
+  ingredients: [{name: 'Letters', unit: Unit.Cup, amount: 0.25 }, {name: 'Purple', unit: Unit.Ounce, amount: 19.5}],
   instructions: '1) Add Letters into a large bowl\n2) Consume Purple\n3) Profit'
 }
 
 let saveBRecipe = {
   name: 'Recipe B',
-  ingredients: ['Wind', 'Salt', 'Space-Time'],
-  ingredientUnits: [Unit.Gallon, Unit.TableSpoon, Unit.Pound],
-  ingredientQuantity: [8, 2, 5],
-  instructions: '1) Filter wind through a strainer\n2) Season the Space-Time with the salt\n3) Enjoy newfound timetravel abilities\n\n\n4) Restore the ruined timelines'
+  ingredients: [{name: 'Wind', unit: Unit.Gallon, amount: 8}, {name: 'Salt', unit: Unit.TableSpoon, amount: 2}, 
+  {name: 'Space-Time', unit: Unit.Pound, amount: 5}],
+  instructions: '1) Filter wind through a strainer\n2) Season the Space-Time with the salt\n3) Enjoy newfound timetravel abilities\n...\n...\n4) Restore the ruined timelines'
 }
 
 
 let loadedRecipe = {
-  name: '',
-  ingredients: [],
-  ingredientUnits: [],
-  instructions: ''
+  name: 'Unloaded Error',
+  ingredients: [{name: 'One', unit: Unit.Gallon, amount: 1}, {name: 'Two', unit: Unit.Pound, amount: 2}],
+  instructions: 'Return to main menu. Do not pass Go. Do not collect $200.'
 }
-let originalLoadedName
+let originalLoadedName = ''
 
 const SaveRecipe = () => {
   if(originalLoadedName == saveARecipe.name){
@@ -127,10 +123,26 @@ const ViewRecipe = ({ navigation }) => {
       LoadRecipe( recipe )
       navigation.replace('View-Recipe')
   }
+  const ingredientList = []
+  loadedRecipe.ingredients.forEach((element, index) => {
+    console.log(element.unit)
+    console.log(element.unit)
+    ingredientList.push(
+      <Text style={{marginLeft: 20, marginRight: 20, padding: 2, textAlign: 'left'}}>
+      {element.amount}{element.unit}of {element.name}
+      </Text> 
+    );
+  });
+
   return (
     <><Text 
-      style={{marginTop: 20, marginBottom: 20, marginLeft: 20, marginRight: 20, padding: 10}}>
+      style={{marginTop: 20, marginBottom: 20, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}>
       {loadedRecipe.name}
+    </Text> 
+    {ingredientList}
+    <Text 
+      style={{marginTop: 20, marginBottom: 20, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'left'}}>
+      {loadedRecipe.instructions}
     </Text>
       <Button
         title = {'Edit'}
@@ -146,10 +158,8 @@ const ViewRecipe = ({ navigation }) => {
 
 const EditRecipe = ({ navigation }) => {
   const [nameText, setNameText] = useState(loadedRecipe.name)
+  const [instructionsText, setInstructionText] = useState(loadedRecipe.name)
   {/* This function handles updates everytime the user changes the text in the textbox */}
-  const handleNameInput = ( newText ) => {
-    setNameText(newText)
-  }
   const SaveEdit = () => {
       loadedRecipe.name = nameText
       SaveRecipe()
@@ -158,11 +168,18 @@ const EditRecipe = ({ navigation }) => {
   return (
     <>
       <TextInput
-        style={{borderWidth:  1, marginTop: 20, marginBottom: 20, marginLeft: 20, marginRight: 20, padding: 10}}
+        style={{borderWidth:  1, marginTop: 20, marginBottom: 20, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
         editable
         multiline
-        onChangeText={value => handleNameInput(value)}
+        onChangeText={value => setNameText(value)}
         defaultValue={loadedRecipe.name}
+      />
+      <TextInput
+        style={{borderWidth:  1, marginTop: 20, marginBottom: 20, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'left'}}
+        editable
+        multiline
+        onChangeText={value => setInstructionText(value)}
+        defaultValue={loadedRecipe.instructions}
       />
       <Button
         title = {'Save'}
