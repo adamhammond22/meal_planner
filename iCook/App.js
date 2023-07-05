@@ -13,14 +13,6 @@ StyleSheet is for our custom styles, this can be used to avoid the 'bad form' of
 
 import { StyleSheet, SafeAreaView, Button, Text, TextInput, View } from 'react-native'
 
-import helloWorldComponent from './src/helloWorldComponent'
-import { Console } from 'console'
-
-/* This global variable holds the text for both the 'desplay text' and 'edit text' screens,
-rather than passing parameters back and forth*/
-let writtenText = 'If you see this, the text load failed.'
-/* This global variable is acting as a stand in save in lieu of an actual database for now*/
-let savedText = 'This is some default text.'
 
 // This is an example of JSX, an extenstion of javascript. JSX is used to create our elements
 const App = () => {
@@ -28,16 +20,17 @@ const App = () => {
     <SafeAreaView style={styles.wrapper}>
     {/* These containers allow for navigation between screens */}
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator
+      initialRouteName = 'Main-List'>
         {/* Stack.Screen defines the different screens that can be accessed */}
         <Stack.Screen name="Main-List" component={MainList} />
-        <Stack.Screen name="Add-Recipe" component={AddRecipe} />
+        {/* <Stack.Screen name="Add-Recipe" component={AddRecipe} /> */}
         <Stack.Screen name="View-Recipe" component={ViewRecipe} />
         <Stack.Screen name="Edit-Recipe" component={EditRecipe} />
         <Stack.Screen name="Delete-Recipe" component={EditRecipe} />
-        <Stack.Screen name="Select-Recipes" component={SelectRecipes} />
-        <Stack.Screen name="Meal-Plan" component={SelectRecipes} />
-        <Stack.Screen name="Shopping-List" component={SelectRecipes} />
+        {/* <Stack.Screen name="Select-Recipes" component={SelectRecipes} /> */}
+        {/* <Stack.Screen name="Meal-Plan" component={SelectRecipes} /> */}
+        {/* <Stack.Screen name="Shopping-List" component={SelectRecipes} /> */}
       </Stack.Navigator>
     </NavigationContainer>
   </SafeAreaView>
@@ -84,41 +77,47 @@ let originalLoadedName
 
 const SaveRecipe = () => {
   if(originalLoadedName == saveARecipe.name){
-    saveBRecipe = loadedRecipe
+    saveARecipe = loadedRecipe
+    console.log("Save A")
   }else if(originalLoadedName == saveBRecipe.name){
-    saveCRecipe = loadedRecipe
+    saveBRecipe = loadedRecipe
+    console.log("Save B")
   }else{
-    Console.log("Save Error")
+    console.log("Save Error")
+    console.log(originalLoadedName)
   }
 }
 
 const LoadRecipe = ( name ) => {
   originalLoadedName = name
   if(name == saveARecipe.name){
-    loadedRecipe = saveBRecipe
+    loadedRecipe = saveARecipe
   }else if(name == saveBRecipe.name){
-    loadedRecipe = saveCRecipe
+    loadedRecipe = saveBRecipe
   }else{
-    Console.log("Load Error")
+    console.log("Load Error")
   }
 }
 
 const MainList = ({ navigation }) => {
+  const textA = saveARecipe.name
+  const textB = saveBRecipe.name
   const SelectRecipe = ( recipe ) => {
-      LoadRecipe( recipe )
-      navigation.replace('View-Recipe')
+    console.log(recipe)
+    LoadRecipe( recipe )
+    navigation.replace('View-Recipe')
   }
   return (
     <>
       {/* This is a button that, when clicked, will load a differnet screen */}
       <Button
-        title = {saveARecipe.name}
-        onPress={SelectRecipe(saveARecipe.name)}
+        title = {textA}
+        onPress={() => SelectRecipe(textA)}
       />
       <Button
-        title = {saveBRecipe.name}
-        onPress={SelectRecipe(saveBRecipe.name)}
-      />
+        title = {textB}
+        onPress={() => SelectRecipe(textB)}
+      />{/* */}
     </>
   )
 }
@@ -152,6 +151,7 @@ const EditRecipe = ({ navigation }) => {
     setNameText(newText)
   }
   const SaveEdit = () => {
+      loadedRecipe.name = nameText
       SaveRecipe()
       navigation.replace('View-Recipe')
   }
@@ -166,7 +166,7 @@ const EditRecipe = ({ navigation }) => {
       />
       <Button
         title = {'Save'}
-        onPress={SaveEdit}
+        onPress={() => SaveEdit()}
       />
       <Button
         title = {'Cancel'}
