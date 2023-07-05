@@ -162,6 +162,7 @@ const EditRecipe = ({ navigation }) => {
   {/* This function handles updates everytime the user changes the text in the textbox */}
   const SaveEdit = () => {
       loadedRecipe.name = nameText
+      loadedRecipe.instructions = instructionsText
       SaveRecipe()
       navigation.replace('View-Recipe')
   }
