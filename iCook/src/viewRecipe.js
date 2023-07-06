@@ -75,6 +75,7 @@ export const ViewRecipe = ({ navigation }) => {
     });
   
     return (
+    <ScrollView>
       <><Text 
         style={{marginTop: 20, marginBottom: 20, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'left', fontWeight: 'bold'}}>
         {loadedRecipe.name}
@@ -105,6 +106,7 @@ export const ViewRecipe = ({ navigation }) => {
           onPress={() => navigation.replace('Main-List')}
         />
       </>
+    </ScrollView>
     )
 }
  
