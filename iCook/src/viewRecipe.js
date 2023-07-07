@@ -8,26 +8,32 @@ import InputScrollView from 'react-native-input-scroll-view'
 // Imported calls for the mock-up database in tempFakeSave.js
 import {Load, Save} from './tempFakeSave'
 
+// This allows for the dropdown list for the Units in the ingridents
+import { SelectList } from 'react-native-dropdown-select-list'
+
 // An "enum" for units
-const Unit = Object.freeze({
-    None: ' ',
-    Teaspoon: 'teaspoon',
-    TableSpoon: 'tablespoon',
-    FLOunce: 'fl oz',
-    Cup: 'cup',
-    Pint: 'pint',
-    Quart: 'quart',
-    Gallon: 'gallon',
-    Ounce: 'oz',
-    Pound: 'lb'
-})
+const Unit = [
+    {key: 0, value: ' '},
+    {key: 1, value: 'Teaspoon'},
+    {key: 2, value: 'Tablespoon'},
+    {key: 3, value: 'fl oz'},
+    {key: 4, value: 'Cup'},
+    {key: 5, value: 'Pint'},
+    {key: 6, value: 'Quart'},
+    {key: 7, value: 'Gallon'},
+    {key: 8, value: 'oz'},
+    {key: 9, value: 'lb'}
+]
+
 
 /* This variable stores the data for the currently selected recipe to ensure only one load between the view and edit pages */
 let loadedRecipe = {
     // The name variable has, obviously, the name of the recipe
     name: 'Unloaded Error',
+    // This holds the description text
+    description: 'You\'ve got yourself an unloaded error.',
     // This is an array for the ingredents. Each ingredent has the properties {name, unit, amount}
-    ingredients: [{name: 'One', unit: Unit.Gallon, amount: 1}, {name: 'Two', unit: Unit.Pound, amount: 2}],
+    ingredients: [{name: 'One', unit: 7, amount: 1}, {name: 'Two', unit: 9, amount: 2}],
     // This is the instruction text
     instructions: 'Return to main menu. Do not pass Go. Do not collect $200.'
 }
@@ -63,7 +69,7 @@ export const ViewRecipe = ({ navigation }) => {
         // If should be singular
         if(element.amount > 0 && element.amount <= 1){
           ingredientList.push(
-            <Text style={{marginLeft: 28, marginRight: 28, padding: 2, textAlign: 'left'}}>
+            <Text style={{marginTop: 5, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left'}}>
               {element.amount} {element.name}
             </Text>
           );
@@ -71,7 +77,7 @@ export const ViewRecipe = ({ navigation }) => {
         // If should be plural
         else{
           ingredientList.push(
-            <Text style={{marginLeft: 28, marginRight: 28, padding: 2, textAlign: 'left'}}>
+            <Text style={{marginTop: 5, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left'}}>
               {element.amount} {element.name}s
             </Text>
           )
@@ -82,16 +88,16 @@ export const ViewRecipe = ({ navigation }) => {
         // If should be singular
         if(element.amount > 0 && element.amount <= 1){
           ingredientList.push(
-            <Text style={{marginLeft: 28, marginRight: 28, padding: 2, textAlign: 'left'}}>
-              {element.amount} {element.unit} of {element.name}
+            <Text style={{marginTop: 5, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left'}}>
+              {element.amount} {Unit[element.unit].value} of {element.name}
             </Text>
           )
         }
         // If should be plural
         else{
           ingredientList.push(
-            <Text style={{marginLeft: 28, marginRight: 28, padding: 2, textAlign: 'left'}}>
-              {element.amount} {element.unit}s of {element.name}
+            <Text style={{marginTop: 5, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left'}}>
+              {element.amount} {Unit[element.unit].value}s of {element.name}
             </Text>
           )
         }
@@ -103,26 +109,28 @@ export const ViewRecipe = ({ navigation }) => {
     <ScrollView>
       {/* Name Text */}
       <Text 
-        style={{marginTop: 20, marginBottom: 20, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'left', fontWeight: 'bold'}}>
+        style={{ fontSize: 20, marginTop: 20, marginBottom: 5, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'center', fontWeight: 'bold'}}>
         {loadedRecipe.name}
       </Text> 
-      
+      <Text 
+        style={{marginTop: 5, marginBottom: 10, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'center'}}>
+        {loadedRecipe.description}
+      </Text> 
       {/* Ingredents section title */}
       <Text 
-        style={{marginTop: 20, marginBottom: 20, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'left', fontWeight: 'bold'}}>
+        style={{fontSize: 16, marginTop: 5, marginBottom: 0, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left', fontWeight: 'bold'}}>
         Ingredients
       </Text>
       {/* Show the ingredients */}
       {ingredientList}
-  
       {/* Instructions section title */}
       <Text 
-        style={{marginTop: 20, marginBottom: 20, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}>
+        style={{fontSize: 16, marginTop: 15, marginBottom: 0, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left', fontWeight: 'bold'}}>
         Instructions
       </Text>
       {/* Instruction text */}
       <Text 
-        style={{marginTop: 20, marginBottom: 20, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'left'}}>
+        style={{marginTop: 5, marginBottom: 5, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left'}}>
         {loadedRecipe.instructions}
       </Text>
 
@@ -146,13 +154,65 @@ export const EditRecipe = ({ navigation }) => {
     const [nameText, setNameText] = useState(loadedRecipe.name)
     // This state keeps track of the instruction text
     const [instructionsText, setInstructionText] = useState(loadedRecipe.instructions)
+    // This state keeps track of the short description text
+    const [descriptionText, setDescriptonText] = useState(loadedRecipe.description)
+
+    let ingredientArray = []
     // This function handles updates everytime the user changes the text in the textbox
     const SaveEdit = () => {
         loadedRecipe.name = nameText
+        loadedRecipe.description = descriptionText
+        loadedRecipe.ingredients = ingredientArray
         loadedRecipe.instructions = instructionsText
         SaveRecipe( originalLoadedName, loadedRecipe )
         navigation.replace('View-Recipe')
     }
+
+    function changeIngredientAmount(editIndex, newAmount) {
+      const change = ingredientArray.map((ingredient, index) => {
+        if(editIndex == index){
+          return {amount: newAmount, unit: ingredient.unit, name: ingredient.name}
+        } else {
+          return ingredient
+        }
+      });
+    }
+
+    const ingredientList = []
+    loadedRecipe.ingredients.forEach((element, index) => {
+      ingredientArray.push(element)
+      ingredientList.push(
+        <View style = {{flexDirection: 'row', flex: 4, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 5}}>
+        <TextInput
+          style={{borderWidth:  1, marginTop: 20, marginBottom: 5, marginLeft: 10, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
+          editable
+          keyboardType='numeric'
+          multiline={true}
+          numberOfLines={1}
+          blurOnSubmit={true}
+          onChangeText={value => (ingredientArray[index].amount = parseFloat(value))}
+          defaultValue={element.amount.toString()}
+        />
+        <SelectList 
+        style = {{marginTop: 20, marginBottom: 5}}
+        setSelected={(key) => (ingredientArray[index].unit = key)} 
+        data={Unit} 
+        save='key'
+        defaultOption={Unit[element.unit]}
+        />
+        <TextInput
+          style={{borderWidth:  1, marginTop: 20, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
+          editable
+          multiline={true}
+          numberOfLines={1}
+          blurOnSubmit={true}
+          onChangeText={value => (ingredientArray[index].name = value)}
+          defaultValue={element.name}
+        />
+        </View>
+      );
+    });
+
     return (
       <>
       {/* This scroll view follows the location the user is typing. The keyboardOffset is set to prevent the keyboard on ios for hiding the curser */}
@@ -161,7 +221,7 @@ export const EditRecipe = ({ navigation }) => {
         <View>
         {/* Title Text */}
         <TextInput
-          style={{borderWidth:  1, marginTop: 30 , marginBottom: 30, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
+          style={{borderWidth:  1, marginTop: 20, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
           editable
           multiline={true}
           numberOfLines={1}
@@ -169,9 +229,29 @@ export const EditRecipe = ({ navigation }) => {
           onChangeText={value => setNameText(value)}
           defaultValue={nameText}
         />
+        <TextInput
+          style={{borderWidth:  1, marginTop: 0, marginBottom: 10, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'center'}}
+          editable
+          multiline
+          scrollEnabled={false}
+          onChangeText={value => setDescriptonText(value)}
+          defaultValue={descriptionText}
+        />
+        {/* Ingredents section title */}
+        <Text 
+          style={{fontSize: 16, marginTop: 5, marginBottom: 0, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left', fontWeight: 'bold'}}>
+          Ingredients
+        </Text>
+        {/* Show the ingredients*/}
+        {ingredientList}
+        {/* Instructions section title */}
+        <Text 
+          style={{fontSize: 16, marginTop: 15, marginBottom: 0, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left', fontWeight: 'bold'}}>
+          Instructions
+        </Text>
         {/* Instruction Text */}
         <TextInput
-          style={{borderWidth:  1, marginTop: 30, marginBottom: 30, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'left'}}
+          style={{borderWidth:  1, marginTop: 5, marginBottom: 30, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'left'}}
           editable
           multiline
           scrollEnabled={false}

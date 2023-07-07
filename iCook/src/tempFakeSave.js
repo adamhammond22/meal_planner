@@ -2,23 +2,26 @@
 // Fake saveslot A
 let saveARecipe = {
     name: 'Recipe A',
-    ingredients: [{name: 'Letters', unit: 'cup', amount: 0.25 }, {name: 'Purple', unit: 'oz', amount: 19.5},
-{name: 'nothing', unit: ' ', amount: 12}],
+    description: 'The first recipe',
+    ingredients: [{name: 'Letters', unit: 4, amount: 0.25 }, {name: 'Purple', unit: 8, amount: 19.5},
+{name: 'nothing', unit: 0, amount: 12}],
     instructions: '1) Add Letters into a large bowl\n2) Consume Purple\n3) Profit'
 }
 
 // Fake saveslot B
 let saveBRecipe = {
     name: 'Recipe B',
-    ingredients: [{name: 'Wind', unit: 'gallon', amount: 8}, {name: 'Salt', unit: 'tablespoon', amount: 2}, 
-    {name: 'Space-Time', unit: 'lb', amount: 5}],
+    description: 'The second recipe',
+    ingredients: [{name: 'Wind', unit: 6, amount: 8}, {name: 'Salt', unit: 2, amount: 2}, 
+    {name: 'Space-Time', unit: 9, amount: 5}],
     instructions: '1) Filter wind through a strainer\n2) Season the Space-Time with the salt\n3) Enjoy newfound timetravel abilities\n...\n...\n4) Restore the ruined timelines'
 }
 
 // Error load
 const errorRecipe = {
     name: 'Invalid Name Error',
-    ingredients: [{name: 'Invalid', unit: 'lb', amount: 1}],
+    description: 'The errorth recipe',
+    ingredients: [{name: 'Invalid', unit: 9, amount: 1}],
     instructions: 'Call a name of a recipe'
   }
 
