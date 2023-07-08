@@ -5,15 +5,14 @@ import { StyleSheet, SafeAreaView, Button, Text, TextInput, View, ScrollView, Fl
 // This import allows for the scroll bar to follow user input as they type
 import InputScrollView from 'react-native-input-scroll-view'
 
-
-/* Import SQLite functions */
+// Import SQLite functions
 import * as SQLite from 'expo-sqlite';
-
-/* Init SQLite database obj */
-const db = SQLite.openDatabase('recipe.db');
 
 // This allows for the dropdown list for the Units in the ingridents
 import { SelectList } from 'react-native-dropdown-select-list'
+
+// Init SQLite database obj
+const db = SQLite.openDatabase('recipe.db');
 
 // An "enum" for units
 const Unit = [
@@ -41,17 +40,13 @@ let loadedRecipe = {
   instructions: 'Return to main menu. Do not pass Go. Do not collect $200.'
 }
 
-
-/* This function passes loadedRecipe direclty to the mock-up save. For actual implimentation, it'll need to parse into the database 
-format here or in the backend function. */
-const SaveRecipe = () => {
-    Save(originalLoadedName, loadedRecipe);
-}
-
+/* Sets the components of loaded recipe individually to account for the fact that not all components are in the
+database currently */
 function setLoadedRecipe(recipe){
   loadedRecipe.name = recipe.name
-  loadedRecipe.instructions = recipe.instructions
+  loadedRecipe.description = ''
   loadedRecipe.ingredients = recipe.ingredients
+  loadedRecipe.instructions = recipe.instructions
 }
 
 /* This function passes loads a recipy by name direclty from the mock-up save. For actual implimentation, it'll need to pass the 
@@ -66,18 +61,16 @@ export const LoadEmptyRecipe =  () => {
 
 // View Recipe Screen takes navigation context and "route" which stores our recipe id and if the recipe is already pre loaded (recipeId, preLoaded)
 export const ViewRecipe = ({ route, navigation}) => {
-  loadedRecipe.id = route.params.recipeId
   /* Extract the recipe id from the params object */
-  //const currentRecipeId = route.params.recipeId
   loadedRecipe.id = route.params.recipeId
   console.log("view recipe has currentRecipeId of:", loadedRecipe.id)
+
   /* isLoading is true if we're currently loading our recipe */
   const [isLoading, setIsLoading] = useState(!route.params.preLoaded);
 
   /* Recipes is the state containing the list of currently loaded recipes, we may need ot limit the size of recipes (in the case the user has like 500 recipes) */
   const [recipe, setRecipe] = useState();
  
-
   /* useEffect calls this every time this application is loaded, we make sure a table exists and call loadRecipes() */
   useEffect(() => {
     db.transaction(tx => {
@@ -131,11 +124,11 @@ export const ViewRecipe = ({ route, navigation}) => {
     // This loop compiles all the ingredents into ingredients list to be direclty shown with .push
     loadedRecipe.ingredients.forEach((element, index) => {
       // If no unit selected
-      if (element.unit == ' '){
+      if (element.unit == 0){
         // If should be singular
         if(element.amount > 0 && element.amount <= 1){
           ingredientList.push(
-            <Text style={{marginTop: 5, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left'}}>
+            <Text key={index} style={{marginTop: 5, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left'}}>
               {element.amount} {element.name}
             </Text>
           );
@@ -143,7 +136,7 @@ export const ViewRecipe = ({ route, navigation}) => {
         // If should be plural
         else{
           ingredientList.push(
-            <Text style={{marginTop: 5, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left'}}>
+            <Text key={index} style={{marginTop: 5, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left'}}>
               {element.amount} {element.name}s
             </Text>
           )
@@ -154,7 +147,7 @@ export const ViewRecipe = ({ route, navigation}) => {
         // If should be singular
         if(element.amount > 0 && element.amount <= 1){
           ingredientList.push(
-            <Text style={{marginTop: 5, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left'}}>
+            <Text key={index} style={{marginTop: 5, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left'}}>
               {element.amount} {Unit[element.unit].value} of {element.name}
             </Text>
           )
@@ -162,7 +155,7 @@ export const ViewRecipe = ({ route, navigation}) => {
         // If should be plural
         else{
           ingredientList.push(
-            <Text style={{marginTop: 5, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left'}}>
+            <Text key={index} style={{marginTop: 5, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left'}}>
               {element.amount} {Unit[element.unit].value}s of {element.name}
             </Text>
           )
@@ -216,48 +209,50 @@ export const ViewRecipe = ({ route, navigation}) => {
 
 // Edit Recipe Screen, route contains (recipeId, nullLoad)
 export const EditRecipe = ({ route, navigation}) => {
+  /* Extract the recipe id from the params object */
   loadedRecipe.id = route.params.recipeId
+
+  // If loading from null (new recipe) load up new recipe setup
   if(route.params.nullLoad){
     LoadEmptyRecipe()
   }
-  /* Extract the recipe id from the params object */
   
-  //const currentRecipeId = route.params.recipeId
   console.log("Edit recipe called: route params:", route.params, " currentRecipeId: ", loadedRecipe.id)
- 
+  
+  // These variables keep track of the various chanded components. They will be tossed if cancel is hit, or applied to
+  // loadedRecipe and saved to the database if save is hit
+
   // This state keeps track of the name text
   const [nameText, setNameText] = useState(loadedRecipe.name)
   // This state keeps track of the instruction text
   const [instructionsText, setInstructionText] = useState(loadedRecipe.instructions)
   // This state keeps track of the short description text
   const [descriptionText, setDescriptonText] = useState(loadedRecipe.description)
-
+  // This variable stores the changes in the ingredients
   let ingredientArray = []
-
-  /* useEffect calls this every time this application is loaded, we make sure a table exists and call loadRecipes() */
-  /* This instance of useEffect must be dependant on  currentRecipeId's state, so it is only triggered if that changes */
-
-  /* SQLLite Function that loads the given recipeId
-  Updates the Recipes state and setsIsLoading state to false when completed */
-  
 
   // This function handles updates everytime the user changes the text in the textbox
   const SaveEdit = () => {
+      // Updates loaded recipe
       loadedRecipe.name = nameText
       loadedRecipe.description = descriptionText
       loadedRecipe.ingredients = ingredientArray
       loadedRecipe.instructions = instructionsText
+      // Saves to database
       updateName( loadedRecipe.id, nameText)
+      // Goes back to view page
       navigation.replace('View-Recipe', { recipeId: loadedRecipe.id, preLoaded: true})
   }
 
+  // Iterates through the ingredients and puts them in ingredientsList to display
   const ingredientList = []
   console.log(loadedRecipe.ingredients)
   loadedRecipe.ingredients.forEach((element, index) => {
     ingredientArray.push(element)
     console.log(element)
     ingredientList.push(
-      <View style = {{flexDirection: 'row', flex: 4, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 5}}>
+      <View  key={index} style = {{flexDirection: 'row', flex: 4, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 5}}>
+      {/* Amount Input */}
       <TextInput
         style={{borderWidth:  1, marginTop: 20, marginBottom: 5, marginLeft: 10, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
         editable
@@ -268,6 +263,7 @@ export const EditRecipe = ({ route, navigation}) => {
         onChangeText={value => (ingredientArray[index].amount = parseFloat(value))}
         defaultValue={element.amount.toString()}
       />
+      {/* Unit Select */}
       <SelectList 
       style = {{marginTop: 20, marginBottom: 5}}
       setSelected={(key) => (ingredientArray[index].unit = key)} 
@@ -275,6 +271,7 @@ export const EditRecipe = ({ route, navigation}) => {
       save='key'
       defaultOption={Unit[element.unit]}
       />
+      {/* Name Input */}
       <TextInput
         style={{borderWidth:  1, marginTop: 20, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
         editable
@@ -361,7 +358,6 @@ export const EditRecipe = ({ route, navigation}) => {
   )
   
 }
-
 
 const styles = StyleSheet.create({
     container: {
