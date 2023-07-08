@@ -52,7 +52,9 @@ function setLoadedRecipe(recipe){
   }
   /* Check if recipe object has ingredients */
   if (recipe.ingredients) {
-    loadedRecipe.ingredients = recipe.ingredients
+    // TODO: Write SQL to ingredent Array Parser
+    //loadedRecipe.ingredients = recipe.ingredients
+    loadedRecipe.ingredients = []
   } else {
     loadedRecipe.ingredients = []
   }
@@ -86,15 +88,13 @@ export const ViewRecipe = ({ route, navigation}) => {
  
   /* useEffect calls this every time this application is loaded, we make sure a table exists and call loadRecipes() */
   useEffect(() => {
-    if(isLoading){
-      db.transaction(tx => {
-        tx.executeSql(
-          'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)',
-          [],
-          () => loadRecipe(loadedRecipe.id)
-        );
-      });
-    }
+    db.transaction(tx => {
+      tx.executeSql(
+        'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)',
+        [],
+        () => loadRecipe(loadedRecipe.id)
+      );
+    });
   }, [loadedRecipe.id]);
 
   /* SQLLite Function that loads the given recipeId
@@ -297,33 +297,16 @@ export const EditRecipe = ({ route, navigation}) => {
   });
 
   /*SQLite Function that updates the Name in the database */
-  // TODO: Update this to use instructionsText once that is a part of the db
   const updateRecipe = (recipe) => {
     console.log("updatre rec recipe is:", recipe)
+    /* The ingredents are going to need to be parsed into text or something to go into the database, then 
+    they're going to need to be unparsed in the load. */
+    // TODO: Write SQL to ingredent Array Parser
+    const ingredentStandIn = '';
     db.transaction(
       tx => {
-        tx.executeSql(`UPDATE Recipes set name = ? where id = ?;`, [recipe.name, recipe.id]);
-      },
-      null,
-      null,
-    );
-    db.transaction(
-      tx => {
-        tx.executeSql(`UPDATE Recipes set description = ? where id = ?;`, [recipe.description, recipe.id]);
-      },
-      null,
-      null,
-    );
-    db.transaction(
-      tx => {
-        tx.executeSql(`UPDATE Recipes set ingredients = ? where id = ?;`, [recipe.ingredients, recipe.id]);
-      },
-      null,
-      null,
-    );
-    db.transaction(
-      tx => {
-        tx.executeSql(`UPDATE Recipes set instructions = ? where id = ?;`, [recipe.instructions, recipe.id]);
+        tx.executeSql(`UPDATE Recipes SET name = ? description = ? ingredients = ? instructions = ? WHERE id = ?;`, 
+        [recipe.name, recipe.description, ingredentStandIn, recipe.instructions, recipe.id]);
       },
       null,
       null,

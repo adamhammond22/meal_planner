@@ -10,27 +10,31 @@ import * as SQLite from 'expo-sqlite';
 /* Init SQLite database obj */
 const db = SQLite.openDatabase('recipe.db');
 
-
 /* All Recipes Screen takes a navigation prop, and returns jsx*/
 const MultipleRecipesScreen = ({navigation}) => {
   
-  /* isLoading is true if we're currently loading our list of recipes */
-  const [isLoading, setIsLoading] = useState(true);
+/* isLoading is true if we're currently loading our list of recipes */
+const [isLoading, setIsLoading] = useState(true);
 
-  /* Recipes is the state containing the list of currently loaded recipes, we may need ot limit the size of recipes (in the case the user has like 500 recipes) */
-  const [recipes, setRecipes] = useState([]);
+/* Recipes is the state containing the list of currently loaded recipes, we may need ot limit the size of recipes (in the case the user has like 500 recipes) */
+const [recipes, setRecipes] = useState([]);
+/* useEffect calls this every time this application is loaded, we make sure a table exists and call loadRecipes() */
+useEffect(() => {
+  CreateTable()
+}, []);
 
-
-  /* useEffect calls this every time this application is loaded, we make sure a table exists and call loadRecipes() */
-  useEffect(() => {
-    db.transaction(tx => {
-      tx.executeSql(
-        'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)',
-        [],
-        () => loadRecipes()
-      );
-    });
-  }, []);
+// Separated out of useEffect so that it could be called by DEBUG_DELETE_TABLE
+const CreateTable = () =>{
+  db.transaction(tx => {
+    console.log("CREATE NEW TABLE")
+    tx.executeSql(
+      // ingredients is currently set to store a TEXT type, as I expect us to parse them into a text, but we can change the data type if there's something better
+      'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, ingredients TEXT, instructions TEXT);',
+      [],
+      () => loadRecipes()
+    );
+  });
+}
 
   /* Navigation function that takes a recipe id or null, and properly routing to the desired screen */
   const navigateToRecipe = (id) => {
@@ -60,6 +64,19 @@ const MultipleRecipesScreen = ({navigation}) => {
     }
   } 
 
+// This function completely wipes the table to fully reset. Good for "no coloum named XXX" error if you're change the inital table
+const DEBUG_DELETE_TABLE = () => {
+  console.log("TABLE DROPPED")
+  db.transaction(tx => {
+    console.log("DROP OLD TABLE")
+    tx.executeSql(
+      'DROP TABLE Recipes;',
+      null,
+      CreateTable()
+    );
+  });
+}
+
   /* SQLLite Function that selects all Recipes from database.
   Updates the Recipes state and setsIsLoading state to false when completed */
   const loadRecipes = () => {
@@ -80,10 +97,12 @@ const MultipleRecipesScreen = ({navigation}) => {
 
   /* SQLLite Function that adds the given recipe name with a promise to return the new id */
   const addRecipe = (recipeName) => {
-    console.log(" in add recipe:, name", recipeName)
+    
+    console.log(" in add recipe: name: ", recipeName)
     return new Promise((resolve, reject) => {
       db.transaction(tx => {
-        tx.executeSql('INSERT INTO Recipes (name) values (?)', [recipeName], 
+        //tx.executeSql('INSERT INTO Recipes (name, description, ingredients, instructions) values (?, ?, ?, ?)', [recipeName, '', [], ''], 
+        tx.executeSql('INSERT INTO Recipes (name, description, ingredients, instructions) values (?, ?, ?, ?)', [recipeName, ' ', '' , ''], 
         (_, { insertId }) => resolve(insertId),
         (_, error) => reject(error)
         );
@@ -131,6 +150,7 @@ const deleteRecipe = (id) => {
   return (
       <SafeAreaView style={styles.wrapper}>
       <View style={styles.container}>
+          <Button title="Delete EVERYTHING (debug)" onPress={() => DEBUG_DELETE_TABLE()} />
           <Text style={styles.title}>All Recipes</Text>
           
           {/* Render our recipes in a list */}
