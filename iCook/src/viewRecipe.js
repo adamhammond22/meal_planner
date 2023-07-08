@@ -1,12 +1,16 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
-import { StyleSheet, Button, Text, TextInput, View, ScrollView} from 'react-native'
+import { StyleSheet, SafeAreaView, Button, Text, TextInput, View, ScrollView, FlatList, Alert } from 'react-native'
 
 // This import allows for the scroll bar to follow user input as they type
 import InputScrollView from 'react-native-input-scroll-view'
 
-// Imported calls for the mock-up database in tempFakeSave.js
-import {Load, Save} from './tempFakeSave'
+
+/* Import SQLite functions */
+import * as SQLite from 'expo-sqlite';
+
+/* Init SQLite database obj */
+const db = SQLite.openDatabase('recipe.db');
 
 // This allows for the dropdown list for the Units in the ingridents
 import { SelectList } from 'react-native-dropdown-select-list'
@@ -25,42 +29,104 @@ const Unit = [
     {key: 9, value: 'lb'}
 ]
 
-
 /* This variable stores the data for the currently selected recipe to ensure only one load between the view and edit pages */
 let loadedRecipe = {
-    // The name variable has, obviously, the name of the recipe
-    name: 'Unloaded Error',
-    // This holds the description text
-    description: 'You\'ve got yourself an unloaded error.',
-    // This is an array for the ingredents. Each ingredent has the properties {name, unit, amount}
-    ingredients: [{name: 'One', unit: 7, amount: 1}, {name: 'Two', unit: 9, amount: 2}],
-    // This is the instruction text
-    instructions: 'Return to main menu. Do not pass Go. Do not collect $200.'
+  // The name variable has, obviously, the name of the recipe
+  name: 'Unloaded Error',
+  // This holds the description text
+  description: 'You\'ve got yourself an unloaded error.',
+  // This is an array for the ingredents. Each ingredent has the properties {name, unit, amount}
+  ingredients: [{name: 'One', unit: 7, amount: 1}, {name: 'Two', unit: 9, amount: 2}],
+  // This is the instruction text
+  instructions: 'Return to main menu. Do not pass Go. Do not collect $200.'
 }
 
-/* Because the mock-up uses the name prop to identify which variable to save and load from, the original name had to be saved
-to write back to that same variable. In the actual implimentation, a sub variable for the database id should be added directly 
-to the varable loadedRecipe. The only reasion this one currently isn't is because this mock-up loads the "saved" recipe directly
-instead of parcing it in the LoadRecipe function. */
-let originalLoadedName = ' '
-  
- 
+
 /* This function passes loadedRecipe direclty to the mock-up save. For actual implimentation, it'll need to parse into the database 
 format here or in the backend function. */
 const SaveRecipe = () => {
     Save(originalLoadedName, loadedRecipe);
 }
 
+function setLoadedRecipe(recipe){
+  loadedRecipe.name = recipe.name
+  loadedRecipe.instructions = recipe.instructions
+  loadedRecipe.ingredients = recipe.ingredients
+}
+
 /* This function passes loads a recipy by name direclty from the mock-up save. For actual implimentation, it'll need to pass the 
 database id. It'll also need to parse it into proper formate here or on the otherside of the backend load function before passing
 it to loadedRecipe */
-export const LoadRecipe = ( name ) => {
-    loadedRecipe = Load( name )
-    originalLoadedName = loadedRecipe.name
+export const LoadEmptyRecipe =  () => {
+    loadedRecipe.name = "New Recipe"
+    loadedRecipe.description = "Recipe Description"
+    loadedRecipe.ingredients = [{amount: 1, unit: 0, name: 'example 1'}, {amount: 2, unit: 5, name: 'example 2'}]
+    loadedRecipe.instructions = "Write Instructions Here"
 }
 
-// View Recipe Screen
-export const ViewRecipe = ({ navigation }) => {
+// View Recipe Screen takes navigation context and "route" which stores our recipe id and if the recipe is already pre loaded (recipeId, preLoaded)
+export const ViewRecipe = ({ route, navigation}) => {
+  loadedRecipe.id = route.params.recipeId
+  /* Extract the recipe id from the params object */
+  //const currentRecipeId = route.params.recipeId
+  loadedRecipe.id = route.params.recipeId
+  console.log("view recipe has currentRecipeId of:", loadedRecipe.id)
+  /* isLoading is true if we're currently loading our recipe */
+  const [isLoading, setIsLoading] = useState(!route.params.preLoaded);
+
+  /* Recipes is the state containing the list of currently loaded recipes, we may need ot limit the size of recipes (in the case the user has like 500 recipes) */
+  const [recipe, setRecipe] = useState();
+ 
+
+  /* useEffect calls this every time this application is loaded, we make sure a table exists and call loadRecipes() */
+  useEffect(() => {
+    db.transaction(tx => {
+      tx.executeSql(
+        'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)',
+        [],
+        () => loadRecipe(loadedRecipe.id)
+      );
+    });
+  }, [loadedRecipe.id]);
+
+  /* SQLLite Function that loads the given recipeId
+  Updates the Recipes state and setsIsLoading state to false when completed */
+  const loadRecipe = (givenId) => {
+    db.transaction(tx => {
+      tx.executeSql('SELECT * FROM Recipes WHERE id = ?', [givenId],
+        (_, results) => {
+          // Ensure we get exactly 1 result
+          if (results.rows.length == 1) {
+            const recipe = results.rows.item(0);
+            console.log("Loaded recipe: ", recipe);
+          } else {
+            // If we do not, throw a message
+            console.log("viewRecipe.js: loadRecipe() error:", givenId, "' has ", results.rows.length, " matches found!")
+          }
+          /* When the callback is completed, update our 2 states */
+          setRecipe(recipe);
+          setIsLoading(false);
+          // This assigns it to the global variable
+          setLoadedRecipe(recipe);
+
+        });
+        (_, error) => console.log("viewRecipe.js: loadRecipe() error: ", error) // Error callback
+    });
+  };
+
+  /* If Loading, simply show that we're loading */
+  if (isLoading) {
+    return (
+      <SafeAreaView>
+        <View style={styles.loading}>
+          <Text>Loading Recipe...</Text>
+        </View>
+      </SafeAreaView>
+    );
+  } else {
+  /* Otherwise, display our Recipe */
+
+    // All the ingredent renders are loaded into here and called in the return statment
     const ingredientList = []
     // This loop compiles all the ingredents into ingredients list to be direclty shown with .push
     loadedRecipe.ingredients.forEach((element, index) => {
@@ -103,7 +169,6 @@ export const ViewRecipe = ({ navigation }) => {
         }
       }
     });
-  
     return (
     // The scroll view container allows the user to scroll through the components
     <ScrollView>
@@ -137,141 +202,164 @@ export const ViewRecipe = ({ navigation }) => {
       {/* Edit Button */}
       <Button
         title = {'Edit'}
-        onPress={() => navigation.replace('Edit-Recipe')}
+        onPress={() => navigation.replace('Edit-Recipe', {nullLoad: false})}
       />
       {/* Back Button */}
       <Button
         title = {'Back'}
-        onPress={() => navigation.replace('Main-List')}
+        onPress={() => navigation.replace('Multi-Screen')}
       />
     </ScrollView>
     )
+  }
 }
 
-// Edit Recipe Screen
-export const EditRecipe = ({ navigation }) => {
-    // This state keeps track of the name text
-    const [nameText, setNameText] = useState(loadedRecipe.name)
-    // This state keeps track of the instruction text
-    const [instructionsText, setInstructionText] = useState(loadedRecipe.instructions)
-    // This state keeps track of the short description text
-    const [descriptionText, setDescriptonText] = useState(loadedRecipe.description)
+// Edit Recipe Screen, route contains (recipeId, nullLoad)
+export const EditRecipe = ({ route, navigation}) => {
+  loadedRecipe.id = route.params.recipeId
+  if(route.params.nullLoad){
+    LoadEmptyRecipe()
+  }
+  /* Extract the recipe id from the params object */
+  
+  //const currentRecipeId = route.params.recipeId
+  console.log("Edit recipe called: route params:", route.params, " currentRecipeId: ", loadedRecipe.id)
+ 
+  // This state keeps track of the name text
+  const [nameText, setNameText] = useState(loadedRecipe.name)
+  // This state keeps track of the instruction text
+  const [instructionsText, setInstructionText] = useState(loadedRecipe.instructions)
+  // This state keeps track of the short description text
+  const [descriptionText, setDescriptonText] = useState(loadedRecipe.description)
 
-    let ingredientArray = []
-    // This function handles updates everytime the user changes the text in the textbox
-    const SaveEdit = () => {
-        loadedRecipe.name = nameText
-        loadedRecipe.description = descriptionText
-        loadedRecipe.ingredients = ingredientArray
-        loadedRecipe.instructions = instructionsText
-        SaveRecipe( originalLoadedName, loadedRecipe )
-        navigation.replace('View-Recipe')
-    }
+  let ingredientArray = []
 
-    function changeIngredientAmount(editIndex, newAmount) {
-      const change = ingredientArray.map((ingredient, index) => {
-        if(editIndex == index){
-          return {amount: newAmount, unit: ingredient.unit, name: ingredient.name}
-        } else {
-          return ingredient
-        }
-      });
-    }
+  /* useEffect calls this every time this application is loaded, we make sure a table exists and call loadRecipes() */
+  /* This instance of useEffect must be dependant on  currentRecipeId's state, so it is only triggered if that changes */
 
-    const ingredientList = []
-    loadedRecipe.ingredients.forEach((element, index) => {
-      ingredientArray.push(element)
-      ingredientList.push(
-        <View style = {{flexDirection: 'row', flex: 4, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 5}}>
-        <TextInput
-          style={{borderWidth:  1, marginTop: 20, marginBottom: 5, marginLeft: 10, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
-          editable
-          keyboardType='numeric'
-          multiline={true}
-          numberOfLines={1}
-          blurOnSubmit={true}
-          onChangeText={value => (ingredientArray[index].amount = parseFloat(value))}
-          defaultValue={element.amount.toString()}
-        />
-        <SelectList 
-        style = {{marginTop: 20, marginBottom: 5}}
-        setSelected={(key) => (ingredientArray[index].unit = key)} 
-        data={Unit} 
-        save='key'
-        defaultOption={Unit[element.unit]}
-        />
-        <TextInput
-          style={{borderWidth:  1, marginTop: 20, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
-          editable
-          multiline={true}
-          numberOfLines={1}
-          blurOnSubmit={true}
-          onChangeText={value => (ingredientArray[index].name = value)}
-          defaultValue={element.name}
-        />
-        </View>
-      );
-    });
+  /* SQLLite Function that loads the given recipeId
+  Updates the Recipes state and setsIsLoading state to false when completed */
+  
 
-    return (
-      <>
-      {/* This scroll view follows the location the user is typing. The keyboardOffset is set to prevent the keyboard on ios for hiding the curser */}
-        <InputScrollView
-        keyboardOffset = {120}>
-        <View>
-        {/* Title Text */}
-        <TextInput
-          style={{borderWidth:  1, marginTop: 20, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
-          editable
-          multiline={true}
-          numberOfLines={1}
-          blurOnSubmit={true}
-          onChangeText={value => setNameText(value)}
-          defaultValue={nameText}
-        />
-        <TextInput
-          style={{borderWidth:  1, marginTop: 0, marginBottom: 10, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'center'}}
-          editable
-          multiline
-          scrollEnabled={false}
-          onChangeText={value => setDescriptonText(value)}
-          defaultValue={descriptionText}
-        />
-        {/* Ingredents section title */}
-        <Text 
-          style={{fontSize: 16, marginTop: 5, marginBottom: 0, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left', fontWeight: 'bold'}}>
-          Ingredients
-        </Text>
-        {/* Show the ingredients*/}
-        {ingredientList}
-        {/* Instructions section title */}
-        <Text 
-          style={{fontSize: 16, marginTop: 15, marginBottom: 0, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left', fontWeight: 'bold'}}>
-          Instructions
-        </Text>
-        {/* Instruction Text */}
-        <TextInput
-          style={{borderWidth:  1, marginTop: 5, marginBottom: 30, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'left'}}
-          editable
-          multiline
-          scrollEnabled={false}
-          onChangeText={value => setInstructionText(value)}
-          defaultValue={instructionsText}
-        />
-        </View>
-        {/* Save Button */}
-        <Button
-          title = {'Save'}
-          onPress={() => SaveEdit()}
-        />
-        {/* Cancel/Back Button */}
-        <Button
-          title = {'Cancel'}
-          onPress={() => navigation.replace('View-Recipe')}
-        />
-       </InputScrollView>
-      </>
-    )
+  // This function handles updates everytime the user changes the text in the textbox
+  const SaveEdit = () => {
+      loadedRecipe.name = nameText
+      loadedRecipe.description = descriptionText
+      loadedRecipe.ingredients = ingredientArray
+      loadedRecipe.instructions = instructionsText
+      updateName( loadedRecipe.id, nameText)
+      navigation.replace('View-Recipe', { recipeId: loadedRecipe.id, preLoaded: true})
+  }
+
+  const ingredientList = []
+  console.log(loadedRecipe.ingredients)
+  loadedRecipe.ingredients.forEach((element, index) => {
+    ingredientArray.push(element)
+    console.log(element)
+    ingredientList.push(
+      <View style = {{flexDirection: 'row', flex: 4, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 5}}>
+      <TextInput
+        style={{borderWidth:  1, marginTop: 20, marginBottom: 5, marginLeft: 10, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
+        editable
+        keyboardType='numeric'
+        multiline={true}
+        numberOfLines={1}
+        blurOnSubmit={true}
+        onChangeText={value => (ingredientArray[index].amount = parseFloat(value))}
+        defaultValue={element.amount.toString()}
+      />
+      <SelectList 
+      style = {{marginTop: 20, marginBottom: 5}}
+      setSelected={(key) => (ingredientArray[index].unit = key)} 
+      data={Unit} 
+      save='key'
+      defaultOption={Unit[element.unit]}
+      />
+      <TextInput
+        style={{borderWidth:  1, marginTop: 20, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
+        editable
+        multiline={true}
+        numberOfLines={1}
+        blurOnSubmit={true}
+        onChangeText={value => (ingredientArray[index].name = value)}
+        defaultValue={element.name}
+      />
+      </View>
+    );
+  });
+
+  /*SQLite Function that updates the Name in the database */
+  // TODO: Update this to use instructionsText once that is a part of the db
+  const updateName = (id, val) => {
+    db.transaction(
+      tx => {
+        tx.executeSql(`UPDATE Names set name = ? where id = ?;`, [val, id]);
+      },
+      null,
+      null,
+    );
+  };
+
+  return (
+    <>
+    {/* This scroll view follows the location the user is typing. The keyboardOffset is set to prevent the keyboard on ios for hiding the curser */}
+      <InputScrollView
+      keyboardOffset = {120}>
+      <View>
+      {/* Title Text */}
+      <TextInput
+        style={{borderWidth:  1, marginTop: 20, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
+        editable
+        multiline={true}
+        numberOfLines={1}
+        blurOnSubmit={true}
+        onChangeText={value => setNameText(value)}
+        defaultValue={nameText}
+      />
+      <TextInput
+        style={{borderWidth:  1, marginTop: 0, marginBottom: 10, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'center'}}
+        editable
+        multiline
+        scrollEnabled={false}
+        onChangeText={value => setDescriptonText(value)}
+        defaultValue={descriptionText}
+      />
+      {/* Ingredents section title */}
+      <Text 
+        style={{fontSize: 16, marginTop: 5, marginBottom: 0, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left', fontWeight: 'bold'}}>
+        Ingredients
+      </Text>
+      {/* Show the ingredients*/}
+      {ingredientList}
+      {/* Instructions section title */}
+      <Text 
+        style={{fontSize: 16, marginTop: 15, marginBottom: 0, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left', fontWeight: 'bold'}}>
+        Instructions
+      </Text>
+      {/* Instruction Text */}
+      <TextInput
+        style={{borderWidth:  1, marginTop: 5, marginBottom: 30, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'left'}}
+        editable
+        multiline
+        scrollEnabled={false}
+        onChangeText={value => setInstructionText(value)}
+        defaultValue={instructionsText}
+      />
+      </View>
+      {/* Save Button */}
+      <Button
+        title = {'Save'}
+        onPress={() => SaveEdit()}
+      />
+      {/* Cancel/Back Button */}
+      <Button
+        title = {'Cancel'}
+        onPress={() => navigation.replace('View-Recipe', {recipeId: loadedRecipe.id, preLoaded: true})}
+      />
+      </InputScrollView>
+    </>
+  )
+  
 }
 
 
