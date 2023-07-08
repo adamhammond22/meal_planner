@@ -44,9 +44,25 @@ let loadedRecipe = {
 database currently */
 function setLoadedRecipe(recipe){
   loadedRecipe.name = recipe.name
-  loadedRecipe.description = ''
-  loadedRecipe.ingredients = recipe.ingredients
-  loadedRecipe.instructions = recipe.instructions
+  /* Check if recipe object has a description */
+  if (recipe.description) {
+    loadedRecipe.description = recipe.description
+  } else {
+    loadedRecipe.description = ''
+  }
+  /* Check if recipe object has ingredients */
+  if (recipe.ingredients) {
+    loadedRecipe.ingredients = recipe.ingredients
+  } else {
+    loadedRecipe.ingredients = []
+  }
+  /* Check if recipe object has instructions */
+  if (recipe.instructions) {
+    loadedRecipe.instructions = recipe.instructions
+  } else {
+    loadedRecipe.instructions = ''
+  }
+
 }
 
 /* This function passes loads a recipy by name direclty from the mock-up save. For actual implimentation, it'll need to pass the 
@@ -89,7 +105,6 @@ export const ViewRecipe = ({ route, navigation}) => {
           if (results.rows.length == 1) {
             // This assigns it to the global variable
             setLoadedRecipe(results.rows.item(0));
-            console.log("Loaded recipe: ", recipe);
           } else {
             // If we do not, throw a message
             console.log("viewRecipe.js: loadRecipe() error:", givenId, "' has ", results.rows.length, " matches found!")
