@@ -67,9 +67,6 @@ export const ViewRecipe = ({ route, navigation}) => {
 
   /* isLoading is true if we're currently loading our recipe */
   const [isLoading, setIsLoading] = useState(!route.params.preLoaded);
-
-  /* Recipes is the state containing the list of currently loaded recipes, we may need ot limit the size of recipes (in the case the user has like 500 recipes) */
-  const [recipe, setRecipe] = useState();
  
   /* useEffect calls this every time this application is loaded, we make sure a table exists and call loadRecipes() */
   useEffect(() => {
@@ -90,18 +87,15 @@ export const ViewRecipe = ({ route, navigation}) => {
         (_, results) => {
           // Ensure we get exactly 1 result
           if (results.rows.length == 1) {
-            const recipe = results.rows.item(0);
+            // This assigns it to the global variable
+            setLoadedRecipe(results.rows.item(0));
             console.log("Loaded recipe: ", recipe);
           } else {
             // If we do not, throw a message
             console.log("viewRecipe.js: loadRecipe() error:", givenId, "' has ", results.rows.length, " matches found!")
           }
           /* When the callback is completed, update our 2 states */
-          setRecipe(recipe);
           setIsLoading(false);
-          // This assigns it to the global variable
-          setLoadedRecipe(recipe);
-
         });
         (_, error) => console.log("viewRecipe.js: loadRecipe() error: ", error) // Error callback
     });
@@ -239,7 +233,7 @@ export const EditRecipe = ({ route, navigation}) => {
       loadedRecipe.ingredients = ingredientArray
       loadedRecipe.instructions = instructionsText
       // Saves to database
-      updateName( loadedRecipe.id, nameText)
+      updateRecipe( loadedRecipe )
       // Goes back to view page
       navigation.replace('View-Recipe', { recipeId: loadedRecipe.id, preLoaded: true})
   }
@@ -287,10 +281,32 @@ export const EditRecipe = ({ route, navigation}) => {
 
   /*SQLite Function that updates the Name in the database */
   // TODO: Update this to use instructionsText once that is a part of the db
-  const updateName = (id, val) => {
+  const updateRecipe = (recipe) => {
+    console.log("updatre rec recipe is:", recipe)
     db.transaction(
       tx => {
-        tx.executeSql(`UPDATE Names set name = ? where id = ?;`, [val, id]);
+        tx.executeSql(`UPDATE Recipes set name = ? where id = ?;`, [recipe.name, recipe.id]);
+      },
+      null,
+      null,
+    );
+    db.transaction(
+      tx => {
+        tx.executeSql(`UPDATE Recipes set description = ? where id = ?;`, [recipe.description, recipe.id]);
+      },
+      null,
+      null,
+    );
+    db.transaction(
+      tx => {
+        tx.executeSql(`UPDATE Recipes set ingredients = ? where id = ?;`, [recipe.ingredients, recipe.id]);
+      },
+      null,
+      null,
+    );
+    db.transaction(
+      tx => {
+        tx.executeSql(`UPDATE Recipes set instructions = ? where id = ?;`, [recipe.instructions, recipe.id]);
       },
       null,
       null,
