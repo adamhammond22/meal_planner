@@ -86,13 +86,15 @@ export const ViewRecipe = ({ route, navigation}) => {
  
   /* useEffect calls this every time this application is loaded, we make sure a table exists and call loadRecipes() */
   useEffect(() => {
-    db.transaction(tx => {
-      tx.executeSql(
-        'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)',
-        [],
-        () => loadRecipe(loadedRecipe.id)
-      );
-    });
+    if(isLoading){
+      db.transaction(tx => {
+        tx.executeSql(
+          'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)',
+          [],
+          () => loadRecipe(loadedRecipe.id)
+        );
+      });
+    }
   }, [loadedRecipe.id]);
 
   /* SQLLite Function that loads the given recipeId
