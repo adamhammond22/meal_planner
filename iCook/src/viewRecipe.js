@@ -100,22 +100,24 @@ export const ViewRecipe = ({ route, navigation}) => {
   /* SQLLite Function that loads the given recipeId
   Updates the Recipes state and setsIsLoading state to false when completed */
   const loadRecipe = (givenId) => {
-    db.transaction(tx => {
-      tx.executeSql('SELECT * FROM Recipes WHERE id = ?', [givenId],
-        (_, results) => {
-          // Ensure we get exactly 1 result
-          if (results.rows.length == 1) {
-            // This assigns it to the global variable
-            setLoadedRecipe(results.rows.item(0));
-          } else {
-            // If we do not, throw a message
-            console.log("viewRecipe.js: loadRecipe() error:", givenId, "' has ", results.rows.length, " matches found!")
-          }
-          /* When the callback is completed, update our 2 states */
-          setIsLoading(false);
-        });
-        (_, error) => console.log("viewRecipe.js: loadRecipe() error: ", error) // Error callback
-    });
+    if (isLoading) {
+      db.transaction(tx => {
+        tx.executeSql('SELECT * FROM Recipes WHERE id = ?', [givenId],
+          (_, results) => {
+            // Ensure we get exactly 1 result
+            if (results.rows.length == 1) {
+              // This assigns it to the global variable
+              setLoadedRecipe(results.rows.item(0));
+            } else {
+              // If we do not, throw a message
+              console.log("viewRecipe.js: loadRecipe() error:", givenId, "' has ", results.rows.length, " matches found!")
+            }
+            /* When the callback is completed, update our 2 states */
+            setIsLoading(false);
+          });
+          (_, error) => console.log("viewRecipe.js: loadRecipe() error: ", error) // Error callback
+      });
+    }
   };
 
   /* If Loading, simply show that we're loading */
@@ -305,8 +307,32 @@ export const EditRecipe = ({ route, navigation}) => {
     const ingredentStandIn = '';
     db.transaction(
       tx => {
-        tx.executeSql(`UPDATE Recipes SET name = ? description = ? ingredients = ? instructions = ? WHERE id = ?;`, 
-        [recipe.name, recipe.description, ingredentStandIn, recipe.instructions, recipe.id]);
+        tx.executeSql(`UPDATE Recipes SET name = ? WHERE id = ?;`, 
+        [recipe.name, recipe.id]);
+      },
+      null,
+      null,
+    );
+    db.transaction(
+      tx => {
+        tx.executeSql(`UPDATE Recipes SET description = ? WHERE id = ?;`, 
+        [recipe.description, recipe.id]);
+      },
+      null,
+      null,
+    );
+    db.transaction(
+      tx => {
+        tx.executeSql(`UPDATE Recipes SET ingredients = ? WHERE id = ?;`, 
+        [ingredentStandIn, recipe.id]);
+      },
+      null,
+      null,
+    );
+    db.transaction(
+      tx => {
+        tx.executeSql(`UPDATE Recipes SET instructions = ? WHERE id = ?;`, 
+        [recipe.instructions, recipe.id]);
       },
       null,
       null,
