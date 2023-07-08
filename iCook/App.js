@@ -20,8 +20,6 @@ const Stack = createNativeStackNavigator()
 
 // Imported calls from viewRecipe.js
 import {ViewRecipe, LoadRecipe, EditRecipe} from './src/viewRecipe'
-// Imported calls for the mock-up database in tempFakeSave.js
-import {GetNameList} from './src/tempFakeSave'
 
 // Import MultipleRecipeScreen
 import MultipleRecipesScreen from './src/screens/multipleRecipesScreen'
