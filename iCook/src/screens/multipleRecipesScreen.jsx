@@ -167,10 +167,6 @@ const deleteRecipe = (id) => {
 
 }
 
-
-
-
-
 /* Stylesheet */
 const styles = StyleSheet.create({
   container: {

@@ -1,48 +1,76 @@
 import React from 'react'
-
-
-/* Import all core react native components here
-
--  SafeAreaView can wrap our entire app to ensure elements are visible to all supported devices
--  StyleSheet is for our custom styles, this can be used to avoid the 'bad form' of inline styles
-*/
-import { StyleSheet, SafeAreaView, Button, Text} from 'react-native'
-
-// Screen Navigation imports
+import { StyleSheet, SafeAreaView } from 'react-native'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import Ionicons from 'react-native-vector-icons/Ionicons'; // Import Ionicons from react-native-vector-icons
 
-/* Import global stylesheet */
 import globalStyles from './src/globalStyles'
 
-const Stack = createNativeStackNavigator()
-
-
-// Imported calls from viewRecipe.js
-import {ViewRecipe, LoadRecipe, EditRecipe} from './src/viewRecipe'
-
-// Import MultipleRecipeScreen
+import { ViewRecipe, LoadRecipe, EditRecipe } from './src/viewRecipe'
 import MultipleRecipesScreen from './src/screens/multipleRecipesScreen'
 
+// Define other screens...
+import CalendarScreen from './src/screens/CalendarScreen.jsx'; 
+import LoginScreen from './src/screens/LoginScreen.jsx'; 
+import ShopScreen from './src/screens/ShopScreen.jsx'; 
+import ShareScreen from './src/screens/ShareScreen.jsx';
+
+const Stack = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
+
+// Create a new Home component that includes your Stack Navigator
+function Home() {
+  return (
+    <Stack.Navigator initialRouteName='Multi-Screen'>
+      <Stack.Screen 
+        name="Multi-Screen" 
+        component={MultipleRecipesScreen} 
+        options={{ headerShown: false }} // this line hides the header
+      />
+      <Stack.Screen name="View-Recipe" component={ViewRecipe} />
+      <Stack.Screen name="Edit-Recipe" component={EditRecipe} />
+      <Stack.Screen name="Delete-Recipe" component={EditRecipe} />
+    </Stack.Navigator>
+  );
+}
 const App = () => {
   return (
-    <SafeAreaView style={globalStyles.wrapper}>
-    {/* These containers allow for navigation between screens */}
-    <NavigationContainer>
-      {/* The initalRouteName prop declares the inital screen navigated to on startup */}
-      <Stack.Navigator
-      initialRouteName = 'Multi-Screen'>
-        {/* Stack.Screen defines the different screens that can be accessed. 
-        The AddRecipe screen is yet to be create, so it has been left commented out */}
-        <Stack.Screen name="Multi-Screen" component={MultipleRecipesScreen} />
-        {/* <Stack.Screen name="Add-Recipe" component={AddRecipe} /> */}
-        <Stack.Screen name="View-Recipe" component={ViewRecipe} />
-        <Stack.Screen name="Edit-Recipe" component={EditRecipe} />
-        <Stack.Screen name="Delete-Recipe" component={EditRecipe} />
-      </Stack.Navigator>
-    </NavigationContainer>
-  </SafeAreaView>
-  )
+    <SafeAreaView style={{flex: 1}}>
+      <NavigationContainer>
+        <Tab.Navigator 
+          screenOptions={({ route }) => ({
+            tabBarIcon: ({ focused, color, size }) => {
+              let iconName;
+
+              if (route.name === 'Home') {
+                iconName = focused ? 'home' : 'home-outline';
+              } else if (route.name === 'Calendar') {
+                iconName = focused ? 'calendar' : 'calendar-outline';
+              } else if (route.name === 'Shop') {
+                iconName = focused ? 'cart' : 'cart-outline';
+              } else if (route.name === 'Share') {
+                iconName = focused ? 'share-social' : 'share-social-outline';
+              } else if (route.name === 'Login') {
+                iconName = focused ? 'log-in' : 'log-in-outline';
+              }
+              return <Ionicons name={iconName} size={size} color={color} />;
+            },
+          })}
+          tabBarOptions={{
+            activeTintColor: 'tomato',
+            inactiveTintColor: 'gray',
+          }}
+        >
+          <Tab.Screen name="Home" component={Home} />
+          <Tab.Screen name="Calendar" component={CalendarScreen} />
+          <Tab.Screen name="Shop" component={ShopScreen} />
+          <Tab.Screen name="Share" component={ShareScreen} />
+          <Tab.Screen name="Login" component={LoginScreen} />
+        </Tab.Navigator>
+      </NavigationContainer>
+    </SafeAreaView>
+  );
 }
 
-export default App
+export default App;
