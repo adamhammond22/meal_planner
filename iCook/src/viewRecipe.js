@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-import { StyleSheet, SafeAreaView, Button, Text, TextInput, View, ScrollView, FlatList, Alert } from 'react-native'
+import { StyleSheet, SafeAreaView, Button, Text, TextInput, View, ScrollView, TouchableOpacity, FlatList, Alert } from 'react-native'
 
 // This import allows for the scroll bar to follow user input as they type
 import InputScrollView from 'react-native-input-scroll-view'
@@ -241,11 +241,18 @@ export const EditRecipe = ({ route, navigation}) => {
   const [instructionsText, setInstructionText] = useState(loadedRecipe.instructions)
   // This state keeps track of the short description text
   const [descriptionText, setDescriptonText] = useState(loadedRecipe.description)
-  // This variable stores the changes in the ingredients
-  let ingredientArray = []
 
+  /* ingredientArray is a state of the ingredient objects in the component */
+  const [ingredientArray, setIngredientArray] = useState([...loadedRecipe.ingredients])
+  
+  /* ingredientList is a list of JSX representing all our ingredients */
+  let ingredientJSXList = []
+  
+  const [ingredientCount, setIngredientCount] = useState(loadedRecipe.ingredients.length)
+ 
   // This function handles updates everytime the user changes the text in the textbox
   const SaveEdit = () => {
+    console.log("Save")
       // Updates loaded recipe
       loadedRecipe.name = nameText
       loadedRecipe.description = descriptionText
@@ -257,50 +264,84 @@ export const EditRecipe = ({ route, navigation}) => {
       navigation.replace('View-Recipe', { recipeId: loadedRecipe.id, preLoaded: true})
   }
 
+  /* Function to Add an ingredient */
+  const AddIngredent = () => {
+    let tempArray = ingredientArray
+    tempArray.push({amount: 0, unit: 0, name: ""})
+    // Update Ingredient Array
+    setIngredientArray(tempArray)
+    // Update Ingredient Count (forces an update durring the add)
+    setIngredientCount(ingredientCount + 1)
+  }
+  
+  /* Function to Remove an ingredient from the ingredientList, specified by given index */
+  const RemoveIngredent = (indexToRemove) => {
+    let tempArray = ingredientArray
+    tempArray = tempArray.filter((_, index) => index !== indexToRemove);
+    // Update Ingredient Array
+    setIngredientArray(tempArray)
+    // Update Ingredient Count (forces an update durring the add)
+    setIngredientCount(ingredientCount - 1)
+  }  
+  
+  /* Load our ingredient jsx before rendering */
+  loadIngredientView()
+  
   // Iterates through the ingredients and puts them in ingredientsList to display
-  const ingredientList = []
-  console.log(loadedRecipe.ingredients)
-  loadedRecipe.ingredients.forEach((element, index) => {
-    ingredientArray.push(element)
-    console.log(element)
-    ingredientList.push(
-      <View  key={index} style = {{flexDirection: 'row', flex: 4, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 5}}>
-      {/* Amount Input */}
-      <TextInput
-        style={{borderWidth:  1, marginTop: 20, marginBottom: 5, marginLeft: 10, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
-        editable
-        keyboardType='numeric'
-        multiline={true}
-        numberOfLines={1}
-        blurOnSubmit={true}
-        onChangeText={value => (ingredientArray[index].amount = parseFloat(value))}
-        defaultValue={element.amount.toString()}
-      />
-      {/* Unit Select */}
-      <SelectList 
-      style = {{marginTop: 20, marginBottom: 5}}
-      setSelected={(key) => (ingredientArray[index].unit = key)} 
-      data={Unit} 
-      save='key'
-      defaultOption={Unit[element.unit]}
-      />
-      {/* Name Input */}
-      <TextInput
-        style={{borderWidth:  1, marginTop: 20, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
-        editable
-        multiline={true}
-        numberOfLines={1}
-        blurOnSubmit={true}
-        onChangeText={value => (ingredientArray[index].name = value)}
-        defaultValue={element.name}
-      />
-      </View>
+  function loadIngredientView(){
+    console.log("Original Ingredient Count: ", loadedRecipe.ingredients.length)
+    ingredientJSXList.length = 0
+    ingredientArray.forEach((element, index) => {
+      console.log(element)
+      ingredientJSXList.push(
+        <View  key={index} style = {{flexDirection: 'row', flex: 4, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 5, alignItems: 'center'}}>
+          {/* Amount Input */}
+          <TextInput
+            style={{ flexGrow: 1, borderWidth:  1, marginTop: 20, marginBottom: 5, marginLeft: 10, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
+            editable
+            keyboardType='numeric'
+            multiline={true}
+            numberOfLines={1}
+            blurOnSubmit={true}
+            onChangeText={value => (ingredientArray[index].amount = parseFloat(value))}
+            defaultValue={element.amount.toString()}
+          />
+          {/* Unit Select */}
+          <SelectList 
+          style = {{ flexGrow: 1}}
+          setSelected={(key) => (ingredientArray[index].unit = key)} 
+          data={Unit} 
+          save='key'
+          defaultOption={Unit[element.unit]}
+          />
+          {/* Name Input */}
+          <TextInput
+            style={{ flexGrow: 4, borderWidth:  1, marginTop: 20, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
+            editable
+            multiline={true}
+            numberOfLines={1}
+            blurOnSubmit={true}
+            onChangeText={value => (ingredientArray[index].name = value)}
+            defaultValue={element.name}
+          />
+          {/* Delete Ingredient Button */}
+          <View style={styles.deleteIngredient} >
+            <TouchableOpacity onPress={() => RemoveIngredent(index)} >
+              <Text>Delete</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
+    });
+    ingredientJSXList.push(
+      <TouchableOpacity  key={ingredientArray.length} style = {{flexDirection: 'row', flex: 4, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 5}}
+      onPress={() => AddIngredent()}>
+        <Text>Add Ingredient</Text>
+      </TouchableOpacity>
     );
-  });
-
+  }
   /*SQLite Function that updates the Name in the database */
   const updateRecipe = (recipe) => {
-    console.log("updatre rec recipe is:", recipe)
     /* The ingredents are going to need to be parsed into text or something to go into the database, then 
     they're going to need to be unparsed in the load. */
     // TODO: Write SQL to ingredent Array Parser
@@ -369,7 +410,7 @@ export const EditRecipe = ({ route, navigation}) => {
         Ingredients
       </Text>
       {/* Show the ingredients*/}
-      {ingredientList}
+      {ingredientJSXList}
       {/* Instructions section title */}
       <Text 
         style={{fontSize: 16, marginTop: 15, marginBottom: 0, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left', fontWeight: 'bold'}}>
@@ -393,7 +434,7 @@ export const EditRecipe = ({ route, navigation}) => {
       {/* Cancel/Back Button */}
       <Button
         title = {'Cancel'}
-        onPress={() => navigation.replace('View-Recipe', {recipeId: loadedRecipe.id, preLoaded: true})}
+        onPress={() => {console.log("Cancel: ", loadedRecipe.ingredients.length); navigation.replace('View-Recipe', {recipeId: loadedRecipe.id, preLoaded: true})}}
       />
       </InputScrollView>
     </>
@@ -409,5 +450,10 @@ const styles = StyleSheet.create({
     },
     wrapper: {
       flex: 1
+    },
+    deleteIngredient: {
+      flexShrink: 1,
+      alignSelf: 'center',
+      borderWidth:  1
     }
 })
