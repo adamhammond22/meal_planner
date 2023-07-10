@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-import { StyleSheet, SafeAreaView, Button, Text, TextInput, View, ScrollView, TouchableOpacity, FlatList, Alert } from 'react-native'
+import { StyleSheet, SafeAreaView, Button, Text, TextInput, View, ScrollView, TouchableOpacity, FlatList, Alert, Pressable } from 'react-native'
 
 // This import allows for the scroll bar to follow user input as they type
 import InputScrollView from 'react-native-input-scroll-view'
@@ -10,6 +10,9 @@ import * as SQLite from 'expo-sqlite';
 
 // This allows for the dropdown list for the Units in the ingridents
 import { SelectList } from 'react-native-dropdown-select-list'
+
+// Fonts
+import { useFonts } from 'expo-font';
 
 // Init SQLite database obj
 const db = SQLite.openDatabase('recipe.db');
@@ -79,6 +82,7 @@ export const LoadEmptyRecipe =  () => {
 
 // View Recipe Screen takes navigation context and "route" which stores our recipe id and if the recipe is already pre loaded (recipeId, preLoaded)
 export const ViewRecipe = ({ route, navigation}) => {
+
   /* Extract the recipe id from the params object */
   loadedRecipe.id = route.params.recipeId
   console.log("view recipe has currentRecipeId of:", loadedRecipe.id)
@@ -119,6 +123,18 @@ export const ViewRecipe = ({ route, navigation}) => {
       });
     }
   };
+
+  // const BackButton = () => {
+  //   const onPress = () => () => navigation.replace('Multi-Screen');
+    
+  //   return (
+  //   <View style={styles.wrapper}>
+  //     <TouchableOpacity style={styles.button} onPress={onPress}>
+  //     <Text>Back</Text>
+  //   </TouchableOpacity>
+  // </View>
+  // );
+  // };
 
   /* If Loading, simply show that we're loading */
   if (isLoading) {
@@ -177,45 +193,57 @@ export const ViewRecipe = ({ route, navigation}) => {
     });
     return (
     // The scroll view container allows the user to scroll through the components
+    <View style={styles.wrapper}>
     <ScrollView>
+    <View style={styles.buttomButtons}>
+      {/* Edit Button */}
+      <View style={styles.parent}>
+      <Pressable
+      onPress={() => navigation.replace('Edit-Recipe', {nullLoad: false})}
+      style={styles.button}>
+        <Text style={styles.buttonText}>Edit</Text>
+        </Pressable>
+        </View>
+      {/* Back Button */}
+      <View style={styles.parent}>
+      <Pressable
+      onPress={() => navigation.replace('Multi-Screen')}
+      style={styles.button}>
+        <Text style={styles.buttonText}>Back</Text>
+        </Pressable>
+        </View>
+        </View>
       {/* Name Text */}
-      <Text 
-        style={{ fontSize: 20, marginTop: 20, marginBottom: 5, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'center', fontWeight: 'bold'}}>
+      <Text style={styles.recipeName}>
         {loadedRecipe.name}
-      </Text> 
+      </Text>
       <Text 
-        style={{marginTop: 5, marginBottom: 10, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'center'}}>
+        style={styles.descriptionStyle}>
         {loadedRecipe.description}
       </Text> 
       {/* Ingredents section title */}
       <Text 
-        style={{fontSize: 16, marginTop: 5, marginBottom: 0, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left', fontWeight: 'bold'}}>
+        style={styles.sectionHeaders}>
         Ingredients
       </Text>
       {/* Show the ingredients */}
+      <View style={styles.flatlistContainer}>
       {ingredientList}
+      </View>
       {/* Instructions section title */}
       <Text 
-        style={{fontSize: 16, marginTop: 15, marginBottom: 0, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left', fontWeight: 'bold'}}>
+        style={styles.sectionHeaders}>
         Instructions
       </Text>
       {/* Instruction text */}
+      <View style={styles.flatlistContainer}>
       <Text 
-        style={{marginTop: 5, marginBottom: 5, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left'}}>
+        style={styles.sectionText}>
         {loadedRecipe.instructions}
       </Text>
-
-      {/* Edit Button */}
-      <Button
-        title = {'Edit'}
-        onPress={() => navigation.replace('Edit-Recipe', {nullLoad: false})}
-      />
-      {/* Back Button */}
-      <Button
-        title = {'Back'}
-        onPress={() => navigation.replace('Multi-Screen')}
-      />
+      </View>
     </ScrollView>
+    </View>
     )
   }
 }
@@ -443,17 +471,71 @@ export const EditRecipe = ({ route, navigation}) => {
 }
 
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: 'pink',
-      alignItems: 'center'
-    },
-    wrapper: {
-      flex: 1
-    },
-    deleteIngredient: {
-      flexShrink: 1,
-      alignSelf: 'center',
-      borderWidth:  1
-    }
+  wrapper: {
+    flex: 1,
+    backgroundColor: '#983429'
+  },
+  recipeName: {
+    fontFamily: 'Orienta',
+    fontSize: 32,
+    color: '#EDBD65',
+    textAlign: 'center'
+  },
+  descriptionStyle: {
+    fontFamily: 'Orienta',
+    fontSize: 15,
+    color: '#EDBD65',
+    textAlign: 'center'
+  },
+  sectionText: {
+    fontFamily: 'Orienta',
+    fontSize: 15,
+    color: '#EDBD65',
+    textAlign: 'left',
+    paddingLeft: 15,
+    paddingTop: 5,
+    paddingRight: 15 
+  },
+  sectionHeaders: {
+    fontFamily: 'Orienta',
+    fontSize: 20,
+    color: '#EDBD65',
+    textAlign: 'left',
+    paddingLeft: 30,
+    paddingTop: 20 
+  },
+  flatlistContainer: {
+    backgroundColor: '#293137',
+    marginVertical: 15,
+    marginHorizontal: 30,
+    paddingTop: 5,
+    paddingBottom: 11,
+    justifyContent: 'center'
+  },
+  button: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 7,
+    borderRadius: 4,
+    elevation: 3,
+    backgroundColor: '#EDBD65',
+  },
+  buttonText: {
+    fontFamily: 'Orienta',
+    fontSize: 15,
+    color: '#E293137',
+    textAlign: 'center',
+    fontWeight: 'bold'
+  },
+  parent: {
+    width: 60,
+    height: 30,
+    backgroundColor: '#EDBD65',
+    margin: 20,
+  },
+  buttomButtons: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center'
+  }
 })
