@@ -16,7 +16,7 @@ const db = SQLite.openDatabase('recipe.db');
 
 // An "enum" for units
 const Unit = [
-    {key: 0, value: ' '},
+    {key: 0, value: 'Whole'},
     {key: 1, value: 'Teaspoon'},
     {key: 2, value: 'Tablespoon'},
     {key: 3, value: 'fl oz'},
@@ -35,9 +35,25 @@ let loadedRecipe = {
   // This holds the description text
   description: 'You\'ve got yourself an unloaded error.',
   // This is an array for the ingredents. Each ingredent has the properties {name, unit, amount}
-  ingredients: [{name: 'One', unit: 7, amount: 1}, {name: 'Two', unit: 9, amount: 2}],
+  ingredients: [{name: 'null', unit: null, amount: null}, {name: 'null', unit: null, amount: null}],
   // This is the instruction text
   instructions: 'Return to main menu. Do not pass Go. Do not collect $200.'
+}
+
+function formatIngredients(recipe, databaseIngredientString) {
+  console.log("~formatIngredients(): Passed recipe.ingredients: ", recipe.ingredients)
+  var databaseIngredientsArray = databaseIngredientString.split('*')
+  console.log("~formatIngredients(): List of Ingredients: ", databaseIngredientsArray)
+  databaseIngredientsArray.forEach((element) => {
+    if (element == '') {
+      console.log(recipe.ingredients)
+      return
+    }
+    var ingredientInfo = element.split('~')
+    console.log("~formatIngredients(): Ingredient Info: ", ingredientInfo)
+    recipe.ingredients.push({name: ingredientInfo[0], unit: ingredientInfo[1], amount: ingredientInfo[2]})
+    console.log("~formatIngredients(): Added Recipe Ingredients: ", recipe.ingredients)
+  })
 }
 
 /* Sets the components of loaded recipe individually to account for the fact that not all components are in the
@@ -55,6 +71,10 @@ function setLoadedRecipe(recipe){
     // TODO: Write SQL to ingredent Array Parser
     //loadedRecipe.ingredients = recipe.ingredients
     loadedRecipe.ingredients = []
+    console.log("~setLoadedRecipe(): Unformatted ingredients from database:", recipe.ingredients)
+    formatIngredients(loadedRecipe, recipe.ingredients)
+    console.log("~setLoadedRecipe(): Formatted ingredients:", recipe.ingredients)
+    // loadedRecipe.ingredients = recipe.ingredients
   } else {
     loadedRecipe.ingredients = []
   }
@@ -81,7 +101,9 @@ export const LoadEmptyRecipe =  () => {
 export const ViewRecipe = ({ route, navigation}) => {
   /* Extract the recipe id from the params object */
   loadedRecipe.id = route.params.recipeId
-  console.log("view recipe has currentRecipeId of:", loadedRecipe.id)
+  console.log("~const ViewRecipe(): view recipe ingredients:", loadedRecipe.ingredients)
+  console.log("~const ViewRecipe(): view recipe ingredients:", loadedRecipe.ingredients)
+  console.log("~const ViewRecipe(): view recipe has currentRecipeId of:", loadedRecipe.id)
 
   /* isLoading is true if we're currently loading our recipe */
   const [isLoading, setIsLoading] = useState(!route.params.preLoaded);
@@ -90,27 +112,29 @@ export const ViewRecipe = ({ route, navigation}) => {
   useEffect(() => {
     db.transaction(tx => {
       tx.executeSql(
-        'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)',
+        'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, ingredients TEXT, instructions TEXT)',
         [],
         () => loadRecipe(loadedRecipe.id)
       );
     });
   }, [loadedRecipe.id]);
-
+  console.log("~~before loadRecipe()")
   /* SQLLite Function that loads the given recipeId
   Updates the Recipes state and setsIsLoading state to false when completed */
   const loadRecipe = (givenId) => {
     if (isLoading) {
+      console.log("~~loadRecipe() isLoading")
       db.transaction(tx => {
         tx.executeSql('SELECT * FROM Recipes WHERE id = ?', [givenId],
           (_, results) => {
             // Ensure we get exactly 1 result
             if (results.rows.length == 1) {
               // This assigns it to the global variable
+              console.log("~viewRecipe(): entering setLoadedRecipe:", results.rows.item(0))
               setLoadedRecipe(results.rows.item(0));
             } else {
               // If we do not, throw a message
-              console.log("viewRecipe.js: loadRecipe() error:", givenId, "' has ", results.rows.length, " matches found!")
+              console.log("~viewRecipe(): loadRecipe() error:", givenId, "' has ", results.rows.length, " matches found!")
             }
             /* When the callback is completed, update our 2 states */
             setIsLoading(false);
@@ -118,8 +142,11 @@ export const ViewRecipe = ({ route, navigation}) => {
           (_, error) => console.log("viewRecipe.js: loadRecipe() error: ", error) // Error callback
       });
     }
+    else {
+      console.log("~~loadRecipe() !isLoading")
+    }
   };
-
+  console.log("~~after loadRecipe()")
   /* If Loading, simply show that we're loading */
   if (isLoading) {
     return (
@@ -228,6 +255,7 @@ export const EditRecipe = ({ route, navigation}) => {
   // If loading from null (new recipe) load up new recipe setup
   if(route.params.nullLoad){
     LoadEmptyRecipe()
+    console.log("loaded empty recipe template")
   }
   
   console.log("Edit recipe called: route params:", route.params, " currentRecipeId: ", loadedRecipe.id)
@@ -298,13 +326,22 @@ export const EditRecipe = ({ route, navigation}) => {
     );
   });
 
+  function formatIngredients(ingredients) {
+    let formattedIngredients = ''
+    console.log("Formatting for database:", ingredients)
+    ingredients.forEach((element, index) => {
+      formattedIngredients += element.amount.toString() + '~' + Unit[element.unit].value + '~' + element.name + '*'
+    });
+    console.log("Formatted Ingredients:", formattedIngredients)
+    return formattedIngredients
+  }
+
   /*SQLite Function that updates the Name in the database */
   const updateRecipe = (recipe) => {
-    console.log("updatre rec recipe is:", recipe)
+    console.log("update rec recipe is:", recipe)
     /* The ingredents are going to need to be parsed into text or something to go into the database, then 
     they're going to need to be unparsed in the load. */
     // TODO: Write SQL to ingredent Array Parser
-    const ingredentStandIn = '';
     db.transaction(
       tx => {
         tx.executeSql(`UPDATE Recipes SET name = ? WHERE id = ?;`, 
@@ -321,10 +358,13 @@ export const EditRecipe = ({ route, navigation}) => {
       null,
       null,
     );
+    console.log("trying to add ingredients:", recipe.ingredients)
+    const ingredientsString = formatIngredients(recipe.ingredients)
+    console.log("ingredients string:", ingredientsString)
     db.transaction(
       tx => {
         tx.executeSql(`UPDATE Recipes SET ingredients = ? WHERE id = ?;`, 
-        [ingredentStandIn, recipe.id]);
+        [ingredientsString, recipe.id]);
       },
       null,
       null,
