@@ -51,7 +51,7 @@ function formatIngredients(recipe, databaseIngredientString) {
     }
     var ingredientInfo = element.split('~')
     console.log("~formatIngredients(): Ingredient Info: ", ingredientInfo)
-    recipe.ingredients.push({name: ingredientInfo[0], unit: ingredientInfo[1], amount: ingredientInfo[2]})
+    recipe.ingredients.push({amount: ingredientInfo[0], unit: ingredientInfo[1], name: ingredientInfo[2]})
     console.log("~formatIngredients(): Added Recipe Ingredients: ", recipe.ingredients)
   })
 }
@@ -330,14 +330,14 @@ export const EditRecipe = ({ route, navigation}) => {
     let formattedIngredients = ''
     console.log("Formatting for database:", ingredients)
     ingredients.forEach((element, index) => {
-      formattedIngredients += element.amount.toString() + '~' + Unit[element.unit].value + '~' + element.name + '*'
+      formattedIngredients += element.amount.toString() + '~' + element.unit + '~' + element.name + '*'
     });
     console.log("Formatted Ingredients:", formattedIngredients)
     return formattedIngredients
   }
 
   /*SQLite Function that updates the Name in the database */
-  const updateRecipe = (recipe) => {
+  function updateRecipe(recipe) {
     console.log("update rec recipe is:", recipe)
     /* The ingredents are going to need to be parsed into text or something to go into the database, then 
     they're going to need to be unparsed in the load. */
@@ -377,6 +377,7 @@ export const EditRecipe = ({ route, navigation}) => {
       null,
       null,
     );
+    return
   };
 
   return (
