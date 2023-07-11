@@ -11,11 +11,11 @@ import * as SQLite from 'expo-sqlite';
 // This allows for the dropdown list for the Units in the ingridents
 import { SelectList } from 'react-native-dropdown-select-list'
 
-// Fonts
-import { useFonts } from 'expo-font';
-
 // Init SQLite database obj
 const db = SQLite.openDatabase('recipe.db');
+
+import * as Font from 'expo-font';
+
 
 // An "enum" for units
 const Unit = [
@@ -89,6 +89,17 @@ export const ViewRecipe = ({ route, navigation}) => {
 
   /* isLoading is true if we're currently loading our recipe */
   const [isLoading, setIsLoading] = useState(!route.params.preLoaded);
+
+  useEffect(() => {
+    const loadFont = async () => {
+      await Font.loadAsync({
+        'Orienta': require('./fonts/Orienta-Regular.ttf')
+      });
+    };
+  
+    loadFont();
+  }, []);
+  
  
   /* useEffect calls this every time this application is loaded, we make sure a table exists and call loadRecipes() */
   useEffect(() => {
@@ -191,6 +202,7 @@ export const ViewRecipe = ({ route, navigation}) => {
         }
       }
     });
+
     return (
     // The scroll view container allows the user to scroll through the components
     <View style={styles.wrapper}>
@@ -510,7 +522,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 30,
     paddingTop: 5,
     paddingBottom: 11,
-    justifyContent: 'center'
+    justifyContent: 'center',
+    borderRadius: 7
   },
   button: {
     alignItems: 'center',
@@ -532,6 +545,7 @@ const styles = StyleSheet.create({
     height: 30,
     backgroundColor: '#EDBD65',
     margin: 20,
+    borderRadius: 3
   },
   buttomButtons: {
     alignItems: 'center',
@@ -539,3 +553,4 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   }
 })
+

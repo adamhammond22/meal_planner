@@ -1,6 +1,19 @@
 import { StyleSheet } from 'react-native'
-import {SafeAreaView, Button, Text, View, TouchableOpacity, Image} from 'react-native'
+import {SafeAreaView, Button, Text, View, TouchableOpacity, Image, useEffect} from 'react-native'
 import { useFonts } from 'expo-font';
+
+export default function App() {
+  useEffect(() => {
+    const loadFont = async () => {
+      await Font.loadAsync({
+        'Orienta': require('./fonts/Orienta-Regular.ttf')
+      });
+    };
+  
+    loadFont();
+  }, []);
+}
+
 const styles = StyleSheet.create({
     // container: {
     //   flex: 1,
@@ -12,17 +25,17 @@ const styles = StyleSheet.create({
     // },
     home: {
       flex:1,
-      backgroundColor: 'rgba(152, 52, 41, 1)'
+      backgroundColor: '#983429'
     
     },
     recipeWrapper: {
       display:'flex',
-      backgroundColor: 'rgba(41, 49, 55, 1)',
-      borderRadius: 10,
-      marginBottom: 10,
+      backgroundColor: '#293137',
+      borderRadius: 7,
+      marginBottom: 5,
       marginLeft:10,
       marginRight:10,
-      marginTop: 10,
+      marginTop: 5,
       flexDirection: 'column',
       justifyContent:"center",
     },
@@ -32,14 +45,16 @@ const styles = StyleSheet.create({
       justifyContent:"space-between",
       alignSelf:"auto",
       color: '#EDBD65',
-      textAlign: 'center',
+      textAlign: 'left',
+      paddingLeft: 15,
+      paddingTop: 10,
       fontSize: 24,
       fontWeight: '400',
     },
     recipeButton:{
       fontFamily: 'Orienta',
-      color: 'white',
-      fontSize: 20,
+      color: '#EDBD65',
+      fontSize: 15,
       flexDirection:'row',
       alignItems:'flex-end',
       // alignContent:"center",
@@ -59,9 +74,8 @@ const styles = StyleSheet.create({
     },
     title: {
       fontFamily: 'Orienta',
-      color: 'black',
+      color: '#EDBD65',
       fontSize: 30,
-      fontWeight: 'bold',
       textAlign: 'center',
       // textDecorationLine:'underline',
       // textTransform: 'uppercase',
@@ -70,7 +84,7 @@ const styles = StyleSheet.create({
     description:{
       fontFamily: 'Orienta',
       color: '#EDBD65',
-      textAlign:"center",
+      textAlign:"left",
     },
     images:{
       height:100,
