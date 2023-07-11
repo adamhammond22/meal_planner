@@ -1,21 +1,19 @@
+/* ViewRecipe.js contains the ViewRecipe component used to view a singular recipe */
+
 import { useState, useEffect } from 'react'
-
-import { StyleSheet, SafeAreaView, Button, Text, TextInput, View, ScrollView, TouchableOpacity, FlatList, Alert, Pressable } from 'react-native'
-
+// import expo fonts function
+import { useFonts } from 'expo-font';
+// Import react-native components
+import { StyleSheet, SafeAreaView, Button, Text, TextInput, View, ScrollView, TouchableOpacity, Pressable } from 'react-native'
 // This import allows for the scroll bar to follow user input as they type
 import InputScrollView from 'react-native-input-scroll-view'
-
 // Import SQLite functions
 import * as SQLite from 'expo-sqlite';
-
 // This allows for the dropdown list for the Units in the ingridents
 import { SelectList } from 'react-native-dropdown-select-list'
 
 // Init SQLite database obj
 const db = SQLite.openDatabase('recipe.db');
-
-import * as Font from 'expo-font';
-
 
 // An "enum" for units
 const Unit = [
@@ -109,18 +107,14 @@ export const ViewRecipe = ({ route, navigation}) => {
   console.log("~const ViewRecipe(): view recipe ingredients:", loadedRecipe.ingredients)
   console.log("~const ViewRecipe(): view recipe has currentRecipeId of:", loadedRecipe.id)
 
-  /* isLoading is true if we're currently loading our recipe */
+  /* isLoading state is true if we're currently loading our recipe */
   const [isLoading, setIsLoading] = useState(!route.params.preLoaded);
 
-  useEffect(() => {
-    const loadFont = async () => {
-      await Font.loadAsync({
-        'Orienta': require('./fonts/Orienta-Regular.ttf')
-      });
-    };
   
-    loadFont();
-  }, []);
+  /* Load our fonts */
+  const [fontsLoaded] = useFonts({
+    'Orienta': require('../assets/fonts/Orienta-Regular.ttf'),
+  });
   
  
   /* useEffect calls this every time this application is loaded, we make sure a table exists and call loadRecipes() */
@@ -163,7 +157,7 @@ export const ViewRecipe = ({ route, navigation}) => {
   };
   console.log("~~after loadRecipe()")
   /* If Loading, simply show that we're loading */
-  if (isLoading) {
+  if (isLoading || !fontsLoaded) {
     return (
       <SafeAreaView>
         <View style={styles.loading}>
@@ -217,7 +211,6 @@ export const ViewRecipe = ({ route, navigation}) => {
         }
       }
     });
-
     return (
     // The scroll view container allows the user to scroll through the components
     <View style={styles.wrapper}>
@@ -412,7 +405,6 @@ export const EditRecipe = ({ route, navigation}) => {
     console.log("update rec recipe is:", recipe)
     /* The ingredents are going to need to be parsed into text or something to go into the database, then 
     they're going to need to be unparsed in the load. */
-    // TODO: Write SQL to ingredent Array Parser
     db.transaction(
       tx => {
         tx.executeSql(`UPDATE Recipes SET name = ? WHERE id = ?;`, 
@@ -513,6 +505,8 @@ export const EditRecipe = ({ route, navigation}) => {
   
 }
 
+/* ViewRecipe specific stylesheet */
+//TODO: roll some of this into the global stylesheet
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
@@ -567,7 +561,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontFamily: 'Orienta',
     fontSize: 15,
-    color: '#E293137',
+    color: '#E29137',
     textAlign: 'center',
     fontWeight: 'bold'
   },

@@ -2,18 +2,6 @@ import { StyleSheet } from 'react-native'
 import {SafeAreaView, Button, Text, View, TouchableOpacity, Image, useEffect} from 'react-native'
 import { useFonts } from 'expo-font';
 
-export default function App() {
-  useEffect(() => {
-    const loadFont = async () => {
-      await Font.loadAsync({
-        'Orienta': require('./fonts/Orienta-Regular.ttf')
-      });
-    };
-  
-    loadFont();
-  }, []);
-}
-
 const styles = StyleSheet.create({
     // container: {
     //   flex: 1,
