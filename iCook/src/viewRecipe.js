@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 
-import { StyleSheet, SafeAreaView, Button, Text, TextInput, View, ScrollView, FlatList, Alert } from 'react-native'
+import { StyleSheet, SafeAreaView, Button, Text, TextInput, View, ScrollView, TouchableOpacity, FlatList, Alert, Pressable } from 'react-native'
 
 // This import allows for the scroll bar to follow user input as they type
 import InputScrollView from 'react-native-input-scroll-view'
@@ -13,6 +13,9 @@ import { SelectList } from 'react-native-dropdown-select-list'
 
 // Init SQLite database obj
 const db = SQLite.openDatabase('recipe.db');
+
+import * as Font from 'expo-font';
+
 
 // An "enum" for units
 const Unit = [
@@ -99,6 +102,7 @@ export const LoadEmptyRecipe =  () => {
 
 // View Recipe Screen takes navigation context and "route" which stores our recipe id and if the recipe is already pre loaded (recipeId, preLoaded)
 export const ViewRecipe = ({ route, navigation}) => {
+
   /* Extract the recipe id from the params object */
   loadedRecipe.id = route.params.recipeId
   console.log("~const ViewRecipe(): view recipe ingredients:", loadedRecipe.ingredients)
@@ -107,6 +111,17 @@ export const ViewRecipe = ({ route, navigation}) => {
 
   /* isLoading is true if we're currently loading our recipe */
   const [isLoading, setIsLoading] = useState(!route.params.preLoaded);
+
+  useEffect(() => {
+    const loadFont = async () => {
+      await Font.loadAsync({
+        'Orienta': require('./fonts/Orienta-Regular.ttf')
+      });
+    };
+  
+    loadFont();
+  }, []);
+  
  
   /* useEffect calls this every time this application is loaded, we make sure a table exists and call loadRecipes() */
   useEffect(() => {
@@ -202,47 +217,60 @@ export const ViewRecipe = ({ route, navigation}) => {
         }
       }
     });
+
     return (
     // The scroll view container allows the user to scroll through the components
+    <View style={styles.wrapper}>
     <ScrollView>
+    <View style={styles.buttomButtons}>
+      {/* Edit Button */}
+      <View style={styles.parent}>
+      <Pressable
+      onPress={() => navigation.replace('Edit-Recipe', {nullLoad: false})}
+      style={styles.button}>
+        <Text style={styles.buttonText}>Edit</Text>
+        </Pressable>
+        </View>
+      {/* Back Button */}
+      <View style={styles.parent}>
+      <Pressable
+      onPress={() => navigation.replace('Multi-Screen')}
+      style={styles.button}>
+        <Text style={styles.buttonText}>Back</Text>
+        </Pressable>
+        </View>
+        </View>
       {/* Name Text */}
-      <Text 
-        style={{ fontSize: 20, marginTop: 20, marginBottom: 5, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'center', fontWeight: 'bold'}}>
+      <Text style={styles.recipeName}>
         {loadedRecipe.name}
-      </Text> 
+      </Text>
       <Text 
-        style={{marginTop: 5, marginBottom: 10, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'center'}}>
+        style={styles.descriptionStyle}>
         {loadedRecipe.description}
       </Text> 
       {/* Ingredents section title */}
       <Text 
-        style={{fontSize: 16, marginTop: 5, marginBottom: 0, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left', fontWeight: 'bold'}}>
+        style={styles.sectionHeaders}>
         Ingredients
       </Text>
       {/* Show the ingredients */}
+      <View style={styles.flatlistContainer}>
       {ingredientList}
+      </View>
       {/* Instructions section title */}
       <Text 
-        style={{fontSize: 16, marginTop: 15, marginBottom: 0, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left', fontWeight: 'bold'}}>
+        style={styles.sectionHeaders}>
         Instructions
       </Text>
       {/* Instruction text */}
+      <View style={styles.flatlistContainer}>
       <Text 
-        style={{marginTop: 5, marginBottom: 5, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left'}}>
+        style={styles.sectionText}>
         {loadedRecipe.instructions}
       </Text>
-
-      {/* Edit Button */}
-      <Button
-        title = {'Edit'}
-        onPress={() => navigation.replace('Edit-Recipe', {nullLoad: false})}
-      />
-      {/* Back Button */}
-      <Button
-        title = {'Back'}
-        onPress={() => navigation.replace('Multi-Screen')}
-      />
+      </View>
     </ScrollView>
+    </View>
     )
   }
 }
@@ -269,11 +297,18 @@ export const EditRecipe = ({ route, navigation}) => {
   const [instructionsText, setInstructionText] = useState(loadedRecipe.instructions)
   // This state keeps track of the short description text
   const [descriptionText, setDescriptonText] = useState(loadedRecipe.description)
-  // This variable stores the changes in the ingredients
-  let ingredientArray = []
 
+  /* ingredientArray is a state of the ingredient objects in the component */
+  const [ingredientArray, setIngredientArray] = useState([...loadedRecipe.ingredients])
+  
+  /* ingredientList is a list of JSX representing all our ingredients */
+  let ingredientJSXList = []
+  
+  const [ingredientCount, setIngredientCount] = useState(loadedRecipe.ingredients.length)
+ 
   // This function handles updates everytime the user changes the text in the textbox
   const SaveEdit = () => {
+    console.log("Save")
       // Updates loaded recipe
       loadedRecipe.name = nameText
       loadedRecipe.description = descriptionText
@@ -285,46 +320,82 @@ export const EditRecipe = ({ route, navigation}) => {
       navigation.replace('View-Recipe', { recipeId: loadedRecipe.id, preLoaded: true})
   }
 
+  /* Function to Add an ingredient */
+  const AddIngredent = () => {
+    let tempArray = ingredientArray
+    tempArray.push({amount: 0, unit: 0, name: ""})
+    // Update Ingredient Array
+    setIngredientArray(tempArray)
+    // Update Ingredient Count (forces an update durring the add)
+    setIngredientCount(ingredientCount + 1)
+  }
+  
+  /* Function to Remove an ingredient from the ingredientList, specified by given index */
+  const RemoveIngredent = (indexToRemove) => {
+    let tempArray = ingredientArray
+    tempArray = tempArray.filter((_, index) => index !== indexToRemove);
+    // Update Ingredient Array
+    setIngredientArray(tempArray)
+    // Update Ingredient Count (forces an update durring the add)
+    setIngredientCount(ingredientCount - 1)
+  }  
+  
+  /* Load our ingredient jsx before rendering */
+  loadIngredientView()
+  
   // Iterates through the ingredients and puts them in ingredientsList to display
-  const ingredientList = []
-  console.log(loadedRecipe.ingredients)
-  loadedRecipe.ingredients.forEach((element, index) => {
-    ingredientArray.push(element)
-    console.log(element)
-    ingredientList.push(
-      <View  key={index} style = {{flexDirection: 'row', flex: 4, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 5}}>
-      {/* Amount Input */}
-      <TextInput
-        style={{borderWidth:  1, marginTop: 20, marginBottom: 5, marginLeft: 10, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
-        editable
-        keyboardType='numeric'
-        multiline={true}
-        numberOfLines={1}
-        blurOnSubmit={true}
-        onChangeText={value => (ingredientArray[index].amount = parseFloat(value))}
-        defaultValue={element.amount.toString()}
-      />
-      {/* Unit Select */}
-      <SelectList 
-      style = {{marginTop: 20, marginBottom: 5}}
-      setSelected={(key) => (ingredientArray[index].unit = key)} 
-      data={Unit} 
-      save='key'
-      defaultOption={Unit[element.unit]}
-      />
-      {/* Name Input */}
-      <TextInput
-        style={{borderWidth:  1, marginTop: 20, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
-        editable
-        multiline={true}
-        numberOfLines={1}
-        blurOnSubmit={true}
-        onChangeText={value => (ingredientArray[index].name = value)}
-        defaultValue={element.name}
-      />
-      </View>
+  function loadIngredientView(){
+    console.log("Original Ingredient Count: ", loadedRecipe.ingredients.length)
+    ingredientJSXList.length = 0
+    ingredientArray.forEach((element, index) => {
+      console.log(element)
+      ingredientJSXList.push(
+        <View  key={index} style = {{flexDirection: 'row', flex: 4, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 5, alignItems: 'center'}}>
+          {/* Amount Input */}
+          <TextInput
+            style={{ flexGrow: 1, borderWidth:  1, marginTop: 20, marginBottom: 5, marginLeft: 10, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
+            editable
+            keyboardType='numeric'
+            multiline={true}
+            numberOfLines={1}
+            blurOnSubmit={true}
+            onChangeText={value => (ingredientArray[index].amount = parseFloat(value))}
+            defaultValue={element.amount.toString()}
+          />
+          {/* Unit Select */}
+          <SelectList 
+          style = {{ flexGrow: 1}}
+          setSelected={(key) => (ingredientArray[index].unit = key)} 
+          data={Unit} 
+          save='key'
+          defaultOption={Unit[element.unit]}
+          />
+          {/* Name Input */}
+          <TextInput
+            style={{ flexGrow: 4, borderWidth:  1, marginTop: 20, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
+            editable
+            multiline={true}
+            numberOfLines={1}
+            blurOnSubmit={true}
+            onChangeText={value => (ingredientArray[index].name = value)}
+            defaultValue={element.name}
+          />
+          {/* Delete Ingredient Button */}
+          <View style={styles.deleteIngredient} >
+            <TouchableOpacity onPress={() => RemoveIngredent(index)} >
+              <Text>Delete</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
+    });
+    ingredientJSXList.push(
+      <TouchableOpacity  key={ingredientArray.length} style = {{flexDirection: 'row', flex: 4, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 5}}
+      onPress={() => AddIngredent()}>
+        <Text>Add Ingredient</Text>
+      </TouchableOpacity>
     );
-  });
+  }
 
   function formatIngredients(ingredients) {
     let formattedIngredients = ''
@@ -410,7 +481,7 @@ export const EditRecipe = ({ route, navigation}) => {
         Ingredients
       </Text>
       {/* Show the ingredients*/}
-      {ingredientList}
+      {ingredientJSXList}
       {/* Instructions section title */}
       <Text 
         style={{fontSize: 16, marginTop: 15, marginBottom: 0, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left', fontWeight: 'bold'}}>
@@ -434,7 +505,7 @@ export const EditRecipe = ({ route, navigation}) => {
       {/* Cancel/Back Button */}
       <Button
         title = {'Cancel'}
-        onPress={() => navigation.replace('View-Recipe', {recipeId: loadedRecipe.id, preLoaded: true})}
+        onPress={() => {console.log("Cancel: ", loadedRecipe.ingredients.length); navigation.replace('View-Recipe', {recipeId: loadedRecipe.id, preLoaded: true})}}
       />
       </InputScrollView>
     </>
@@ -443,12 +514,74 @@ export const EditRecipe = ({ route, navigation}) => {
 }
 
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: 'pink',
-      alignItems: 'center'
-    },
-    wrapper: {
-      flex: 1
-    }
+  wrapper: {
+    flex: 1,
+    backgroundColor: '#983429'
+  },
+  recipeName: {
+    fontFamily: 'Orienta',
+    fontSize: 32,
+    color: '#EDBD65',
+    textAlign: 'center'
+  },
+  descriptionStyle: {
+    fontFamily: 'Orienta',
+    fontSize: 15,
+    color: '#EDBD65',
+    textAlign: 'center'
+  },
+  sectionText: {
+    fontFamily: 'Orienta',
+    fontSize: 15,
+    color: '#EDBD65',
+    textAlign: 'left',
+    paddingLeft: 15,
+    paddingTop: 5,
+    paddingRight: 15 
+  },
+  sectionHeaders: {
+    fontFamily: 'Orienta',
+    fontSize: 20,
+    color: '#EDBD65',
+    textAlign: 'left',
+    paddingLeft: 30,
+    paddingTop: 20 
+  },
+  flatlistContainer: {
+    backgroundColor: '#293137',
+    marginVertical: 15,
+    marginHorizontal: 30,
+    paddingTop: 5,
+    paddingBottom: 11,
+    justifyContent: 'center',
+    borderRadius: 7
+  },
+  button: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 7,
+    borderRadius: 4,
+    elevation: 3,
+    backgroundColor: '#EDBD65',
+  },
+  buttonText: {
+    fontFamily: 'Orienta',
+    fontSize: 15,
+    color: '#E293137',
+    textAlign: 'center',
+    fontWeight: 'bold'
+  },
+  parent: {
+    width: 60,
+    height: 30,
+    backgroundColor: '#EDBD65',
+    margin: 20,
+    borderRadius: 3
+  },
+  buttomButtons: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center'
+  }
 })
+

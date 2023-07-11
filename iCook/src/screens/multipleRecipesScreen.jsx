@@ -1,9 +1,10 @@
-import { StyleSheet, SafeAreaView, Text, View, Button, TextInput, TouchableOpacity, FlatList, Alert } from 'react-native'
+import { StyleSheet, SafeAreaView, Text, View, Button, TextInput, TouchableOpacity, FlatList, Alert, Touchable } from 'react-native'
 
 import React, { useState, useEffect } from 'react'
 
 import { LoadEmptyRecipe } from '../viewRecipe';
 
+import {styles} from '../homepageStyle';
 /* Import SQLite functions */
 import * as SQLite from 'expo-sqlite';
 
@@ -115,12 +116,18 @@ const DEBUG_DELETE_TABLE = () => {
 
   /* Function rendering a single database item into jsx */
   const renderRecipes = ({ item }) => (
-    <TouchableOpacity  style={styles.listItem}
+    <TouchableOpacity  style={styles.recipeWrapper}
     onPress={() => navigateToRecipe(item.id)} >
-      <Text style={styles.listItemText}>{item.name}</Text>
-      <View style={styles.buttons}>
-        <Button title="Add to Shopping" onPress={() => console.log("not implemented!")} />
-        <Button title="Delete" onPress={() => deleteRecipe(item.id)} />
+      <Text style={styles.recipe}>{item.name}</Text>
+      <View style={[styles.buttons, {flexDirection:'row'}, {margin: 10}, {justifyContent:'center'}]}>
+        {/* <Button title="Add to Shopping" onPress={() => console.log("not implemented!")} /> */}
+        <TouchableOpacity onPress={() => console.log("not implemented!")}>
+          <Text style={[styles.recipeButton, {alignSelf:'flex-end'}, {justifyContent:'center'},{padding:10}  ]} > Add to Shopping</Text>
+        </TouchableOpacity>
+        {/* <Button title="Delete" onPress={() => deleteRecipe(item.id)} /> */}
+        <TouchableOpacity onPress={() => deleteRecipe(item.id)}>
+          <Text style={[styles.recipeButton, {alignSelf:'flex-end'}, {justifyContent:'center'},{padding:10}  ]}> Delete </Text>
+        </TouchableOpacity>
       </View>
     </TouchableOpacity >
   );
@@ -148,9 +155,14 @@ const deleteRecipe = (id) => {
 
   /* Otherwise, render the whole thing */
   return (
-      <SafeAreaView style={styles.wrapper}>
-      <View style={styles.container}>
-          <Button title="Delete EVERYTHING (debug)" onPress={() => DEBUG_DELETE_TABLE()} />
+      <SafeAreaView style={styles.home}>
+      {/* <View style={styles.recipeWrapper}> */}
+          {/* <Button title="Delete EVERYTHING (debug)" onPress={() => DEBUG_DELETE_TABLE()} /> */}
+          <TouchableOpacity onPress={() => DEBUG_DELETE_TABLE()}>
+            {/* style for now */}
+            <Text style={[{color:'red'}, {fontSize:20}]}> Delete Everything (DEBUG)</Text>
+          </TouchableOpacity>
+
           <Text style={styles.title}>All Recipes</Text>
           
           {/* Render our recipes in a list */}
@@ -160,73 +172,72 @@ const deleteRecipe = (id) => {
           renderItem={renderRecipes}
           />
 
-          <Button title={"New Recipe"} onPress= {() => navigateToRecipe(null) } />
-      </View>
+          {/* <Button title={"New Recipe"} onPress= {() => navigateToRecipe(null) } /> */}
+          <TouchableOpacity onPress= {() => navigateToRecipe(null) }>
+            <Text style={[styles.button, {textAlign:'center'}, {paddingBottom: 50}]}> New Recipe</Text>
+          </TouchableOpacity>
+      {/* </View> */}
       </SafeAreaView>
   )
 
 }
 
-
-
-
-
 /* Stylesheet */
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white',
-    alignItems: 'center',
-    padding: 16,
-  },
-  wrapper: {
-    flex: 1
-  },
-  loading:{
-    flex: 1,
-    backgroundColor: 'lightgray',
-    justifyContent: 'center',
-    alignItems: 'center',
-    color: 'white'
-  },
-  title: {
-    marginTop: 20,
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-  input: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    width: '100%',
-    marginBottom: 16,
-    paddingLeft: 8,
-  },
-  listItem: {
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-    marginRight: 20,
-    marginLeft: 20,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: 'gray'
-  },
-  listItemText: {
-    fontSize: 18,
-    width: '60%',  // Limit the width of the name display
-    paddingRight: 10, // Add some padding to the right
-  },
-  buttons: {
-    flexDirection: 'row',
-    width: '30%', // Allow room for buttons
-  },
-  navigationOptions: {
-    // This removes the previous page from the stack button from the app
-    headerLeft: null
-  },
-});
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: 'white',
+//     alignItems: 'center',
+//     padding: 16,
+//   },
+//   wrapper: {
+//     flex: 1
+//   },
+//   loading:{
+//     flex: 1,
+//     backgroundColor: 'lightgray',
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//     color: 'white'
+//   },
+//   title: {
+//     marginTop: 20,
+//     fontSize: 24,
+//     fontWeight: 'bold',
+//   },
+//   input: {
+//     height: 40,
+//     borderColor: 'gray',
+//     borderWidth: 1,
+//     width: '100%',
+//     marginBottom: 16,
+//     paddingLeft: 8,
+//   },
+//   listItem: {
+//     width: '100%',
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     alignItems: 'center',
+//     marginBottom: 16,
+//     marginRight: 20,
+//     marginLeft: 20,
+//     padding: 10,
+//     borderWidth: 1,
+//     borderColor: 'gray'
+//   },
+//   listItemText: {
+//     fontSize: 18,
+//     width: '60%',  // Limit the width of the name display
+//     paddingRight: 10, // Add some padding to the right
+//   },
+//   buttons: {
+//     flexDirection: 'row',
+//     width: '30%', // Allow room for buttons
+//   },
+//   navigationOptions: {
+//     // This removes the previous page from the stack button from the app
+//     headerLeft: null
+//   },
+//});
 
 export default MultipleRecipesScreen;
