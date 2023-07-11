@@ -186,7 +186,7 @@ const MultipleRecipesScreen = ({navigation}) => {
           />
 
           {/* <Button title={"New Recipe"} onPress= {() => navigateToRecipe(null) } /> */}
-          <TouchableOpacity onPress= {() => navigateToRecipe(null) }>
+          <TouchableOpacity onPress= {() => navigateToRecipe(null) } style={[{backgroundColor: '#EDBD65'}, {width: 120}, {height: 30}, {alignItems: 'center'}, {alignSelf: 'center'}, {borderRadius: 7}, {paddingTop: 6}, {marginBottom: 20}, {marginTop: 20}]}>
             <Text style={[styles.button, {textAlign:'center'}, {paddingBottom: 50}]}> New Recipe</Text>
           </TouchableOpacity>
       {/* </View> */}
