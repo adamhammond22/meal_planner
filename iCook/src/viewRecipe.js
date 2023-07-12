@@ -1,21 +1,20 @@
+/* ViewRecipe.js contains the ViewRecipe component used to view a singular recipe */
+
 import { useState, useEffect } from 'react'
-
-import { StyleSheet, SafeAreaView, Button, Text, TextInput, View, ScrollView, TouchableOpacity, FlatList, Alert, Pressable } from 'react-native'
-
+// import expo fonts function
+import { useFonts } from 'expo-font';
+// Import react-native components
+import { StyleSheet, SafeAreaView, Button, Text, TextInput, View, ScrollView, TouchableOpacity, Pressable } from 'react-native'
 // This import allows for the scroll bar to follow user input as they type
 import InputScrollView from 'react-native-input-scroll-view'
-
 // Import SQLite functions
 import * as SQLite from 'expo-sqlite';
-
 // This allows for the dropdown list for the Units in the ingridents
 import { SelectList } from 'react-native-dropdown-select-list'
+import { editStyles } from './editRecipeStyle';
 
 // Init SQLite database obj
 const db = SQLite.openDatabase('recipe.db');
-
-import * as Font from 'expo-font';
-
 
 // An "enum" for units
 const Unit = [
@@ -44,18 +43,13 @@ let loadedRecipe = {
 }
 
 function formatIngredients(recipe, databaseIngredientString) {
-  console.log("~formatIngredients(): Passed recipe.ingredients: ", recipe.ingredients)
   var databaseIngredientsArray = databaseIngredientString.split('*')
-  console.log("~formatIngredients(): List of Ingredients: ", databaseIngredientsArray)
   databaseIngredientsArray.forEach((element) => {
     if (element == '') {
-      console.log(recipe.ingredients)
       return
     }
     var ingredientInfo = element.split('~')
-    console.log("~formatIngredients(): Ingredient Info: ", ingredientInfo)
     recipe.ingredients.push({amount: ingredientInfo[0], unit: ingredientInfo[1], name: ingredientInfo[2]})
-    console.log("~formatIngredients(): Added Recipe Ingredients: ", recipe.ingredients)
   })
 }
 
@@ -74,9 +68,7 @@ function setLoadedRecipe(recipe){
     // TODO: Write SQL to ingredent Array Parser
     //loadedRecipe.ingredients = recipe.ingredients
     loadedRecipe.ingredients = []
-    console.log("~setLoadedRecipe(): Unformatted ingredients from database:", recipe.ingredients)
     formatIngredients(loadedRecipe, recipe.ingredients)
-    console.log("~setLoadedRecipe(): Formatted ingredients:", recipe.ingredients)
     // loadedRecipe.ingredients = recipe.ingredients
   } else {
     loadedRecipe.ingredients = []
@@ -105,22 +97,15 @@ export const ViewRecipe = ({ route, navigation}) => {
 
   /* Extract the recipe id from the params object */
   loadedRecipe.id = route.params.recipeId
-  console.log("~const ViewRecipe(): view recipe ingredients:", loadedRecipe.ingredients)
-  console.log("~const ViewRecipe(): view recipe ingredients:", loadedRecipe.ingredients)
-  console.log("~const ViewRecipe(): view recipe has currentRecipeId of:", loadedRecipe.id)
 
-  /* isLoading is true if we're currently loading our recipe */
+  /* isLoading state is true if we're currently loading our recipe */
   const [isLoading, setIsLoading] = useState(!route.params.preLoaded);
 
-  useEffect(() => {
-    const loadFont = async () => {
-      await Font.loadAsync({
-        'Orienta': require('./fonts/Orienta-Regular.ttf')
-      });
-    };
   
-    loadFont();
-  }, []);
+  /* Load our fonts */
+  const [fontsLoaded] = useFonts({
+    'Orienta': require('../assets/fonts/Orienta-Regular.ttf'),
+  });
   
  
   /* useEffect calls this every time this application is loaded, we make sure a table exists and call loadRecipes() */
@@ -133,19 +118,16 @@ export const ViewRecipe = ({ route, navigation}) => {
       );
     });
   }, [loadedRecipe.id]);
-  console.log("~~before loadRecipe()")
   /* SQLLite Function that loads the given recipeId
   Updates the Recipes state and setsIsLoading state to false when completed */
   const loadRecipe = (givenId) => {
     if (isLoading) {
-      console.log("~~loadRecipe() isLoading")
       db.transaction(tx => {
         tx.executeSql('SELECT * FROM Recipes WHERE id = ?', [givenId],
           (_, results) => {
             // Ensure we get exactly 1 result
             if (results.rows.length == 1) {
               // This assigns it to the global variable
-              console.log("~viewRecipe(): entering setLoadedRecipe:", results.rows.item(0))
               setLoadedRecipe(results.rows.item(0));
             } else {
               // If we do not, throw a message
@@ -157,13 +139,9 @@ export const ViewRecipe = ({ route, navigation}) => {
           (_, error) => console.log("viewRecipe.js: loadRecipe() error: ", error) // Error callback
       });
     }
-    else {
-      console.log("~~loadRecipe() !isLoading")
-    }
   };
-  console.log("~~after loadRecipe()")
   /* If Loading, simply show that we're loading */
-  if (isLoading) {
+  if (isLoading || !fontsLoaded) {
     return (
       <SafeAreaView>
         <View style={styles.loading}>
@@ -183,7 +161,7 @@ export const ViewRecipe = ({ route, navigation}) => {
         // If should be singular
         if(element.amount > 0 && element.amount <= 1){
           ingredientList.push(
-            <Text key={index} style={{marginTop: 5, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left'}}>
+            <Text key={index} style={{marginTop: 5, marginLeft: 15, marginRight: 15, padding: 0, textAlign: 'left', color: '#EDBD65', fontSize: 15, fontFamily: 'Orienta'}}>
               {element.amount} {element.name}
             </Text>
           );
@@ -191,7 +169,7 @@ export const ViewRecipe = ({ route, navigation}) => {
         // If should be plural
         else{
           ingredientList.push(
-            <Text key={index} style={{marginTop: 5, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left'}}>
+            <Text key={index} style={{marginTop: 5, marginLeft: 15, marginRight: 15, padding: 0, textAlign: 'left', color: '#EDBD65', fontSize: 15, fontFamily: 'Orienta'}}>
               {element.amount} {element.name}s
             </Text>
           )
@@ -202,7 +180,7 @@ export const ViewRecipe = ({ route, navigation}) => {
         // If should be singular
         if(element.amount > 0 && element.amount <= 1){
           ingredientList.push(
-            <Text key={index} style={{marginTop: 5, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left'}}>
+            <Text key={index} style={{marginTop: 5, marginLeft: 15, marginRight: 15, padding: 0, textAlign: 'left', color: '#EDBD65', fontSize: 15, fontFamily: 'Orienta'}}>
               {element.amount} {Unit[element.unit].value} of {element.name}
             </Text>
           )
@@ -210,36 +188,18 @@ export const ViewRecipe = ({ route, navigation}) => {
         // If should be plural
         else{
           ingredientList.push(
-            <Text key={index} style={{marginTop: 5, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left'}}>
+            <Text key={index} style={{marginTop: 5, marginLeft: 15, marginRight: 15, padding: 0, textAlign: 'left', color: '#EDBD65', fontSize: 15, fontFamily: 'Orienta'}}>
               {element.amount} {Unit[element.unit].value}s of {element.name}
             </Text>
           )
         }
       }
     });
-
     return (
     // The scroll view container allows the user to scroll through the components
     <View style={styles.wrapper}>
+
     <ScrollView>
-    <View style={styles.buttomButtons}>
-      {/* Edit Button */}
-      <View style={styles.parent}>
-      <Pressable
-      onPress={() => navigation.replace('Edit-Recipe', {nullLoad: false})}
-      style={styles.button}>
-        <Text style={styles.buttonText}>Edit</Text>
-        </Pressable>
-        </View>
-      {/* Back Button */}
-      <View style={styles.parent}>
-      <Pressable
-      onPress={() => navigation.replace('Multi-Screen')}
-      style={styles.button}>
-        <Text style={styles.buttonText}>Back</Text>
-        </Pressable>
-        </View>
-        </View>
       {/* Name Text */}
       <Text style={styles.recipeName}>
         {loadedRecipe.name}
@@ -270,6 +230,25 @@ export const ViewRecipe = ({ route, navigation}) => {
       </Text>
       </View>
     </ScrollView>
+
+    <View style={styles.buttomButtons}>
+      {/* Edit Button */}
+      <View style={styles.parent}>
+      <TouchableOpacity
+      onPress={() => navigation.replace('Edit-Recipe', {nullLoad: false})}
+      style={styles.button}>
+        <Text style={styles.buttonText}>Edit</Text>
+        </TouchableOpacity>
+        </View>
+      {/* Back Button */}
+      <View style={styles.parent}>
+      <TouchableOpacity
+      onPress={() => navigation.replace('Multi-Screen')}
+      style={styles.button}>
+        <Text style={styles.buttonText}>Back</Text>
+        </TouchableOpacity>
+        </View>
+        </View>
     </View>
     )
   }
@@ -283,10 +262,8 @@ export const EditRecipe = ({ route, navigation}) => {
   // If loading from null (new recipe) load up new recipe setup
   if(route.params.nullLoad){
     LoadEmptyRecipe()
-    console.log("loaded empty recipe template")
   }
   
-  console.log("Edit recipe called: route params:", route.params, " currentRecipeId: ", loadedRecipe.id)
   
   // These variables keep track of the various chanded components. They will be tossed if cancel is hit, or applied to
   // loadedRecipe and saved to the database if save is hit
@@ -345,10 +322,8 @@ export const EditRecipe = ({ route, navigation}) => {
   
   // Iterates through the ingredients and puts them in ingredientsList to display
   function loadIngredientView(){
-    console.log("Original Ingredient Count: ", loadedRecipe.ingredients.length)
     ingredientJSXList.length = 0
     ingredientArray.forEach((element, index) => {
-      console.log(element)
       ingredientJSXList.push(
         <View  key={index} style = {{flexDirection: 'row', flex: 4, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 5, alignItems: 'center'}}>
           {/* Amount Input */}
@@ -399,20 +374,16 @@ export const EditRecipe = ({ route, navigation}) => {
 
   function formatIngredients(ingredients) {
     let formattedIngredients = ''
-    console.log("Formatting for database:", ingredients)
     ingredients.forEach((element, index) => {
       formattedIngredients += element.amount.toString() + '~' + element.unit + '~' + element.name + '*'
     });
-    console.log("Formatted Ingredients:", formattedIngredients)
     return formattedIngredients
   }
 
   /*SQLite Function that updates the Name in the database */
   function updateRecipe(recipe) {
-    console.log("update rec recipe is:", recipe)
     /* The ingredents are going to need to be parsed into text or something to go into the database, then 
     they're going to need to be unparsed in the load. */
-    // TODO: Write SQL to ingredent Array Parser
     db.transaction(
       tx => {
         tx.executeSql(`UPDATE Recipes SET name = ? WHERE id = ?;`, 
@@ -429,9 +400,7 @@ export const EditRecipe = ({ route, navigation}) => {
       null,
       null,
     );
-    console.log("trying to add ingredients:", recipe.ingredients)
     const ingredientsString = formatIngredients(recipe.ingredients)
-    console.log("ingredients string:", ingredientsString)
     db.transaction(
       tx => {
         tx.executeSql(`UPDATE Recipes SET ingredients = ? WHERE id = ?;`, 
@@ -454,37 +423,51 @@ export const EditRecipe = ({ route, navigation}) => {
   return (
     <>
     {/* This scroll view follows the location the user is typing. The keyboardOffset is set to prevent the keyboard on ios for hiding the curser */}
-      <InputScrollView
-      keyboardOffset = {120}>
-      <View>
-      {/* Title Text */}
-      <TextInput
-        style={{borderWidth:  1, marginTop: 20, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
-        editable
-        multiline={true}
-        numberOfLines={1}
-        blurOnSubmit={true}
-        onChangeText={value => setNameText(value)}
-        defaultValue={nameText}
-      />
-      <TextInput
-        style={{borderWidth:  1, marginTop: 0, marginBottom: 10, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'center'}}
+      <InputScrollView style={[editStyles.backgroundColor, {backgroundColor:'#983429'}]} keyboardOffset = {120}>
+      <SafeAreaView > 
+      {/* Enter name of recipe */}
+      <TextInput style={[editStyles.sectionText,  {borderWidth:  1},
+        {marginTop: 40},
+        {marginBottom: 5}, 
+        {marginLeft: 20}, 
+        {marginRight: 20}, 
+      {padding: 10}, 
+        {textAlign: 'center'}]}
+         editable
+         multiline={true}
+         numberOfLines={1}
+         blurOnSubmit={true}
+         onChangeText={value => setNameText(value)}
+         defaultValue={nameText} />
+        
+       {/* Enter description */}
+      <TextInput style={[editStyles.sectionText,  {borderWidth:  1}, 
+        {marginTop: 0}, 
+        {marginBottom: 10}, 
+        {marginLeft: 20}, 
+        {marginRight: 20}, 
+        {padding: 10}, 
+        {textAlign: 'center'}]}
+
+        placeholder="Description"
+        placeholderTextColor={'#EDBD65'}
         editable
         multiline
         scrollEnabled={false}
         onChangeText={value => setDescriptonText(value)}
-        defaultValue={descriptionText}
-      />
+        defaultValue={descriptionText} /> 
+
       {/* Ingredents section title */}
       <Text 
-        style={{fontSize: 16, marginTop: 5, marginBottom: 0, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left', fontWeight: 'bold'}}>
+        style={{color: '#EDBD65', fontSize: 16, marginTop: 5, marginBottom: 0, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left', fontWeight: 'bold'}}>
         Ingredients
       </Text>
       {/* Show the ingredients*/}
       {ingredientJSXList}
+
       {/* Instructions section title */}
       <Text 
-        style={{fontSize: 16, marginTop: 15, marginBottom: 0, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left', fontWeight: 'bold'}}>
+        style={{color: '#EDBD65',fontSize: 16, marginTop: 15, marginBottom: 0, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left', fontWeight: 'bold'}}>
         Instructions
       </Text>
       {/* Instruction Text */}
@@ -496,29 +479,34 @@ export const EditRecipe = ({ route, navigation}) => {
         onChangeText={value => setInstructionText(value)}
         defaultValue={instructionsText}
       />
-      </View>
       {/* Save Button */}
-      <Button
-        title = {'Save'}
-        onPress={() => SaveEdit()}
-      />
+      <TouchableOpacity onPress={() => SaveEdit()} style={[editStyles.button,  {backgroundColor: '#983429'}]}>
+        <Text style={editStyles.buttonText}> Save </Text>
+      </TouchableOpacity>
       {/* Cancel/Back Button */}
-      <Button
-        title = {'Cancel'}
-        onPress={() => {console.log("Cancel: ", loadedRecipe.ingredients.length); navigation.replace('View-Recipe', {recipeId: loadedRecipe.id, preLoaded: true})}}
-      />
+      <TouchableOpacity  onPress={() => {console.log("Cancel: ", loadedRecipe.ingredients.length); navigation.replace('View-Recipe', {recipeId: loadedRecipe.id, preLoaded: true})}}
+      style={[editStyles.button, {backgroundColor: '#983429'}]} >
+        <Text style={editStyles.buttonText}> Cancel </Text>
+      </TouchableOpacity>
+      
+
+      </SafeAreaView> 
+      
       </InputScrollView>
-    </>
+      </>
   )
   
 }
 
+/* ViewRecipe specific stylesheet */
+//TODO: roll some of this into the global stylesheet
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
     backgroundColor: '#983429'
   },
   recipeName: {
+    paddingTop: 20,
     fontFamily: 'Orienta',
     fontSize: 32,
     color: '#EDBD65',
@@ -567,7 +555,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontFamily: 'Orienta',
     fontSize: 15,
-    color: '#E293137',
+    color: '#293137',
     textAlign: 'center',
     fontWeight: 'bold'
   },
