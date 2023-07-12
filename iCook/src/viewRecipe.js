@@ -177,7 +177,7 @@ export const ViewRecipe = ({ route, navigation}) => {
         // If should be singular
         if(element.amount > 0 && element.amount <= 1){
           ingredientList.push(
-            <Text key={index} style={{marginTop: 5, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left'}}>
+            <Text key={index} style={{marginTop: 5, marginLeft: 15, marginRight: 15, padding: 0, textAlign: 'left', color: '#EDBD65', fontSize: 15, fontFamily: 'Orienta'}}>
               {element.amount} {element.name}
             </Text>
           );
@@ -185,7 +185,7 @@ export const ViewRecipe = ({ route, navigation}) => {
         // If should be plural
         else{
           ingredientList.push(
-            <Text key={index} style={{marginTop: 5, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left'}}>
+            <Text key={index} style={{marginTop: 5, marginLeft: 15, marginRight: 15, padding: 0, textAlign: 'left', color: '#EDBD65', fontSize: 15, fontFamily: 'Orienta'}}>
               {element.amount} {element.name}s
             </Text>
           )
@@ -196,7 +196,7 @@ export const ViewRecipe = ({ route, navigation}) => {
         // If should be singular
         if(element.amount > 0 && element.amount <= 1){
           ingredientList.push(
-            <Text key={index} style={{marginTop: 5, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left'}}>
+            <Text key={index} style={{marginTop: 5, marginLeft: 15, marginRight: 15, padding: 0, textAlign: 'left', color: '#EDBD65', fontSize: 15, fontFamily: 'Orienta'}}>
               {element.amount} {Unit[element.unit].value} of {element.name}
             </Text>
           )
@@ -204,7 +204,7 @@ export const ViewRecipe = ({ route, navigation}) => {
         // If should be plural
         else{
           ingredientList.push(
-            <Text key={index} style={{marginTop: 5, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left'}}>
+            <Text key={index} style={{marginTop: 5, marginLeft: 15, marginRight: 15, padding: 0, textAlign: 'left', color: '#EDBD65', fontSize: 15, fontFamily: 'Orienta'}}>
               {element.amount} {Unit[element.unit].value}s of {element.name}
             </Text>
           )
@@ -215,24 +215,6 @@ export const ViewRecipe = ({ route, navigation}) => {
     // The scroll view container allows the user to scroll through the components
     <View style={styles.wrapper}>
     <ScrollView>
-    <View style={styles.buttomButtons}>
-      {/* Edit Button */}
-      <View style={styles.parent}>
-      <Pressable
-      onPress={() => navigation.replace('Edit-Recipe', {nullLoad: false})}
-      style={styles.button}>
-        <Text style={styles.buttonText}>Edit</Text>
-        </Pressable>
-        </View>
-      {/* Back Button */}
-      <View style={styles.parent}>
-      <Pressable
-      onPress={() => navigation.replace('Multi-Screen')}
-      style={styles.button}>
-        <Text style={styles.buttonText}>Back</Text>
-        </Pressable>
-        </View>
-        </View>
       {/* Name Text */}
       <Text style={styles.recipeName}>
         {loadedRecipe.name}
@@ -263,6 +245,24 @@ export const ViewRecipe = ({ route, navigation}) => {
       </Text>
       </View>
     </ScrollView>
+    <View style={styles.buttomButtons}>
+      {/* Edit Button */}
+      <View style={styles.parent}>
+      <TouchableOpacity
+      onPress={() => navigation.replace('Edit-Recipe', {nullLoad: false})}
+      style={styles.button}>
+        <Text style={styles.buttonText}>Edit</Text>
+        </TouchableOpacity>
+        </View>
+      {/* Back Button */}
+      <View style={styles.parent}>
+      <TouchableOpacity
+      onPress={() => navigation.replace('Multi-Screen')}
+      style={styles.button}>
+        <Text style={styles.buttonText}>Back</Text>
+        </TouchableOpacity>
+        </View>
+        </View>
     </View>
     )
   }
@@ -513,6 +513,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#983429'
   },
   recipeName: {
+    paddingTop: 20,
     fontFamily: 'Orienta',
     fontSize: 32,
     color: '#EDBD65',
@@ -561,7 +562,7 @@ const styles = StyleSheet.create({
   buttonText: {
     fontFamily: 'Orienta',
     fontSize: 15,
-    color: '#E29137',
+    color: '#293137',
     textAlign: 'center',
     fontWeight: 'bold'
   },

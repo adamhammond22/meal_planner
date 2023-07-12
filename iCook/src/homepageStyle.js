@@ -52,8 +52,8 @@ const styles = StyleSheet.create({
     },
     button:{
       fontFamily: 'Orienta',
-      color: 'white',
-      fontSize: 20,
+      color: '#293137',
+      fontSize: 15,
       alignContent:"center",
       justifyContent:"center",
       // fontFamily: 'Orienta',
@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
     title: {
       fontFamily: 'Orienta',
       color: '#EDBD65',
-      fontSize: 30,
+      fontSize: 32,
       textAlign: 'center',
       // textDecorationLine:'underline',
       // textTransform: 'uppercase',
