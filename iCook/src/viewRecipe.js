@@ -11,6 +11,7 @@ import InputScrollView from 'react-native-input-scroll-view'
 import * as SQLite from 'expo-sqlite';
 // This allows for the dropdown list for the Units in the ingridents
 import { SelectList } from 'react-native-dropdown-select-list'
+import { editStyles } from './editRecipeStyle';
 
 // Init SQLite database obj
 const db = SQLite.openDatabase('recipe.db');
@@ -214,6 +215,7 @@ export const ViewRecipe = ({ route, navigation}) => {
     return (
     // The scroll view container allows the user to scroll through the components
     <View style={styles.wrapper}>
+
     <ScrollView>
       {/* Name Text */}
       <Text style={styles.recipeName}>
@@ -245,6 +247,7 @@ export const ViewRecipe = ({ route, navigation}) => {
       </Text>
       </View>
     </ScrollView>
+
     <View style={styles.buttomButtons}>
       {/* Edit Button */}
       <View style={styles.parent}>
@@ -446,37 +449,51 @@ export const EditRecipe = ({ route, navigation}) => {
   return (
     <>
     {/* This scroll view follows the location the user is typing. The keyboardOffset is set to prevent the keyboard on ios for hiding the curser */}
-      <InputScrollView
-      keyboardOffset = {120}>
-      <View>
-      {/* Title Text */}
-      <TextInput
-        style={{borderWidth:  1, marginTop: 20, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
-        editable
-        multiline={true}
-        numberOfLines={1}
-        blurOnSubmit={true}
-        onChangeText={value => setNameText(value)}
-        defaultValue={nameText}
-      />
-      <TextInput
-        style={{borderWidth:  1, marginTop: 0, marginBottom: 10, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'center'}}
+      <InputScrollView style={[editStyles.backgroundColor, {backgroundColor:'#983429'}]} keyboardOffset = {120}>
+      <SafeAreaView > 
+      {/* Enter name of recipe */}
+      <TextInput style={[editStyles.sectionText,  {borderWidth:  1},
+        {marginTop: 40},
+        {marginBottom: 5}, 
+        {marginLeft: 20}, 
+        {marginRight: 20}, 
+      {padding: 10}, 
+        {textAlign: 'center'}]}
+         editable
+         multiline={true}
+         numberOfLines={1}
+         blurOnSubmit={true}
+         onChangeText={value => setNameText(value)}
+         defaultValue={nameText} />
+        
+       {/* Enter description */}
+      <TextInput style={[editStyles.sectionText,  {borderWidth:  1}, 
+        {marginTop: 0}, 
+        {marginBottom: 10}, 
+        {marginLeft: 20}, 
+        {marginRight: 20}, 
+        {padding: 10}, 
+        {textAlign: 'center'}]}
+
+        placeholder="Description"
+        placeholderTextColor={'#EDBD65'}
         editable
         multiline
         scrollEnabled={false}
         onChangeText={value => setDescriptonText(value)}
-        defaultValue={descriptionText}
-      />
+        defaultValue={descriptionText} /> 
+
       {/* Ingredents section title */}
       <Text 
-        style={{fontSize: 16, marginTop: 5, marginBottom: 0, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left', fontWeight: 'bold'}}>
+        style={{color: '#EDBD65', fontSize: 16, marginTop: 5, marginBottom: 0, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left', fontWeight: 'bold'}}>
         Ingredients
       </Text>
       {/* Show the ingredients*/}
       {ingredientJSXList}
+
       {/* Instructions section title */}
       <Text 
-        style={{fontSize: 16, marginTop: 15, marginBottom: 0, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left', fontWeight: 'bold'}}>
+        style={{color: '#EDBD65',fontSize: 16, marginTop: 15, marginBottom: 0, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left', fontWeight: 'bold'}}>
         Instructions
       </Text>
       {/* Instruction Text */}
@@ -488,19 +505,21 @@ export const EditRecipe = ({ route, navigation}) => {
         onChangeText={value => setInstructionText(value)}
         defaultValue={instructionsText}
       />
-      </View>
       {/* Save Button */}
-      <Button
-        title = {'Save'}
-        onPress={() => SaveEdit()}
-      />
+      <TouchableOpacity onPress={() => SaveEdit()} style={[editStyles.button,  {backgroundColor: '#983429'}]}>
+        <Text style={editStyles.buttonText}> Save </Text>
+      </TouchableOpacity>
       {/* Cancel/Back Button */}
-      <Button
-        title = {'Cancel'}
-        onPress={() => {console.log("Cancel: ", loadedRecipe.ingredients.length); navigation.replace('View-Recipe', {recipeId: loadedRecipe.id, preLoaded: true})}}
-      />
+      <TouchableOpacity  onPress={() => {console.log("Cancel: ", loadedRecipe.ingredients.length); navigation.replace('View-Recipe', {recipeId: loadedRecipe.id, preLoaded: true})}}
+      style={[editStyles.button, {backgroundColor: '#983429'}]} >
+        <Text style={editStyles.buttonText}> Cancel </Text>
+      </TouchableOpacity>
+      
+
+      </SafeAreaView> 
+      
       </InputScrollView>
-    </>
+      </>
   )
   
 }
