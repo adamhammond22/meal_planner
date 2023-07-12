@@ -49,7 +49,7 @@ function formatIngredients(recipe, databaseIngredientString) {
       return
     }
     var ingredientInfo = element.split('~')
-    recipe.ingredients.push({amount: ingredientInfo[0], unit: ingredientInfo[1], name: ingredientInfo[2]})
+    recipe.ingredients.push({amount: parseFloat(ingredientInfo[0]), unit: parseInt(ingredientInfo[1]), name: ingredientInfo[2]})
   })
 }
 
@@ -64,6 +64,7 @@ function setLoadedRecipe(recipe){
     loadedRecipe.description = ''
   }
   /* Check if recipe object has ingredients */
+  console.log(recipe.ingredients)
   if (recipe.ingredients) {
     // TODO: Write SQL to ingredent Array Parser
     //loadedRecipe.ingredients = recipe.ingredients
@@ -88,7 +89,7 @@ it to loadedRecipe */
 export const LoadEmptyRecipe =  () => {
     loadedRecipe.name = "New Recipe"
     loadedRecipe.description = "Recipe Description"
-    loadedRecipe.ingredients = [{amount: 1, unit: 0, name: 'example 1'}, {amount: 2, unit: 5, name: 'example 2'}]
+    loadedRecipe.ingredients = []
     loadedRecipe.instructions = "Write Instructions Here"
 }
 
@@ -143,11 +144,9 @@ export const ViewRecipe = ({ route, navigation}) => {
   /* If Loading, simply show that we're loading */
   if (isLoading || !fontsLoaded) {
     return (
-      <SafeAreaView>
         <View style={styles.loading}>
           <Text>Loading Recipe...</Text>
         </View>
-      </SafeAreaView>
     );
   } else {
   /* Otherwise, display our Recipe */
@@ -235,7 +234,7 @@ export const ViewRecipe = ({ route, navigation}) => {
       {/* Edit Button */}
       <View style={styles.parent}>
       <TouchableOpacity
-      onPress={() => navigation.replace('Edit-Recipe', {nullLoad: false})}
+      onPress={() => navigation.replace('Edit-Recipe', {recipeId: loadedRecipe.id, nullLoad: false})}
       style={styles.button}>
         <Text style={styles.buttonText}>Edit</Text>
         </TouchableOpacity>
@@ -285,7 +284,6 @@ export const EditRecipe = ({ route, navigation}) => {
  
   // This function handles updates everytime the user changes the text in the textbox
   const SaveEdit = () => {
-    console.log("Save")
       // Updates loaded recipe
       loadedRecipe.name = nameText
       loadedRecipe.description = descriptionText
@@ -375,7 +373,7 @@ export const EditRecipe = ({ route, navigation}) => {
   function formatIngredients(ingredients) {
     let formattedIngredients = ''
     ingredients.forEach((element, index) => {
-      formattedIngredients += element.amount.toString() + '~' + element.unit + '~' + element.name + '*'
+      formattedIngredients += element.amount.toString() + '~' + element.unit.toString() + '~' + element.name + '*'
     });
     return formattedIngredients
   }

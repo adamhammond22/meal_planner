@@ -60,8 +60,6 @@ const MultipleRecipesScreen = ({navigation}) => {
       addRecipe('New Recipe')
         /* Upon success, navigate to edit screen*/
         .then((newRecipeId) => {
-          
-          
           navigation.replace('Edit-Recipe', { recipeId: newRecipeId , nullLoad: true});
         })
         /* Upon failure, remain on this screen*/
@@ -71,8 +69,6 @@ const MultipleRecipesScreen = ({navigation}) => {
     
     /* If the ID is non-null, navigate to view it */
     } else{
-      
-      LoadEmptyRecipe(id)
       navigation.replace('View-Recipe', { recipeId: id, preLoaded: false})
     }
   } 
@@ -114,7 +110,6 @@ const MultipleRecipesScreen = ({navigation}) => {
     
     return new Promise((resolve, reject) => {
       db.transaction(tx => {
-        //tx.executeSql('INSERT INTO Recipes (name, description, ingredients, instructions) values (?, ?, ?, ?)', [recipeName, '', [], ''], 
         tx.executeSql('INSERT INTO Recipes (name, description, ingredients, instructions) values (?, ?, ?, ?)', [recipeName, ' ', '' , ''], 
         (_, { insertId }) => resolve(insertId),
         (_, error) => reject(error)
