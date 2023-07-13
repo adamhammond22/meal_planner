@@ -41,7 +41,9 @@ let loadedRecipe = {
   // This is an array for the ingredents. Each ingredent has the properties {name, unit, amount}
   ingredients: [{name: 'null', unit: null, amount: null}, {name: 'null', unit: null, amount: null}],
   // This is the instruction text
-  instructions: 'Return to main menu. Do not pass Go. Do not collect $200.'
+  instructions: 'Return to main menu. Do not pass Go. Do not collect $200.',
+  // Recipie Image, null if no image
+  image: null
 }
 
 function formatIngredients(recipe, databaseIngredientString) {
@@ -82,6 +84,11 @@ function setLoadedRecipe(recipe){
   } else {
     loadedRecipe.instructions = ''
   }
+  if(recipe.image){
+    loadedRecipe.image = recipe.image
+  }else{
+    loadedRecipe.image = null
+  }
 
 }
 
@@ -93,6 +100,7 @@ export const LoadEmptyRecipe =  () => {
     loadedRecipe.description = "Recipe Description"
     loadedRecipe.ingredients = []
     loadedRecipe.instructions = "Write Instructions Here"
+    loadedRecipe.image = null
 }
 
 // View Recipe Screen takes navigation context and "route" which stores our recipe id and if the recipe is already pre loaded (recipeId, preLoaded)
@@ -283,6 +291,24 @@ export const EditRecipe = ({ route, navigation}) => {
   let ingredientJSXList = []
   
   const [ingredientCount, setIngredientCount] = useState(loadedRecipe.ingredients.length)
+
+  const [image, setImage] = useState(loadedRecipe.image);
+  
+  const pickImage = async () => {
+      // No permissions request is necessary for launching the image library
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+  
+      console.log(result);
+  
+      if (!result.canceled) {
+        setImage(result.assets[0].uri);
+      }
+  };
  
   // This function handles updates everytime the user changes the text in the textbox
   const SaveEdit = () => {
@@ -291,6 +317,7 @@ export const EditRecipe = ({ route, navigation}) => {
       loadedRecipe.description = descriptionText
       loadedRecipe.ingredients = ingredientArray
       loadedRecipe.instructions = instructionsText
+      loadedRecipe.image = image
       // Saves to database
       updateRecipe( loadedRecipe )
       // Goes back to view page
@@ -417,25 +444,16 @@ export const EditRecipe = ({ route, navigation}) => {
       null,
       null,
     );
+    db.transaction(
+      tx => {
+        tx.executeSql(`UPDATE Recipes SET image = ? WHERE id = ?;`, 
+        [recipe.image, recipe.id]);
+      },
+      null,
+      null,
+    );
     return
   };
-    const [image, setImage] = useState(null);
-  
-    const pickImage = async () => {
-      // No permissions request is necessary for launching the image library
-      let result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.All,
-        allowsEditing: true,
-        aspect: [4, 3],
-        quality: 1,
-      });
-  
-      console.log(result);
-  
-      if (!result.canceled) {
-        setImage(result.assets[0].uri);
-      }
-    };
 
   return (
     <>

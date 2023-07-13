@@ -42,7 +42,7 @@ const MultipleRecipesScreen = ({navigation}) => {
       
       tx.executeSql(
         // ingredients is currently set to store a TEXT type, as I expect us to parse them into a text, but we can change the data type if there's something better
-        'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, ingredients TEXT, instructions TEXT);',
+        'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, ingredients TEXT, instructions TEXT, image BLOB);',
         [],
         () => loadRecipes()
       );
@@ -110,7 +110,7 @@ const MultipleRecipesScreen = ({navigation}) => {
     
     return new Promise((resolve, reject) => {
       db.transaction(tx => {
-        tx.executeSql('INSERT INTO Recipes (name, description, ingredients, instructions) values (?, ?, ?, ?)', [recipeName, ' ', '' , ''], 
+        tx.executeSql('INSERT INTO Recipes (name, description, ingredients, instructions, image) values (?, ?, ?, ?, ?)', [recipeName, ' ', '' , '', null], 
         (_, { insertId }) => resolve(insertId),
         (_, error) => reject(error)
         );
