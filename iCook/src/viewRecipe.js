@@ -392,7 +392,7 @@ export const EditRecipe = ({ route, navigation}) => {
       );
     });
     ingredientJSXList.push(
-      <TouchableOpacity  key={ingredientArray.length} style = {{flexDirection: 'row', flex: 4, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 5}}
+      <TouchableOpacity  key={ingredientArray.length} style = {{flexDirection: 'row', flex: 4, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 5, borderRadius: 7}}
       onPress={() => AddIngredent()}>
         <Text>Add Ingredient</Text>
       </TouchableOpacity>
@@ -494,13 +494,15 @@ export const EditRecipe = ({ route, navigation}) => {
 
       {/* Image Picker */}
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Button title="Upload an image" onPress={pickImage} />
+        <TouchableOpacity onPress={() => pickImage()} style={styles.uploadImage}>
+          <Text style={styles.buttonText}>Upload an Image</Text>
+          </TouchableOpacity>
         {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
       </View>
 
       {/* Ingredents section title */}
       <Text 
-        style={{color: '#EDBD65', fontSize: 16, marginTop: 5, marginBottom: 0, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left', fontWeight: 'bold'}}>
+        style={styles.sectionHeaders}>
         Ingredients
       </Text>
       {/* Show the ingredients*/}
@@ -508,32 +510,37 @@ export const EditRecipe = ({ route, navigation}) => {
 
       {/* Instructions section title */}
       <Text 
-        style={{color: '#EDBD65',fontSize: 16, marginTop: 15, marginBottom: 0, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left', fontWeight: 'bold'}}>
+        style={styles.sectionHeaders}>
         Instructions
       </Text>
       {/* Instruction Text */}
       <TextInput
-        style={{borderWidth:  1, marginTop: 5, marginBottom: 30, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'left'}}
+        style={{borderWidth:  1, marginTop: 5, marginBottom: 30, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'left', borderRadius: 7}}
         editable
         multiline
         scrollEnabled={false}
         onChangeText={value => setInstructionText(value)}
         defaultValue={instructionsText}
       />
+      <View style={styles.buttomButtons}>
       {/* Save Button */}
+      <View style={styles.parent}>
       <TouchableOpacity onPress={() => SaveEdit()} style={[editStyles.button, {backgroundColor: '#983429'}]}>
         <Text style={editStyles.buttonText}> Save </Text>
       </TouchableOpacity>
+      </View>
       {/* Cancel/Back Button */}
+      <View style={styles.parent}>
       <TouchableOpacity  onPress={() => {console.log("Cancel: ", loadedRecipe.ingredients.length); navigation.replace('View-Recipe', {recipeId: loadedRecipe.id, preLoaded: true})}}
       style={[editStyles.button, {backgroundColor: '#983429'}]} >
         <Text style={editStyles.buttonText}> Cancel </Text>
       </TouchableOpacity>
+      </View>
+      </View>
       </SafeAreaView> 
       </InputScrollView>
       </>
   )
-  
 }
 
 /* ViewRecipe specific stylesheet */
@@ -589,6 +596,17 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     elevation: 3,
     backgroundColor: '#EDBD65',
+  },
+  uploadImage:{
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 4,
+    elevation: 3,
+    backgroundColor: '#EDBD65',
+    width: 140,
+    height: 30,
+    marginTop: 10,
+    marginBottom: 10
   },
   buttonText: {
     fontFamily: 'Orienta',

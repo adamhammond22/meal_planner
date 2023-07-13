@@ -72,8 +72,7 @@ const editStyles = StyleSheet.create({
         justifyContent: 'center',
         paddingTop: 7,
         borderRadius: 4,
-        elevation: 3,
-        backgroundColor: '#983429',
+        elevation: 3
       },
       buttonText: {
         fontFamily: 'Orienta',
@@ -93,7 +92,7 @@ const editStyles = StyleSheet.create({
         alignItems: 'center',
         flexDirection: 'row',
         justifyContent: 'center'
-      }
+      },
   });
   export {editStyles}
 
