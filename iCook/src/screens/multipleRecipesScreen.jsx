@@ -18,6 +18,9 @@ const db = SQLite.openDatabase('recipe.db');
 
 /* All Recipes Screen takes a navigation prop, and returns jsx*/
 const MultipleRecipesScreen = ({navigation}) => {
+  React.useLayoutEffect(() => {
+    navigation.setOptions({headerShown: false});
+  }, [navigation]);
     
   /* isLoading is true if we're currently loading our list of recipes */
   const [isLoading, setIsLoading] = useState(true);
@@ -171,6 +174,7 @@ const MultipleRecipesScreen = ({navigation}) => {
 
   /* Otherwise, render the whole multi recipe screen */
   return (
+    
       <SafeAreaView style={styles.home}>
       {/* <View style={styles.recipeWrapper}> */}
           {/* <Button title="Delete EVERYTHING (debug)" onPress={() => DEBUG_DELETE_TABLE()} /> */}

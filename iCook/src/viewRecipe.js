@@ -105,7 +105,11 @@ export const LoadEmptyRecipe =  () => {
 
 // View Recipe Screen takes navigation context and "route" which stores our recipe id and if the recipe is already pre loaded (recipeId, preLoaded)
 export const ViewRecipe = ({ route, navigation}) => {
+  // remove "view-recipe" header
 
+  React.useLayoutEffect(() => {
+    navigation.setOptions({headerShown: false});
+  }, [navigation]);
   /* Extract the recipe id from the params object */
   loadedRecipe.id = route.params.recipeId
 
@@ -207,7 +211,7 @@ export const ViewRecipe = ({ route, navigation}) => {
     return (
     // The scroll view container allows the user to scroll through the components
     <View style={styles.wrapper}>
-
+      
     <ScrollView>
       {/* Name Text */}
       <Text style={styles.recipeName}>
@@ -265,6 +269,11 @@ export const ViewRecipe = ({ route, navigation}) => {
 
 // Edit Recipe Screen, route contains (recipeId, nullLoad)
 export const EditRecipe = ({ route, navigation}) => {
+   // remove "edit-recipe" header
+  React.useLayoutEffect(() => {
+    navigation.setOptions({headerShown: false});
+  }, [navigation]);
+
   /* Extract the recipe id from the params object */
   loadedRecipe.id = route.params.recipeId
 
