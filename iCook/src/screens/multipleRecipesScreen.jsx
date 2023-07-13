@@ -39,10 +39,10 @@ const MultipleRecipesScreen = ({navigation}) => {
   // Separated out of useEffect so that it could be called by DEBUG_DELETE_TABLE
   const CreateTable = () =>{
     db.transaction(tx => {
-      
+      console.log("CREATE NEW TABLE")
       tx.executeSql(
         // ingredients is currently set to store a TEXT type, as I expect us to parse them into a text, but we can change the data type if there's something better
-        'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, ingredients TEXT, instructions TEXT, image BLOB);',
+        'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, ingredients TEXT, instructions TEXT);',
         [],
         () => loadRecipes()
       );
@@ -51,33 +51,37 @@ const MultipleRecipesScreen = ({navigation}) => {
 
   /* Navigation function that takes a recipe id or null, and properly routing to the desired screen */
   const navigateToRecipe = (id) => {
-    
+    console.log("attempting to navigate to id: ", id)
 
     /* If the ID is null, we need to create a new recipe */
     if (id == null) {
-      
+      console.log("creating new recipe")
       /* Attempt Creating a new Recipe */
       addRecipe('New Recipe')
         /* Upon success, navigate to edit screen*/
         .then((newRecipeId) => {
+          console.log('New recipe created with ID:', newRecipeId);
+          console.log("navigating to view recipe");
           navigation.replace('Edit-Recipe', { recipeId: newRecipeId , nullLoad: true});
         })
         /* Upon failure, remain on this screen*/
         .catch((error) => {
-          
+          console.log('Error adding recipe:', error);
         });
     
     /* If the ID is non-null, navigate to view it */
     } else{
+      console.log("navigating to view recipe")
+      LoadEmptyRecipe(id)
       navigation.replace('View-Recipe', { recipeId: id, preLoaded: false})
     }
   } 
 
   // This function completely wipes the table to fully reset. Good for "no coloum named XXX" error if you're change the inital table
   const DEBUG_DELETE_TABLE = () => {
-    
+    console.log("TABLE DROPPED")
     db.transaction(tx => {
-      
+      console.log("DROP OLD TABLE")
       tx.executeSql(
         'DROP TABLE Recipes;',
         null,
@@ -93,24 +97,25 @@ const MultipleRecipesScreen = ({navigation}) => {
       tx.executeSql('SELECT * FROM Recipes', [],
         (_, results) => {
           var recipesList = [];
-          for (let i = 0; i < results.rows.length; ++i) {
+          for (let i = 0; i < results.rows.length; ++i)
             recipesList.push(results.rows.item(i));
-          }
+        
           /* When the callback is completed, update our 2 states */
           setRecipes(recipesList);
           setIsLoading(false);
         });
-        (_, error) => console.log("multipleRecipeScreen.js failed to load recipes, error: ", error)
+        (_, error) => console.log("App.js: loadRecipes() error: ", error) // Error callback
     });
   };
 
   /* SQLLite Function that adds the given recipe name with a promise to return the new id */
   const addRecipe = (recipeName) => {
     
-    
+    console.log(" in add recipe: name: ", recipeName)
     return new Promise((resolve, reject) => {
       db.transaction(tx => {
-        tx.executeSql('INSERT INTO Recipes (name, description, ingredients, instructions, image) values (?, ?, ?, ?, ?)', [recipeName, ' ', '' , '', null], 
+        //tx.executeSql('INSERT INTO Recipes (name, description, ingredients, instructions) values (?, ?, ?, ?)', [recipeName, '', [], ''], 
+        tx.executeSql('INSERT INTO Recipes (name, description, ingredients, instructions) values (?, ?, ?, ?)', [recipeName, ' ', '' , ''], 
         (_, { insertId }) => resolve(insertId),
         (_, error) => reject(error)
         );
@@ -136,11 +141,14 @@ const MultipleRecipesScreen = ({navigation}) => {
   const renderRecipes = ({ item }) => (
     <TouchableOpacity  style={styles.recipeWrapper}
     onPress={() => navigateToRecipe(item.id)} >
+      
       <Text style={styles.recipe}>{item.name}</Text>
+      <Text numberOfLines={2} ellipsizeMode="tail" style={styles.descripText}>{item.description}</Text>
+
       <View style={[styles.buttons, {flexDirection:'row'}, {margin: 10}, {justifyContent:'center'}]}>
-        {/* <Button title="Add to Shopping" onPress={() => 
-        <TouchableOpacity onPress={() => 
-          <Text style={[styles.recipeButton, {alignSelf:'flex-end'}, {justifyContent:'center'},{padding:10}  ]} > Add to Shopping</Text>
+        {/* <Button title="Add to Shopping" onPress={() => console.log("not implemented!")} /> */}
+        <TouchableOpacity onPress={() => console.log("not implemented!")}>
+          <Text style={[styles.recipeButton, {alignSelf:'flex-end'}, {justifyContent:'center'},{padding:10}  ]} >Add to Shopping</Text>
         </TouchableOpacity>
         {/* <Button title="Delete" onPress={() => deleteRecipe(item.id)} /> */}
         <TouchableOpacity onPress={() => deleteRecipe(item.id)}>
@@ -168,7 +176,7 @@ const MultipleRecipesScreen = ({navigation}) => {
           {/* <Button title="Delete EVERYTHING (debug)" onPress={() => DEBUG_DELETE_TABLE()} /> */}
           <TouchableOpacity onPress={() => DEBUG_DELETE_TABLE()}>
             {/* style for now */}
-            <Text style={[{color:'red'}, {fontSize:20}]}> Delete Everything (DEBUG)</Text>
+            <Text style={[{color:'red'}, {textAlign:'center'}, {fontSize:20}]}> Delete Everything (DEBUG)</Text>
           </TouchableOpacity>
 
           <Text style={styles.title}>All Recipes</Text>
@@ -181,8 +189,8 @@ const MultipleRecipesScreen = ({navigation}) => {
           />
 
           {/* <Button title={"New Recipe"} onPress= {() => navigateToRecipe(null) } /> */}
-          <TouchableOpacity onPress= {() => navigateToRecipe(null) } style={[{backgroundColor: '#EDBD65'}, {width: 120}, {height: 30}, {alignItems: 'center'}, {alignSelf: 'center'}, {borderRadius: 7}, {paddingTop: 6}, {marginBottom: 20}, {marginTop: 20}]}>
-            <Text style={[styles.button, {textAlign:'center'}, {paddingBottom: 50}]}> New Recipe</Text>
+          <TouchableOpacity onPress= {() => navigateToRecipe(null) }>
+            <Text style={[styles.button, {textAlign:'center'}, {paddingBottom: 50}]}> Adds New Recipe </Text>
           </TouchableOpacity>
       {/* </View> */}
       </SafeAreaView>

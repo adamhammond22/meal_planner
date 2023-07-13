@@ -39,6 +39,15 @@ const styles = StyleSheet.create({
       fontSize: 24,
       fontWeight: '400',
     },
+    descripText:{
+      fontFamily: 'Orienta',
+      alignSelf: 'flex-start',
+      color: '#EDBD65',
+      fontWeight: '400',
+      paddingTop: 10,
+      paddingLeft: 15,
+      fontSize: 12,
+    },
     recipeButton:{
       fontFamily: 'Orienta',
       color: '#EDBD65',

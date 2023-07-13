@@ -15,6 +15,7 @@ import CalendarScreen from './src/screens/CalendarScreen.jsx';
 import LoginScreen from './src/screens/LoginScreen.jsx'; 
 import ShopScreen from './src/screens/ShopScreen.jsx'; 
 import ShareScreen from './src/screens/ShareScreen.jsx';
+import { HeaderTitle } from '@react-navigation/elements';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -28,23 +29,25 @@ function Home() {
         component={MultipleRecipesScreen} 
         options={{ headerShown: false }} // this line hides the header
       />
-      <Stack.Screen name="View-Recipe" component={ViewRecipe} />
-      <Stack.Screen name="Edit-Recipe" component={EditRecipe} />
-      <Stack.Screen name="Delete-Recipe" component={EditRecipe} />
+      <Stack.Screen name="View-Recipe" component={ViewRecipe} options={{ headerShown: false }}/>
+      <Stack.Screen name="Edit-Recipe" component={EditRecipe} options={{ headerShown: false }}/>
+      <Stack.Screen name="Delete-Recipe" component={EditRecipe} options={{ headerShown: false }}/>
     </Stack.Navigator>
   );
 }
 const App = () => {
   return (
+
     <SafeAreaView style={{flex: 1}}>
       <NavigationContainer>
         <Tab.Navigator 
           screenOptions={({ route }) => ({
+
             tabBarIcon: ({ focused, color, size }) => {
               let iconName;
 
               if (route.name === 'Home') {
-                iconName = focused ? 'home' : 'home-outline';
+                iconName = focused ? 'book' : 'book-outline';
               } else if (route.name === 'Calendar') {
                 iconName = focused ? 'calendar' : 'calendar-outline';
               } else if (route.name === 'Shop') {
@@ -56,11 +59,21 @@ const App = () => {
               }
               return <Ionicons name={iconName} size={size} color={color} />;
             },
-          })}
-          tabBarOptions={{
-            activeTintColor: 'tomato',
-            inactiveTintColor: 'gray',
-          }}
+            
+            tabBarActiveTintColor: 'black',  
+            tabBarInactiveTintColor: 'gray',
+            headerStyle:{
+              backgroundColor: '#EDBD65',
+            },
+            headerTitleStyle : {
+              fontWeight: 'bold',
+              fontSize: 24,
+            
+            },
+            tabBarStyle: {display: "absolute",
+                          backgroundColor: '#EDBD65'},
+                    
+            })}
         >
           <Tab.Screen name="Home" component={Home} />
           <Tab.Screen name="Calendar" component={CalendarScreen} />
