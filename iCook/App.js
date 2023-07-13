@@ -30,9 +30,9 @@ function Home() {
         component={MultipleRecipesScreen} 
         options={{ headerShown: false }} // this line hides the header
       />
-      <Stack.Screen name="View-Recipe" component={ViewRecipe} options={{ headerShown: false }}/>
-      <Stack.Screen name="Edit-Recipe" component={EditRecipe} options={{ headerShown: false }}/>
-      <Stack.Screen name="Delete-Recipe" component={EditRecipe} options={{ headerShown: false }}/>
+      <Stack.Screen name="View-Recipe" component={ViewRecipe}/>
+      <Stack.Screen name="Edit-Recipe" component={EditRecipe} />
+      <Stack.Screen name="Delete-Recipe" component={EditRecipe}/>
     </Stack.Navigator>
   );
 }
