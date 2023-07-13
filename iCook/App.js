@@ -24,6 +24,7 @@ function Home() {
   return (
     <Stack.Navigator initialRouteName='Multi-Screen'>
       <Stack.Screen 
+      screenOptions={{headerShown: false}}
         name="Multi-Screen" 
         component={MultipleRecipesScreen} 
         options={{ headerShown: false }} // this line hides the header
