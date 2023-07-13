@@ -1,10 +1,10 @@
 /* ViewRecipe.js contains the ViewRecipe component used to view a singular recipe */
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 // import expo fonts function
 import { useFonts } from 'expo-font';
 // Import react-native components
-import { StyleSheet, SafeAreaView, Button, Text, TextInput, View, ScrollView, TouchableOpacity, Pressable } from 'react-native'
+import { StyleSheet, SafeAreaView, Button, Text, TextInput, View, ScrollView, TouchableOpacity, Image, Platform } from 'react-native'
 // This import allows for the scroll bar to follow user input as they type
 import InputScrollView from 'react-native-input-scroll-view'
 // Import SQLite functions
@@ -12,6 +12,8 @@ import * as SQLite from 'expo-sqlite';
 // This allows for the dropdown list for the Units in the ingridents
 import { SelectList } from 'react-native-dropdown-select-list'
 import { editStyles } from './editRecipeStyle';
+//import image picker
+import * as ImagePicker from 'expo-image-picker';
 
 // Init SQLite database obj
 const db = SQLite.openDatabase('recipe.db');
@@ -417,6 +419,23 @@ export const EditRecipe = ({ route, navigation}) => {
     );
     return
   };
+    const [image, setImage] = useState(null);
+  
+    const pickImage = async () => {
+      // No permissions request is necessary for launching the image library
+      let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.All,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+      });
+  
+      console.log(result);
+  
+      if (!result.canceled) {
+        setImage(result.assets[0].uri);
+      }
+    };
 
   return (
     <>
@@ -455,6 +474,12 @@ export const EditRecipe = ({ route, navigation}) => {
         onChangeText={value => setDescriptonText(value)}
         defaultValue={descriptionText} /> 
 
+      {/* Image Picker */}
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+        <Button title="Upload an image" onPress={pickImage} />
+        {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
+      </View>
+
       {/* Ingredents section title */}
       <Text 
         style={{color: '#EDBD65', fontSize: 16, marginTop: 5, marginBottom: 0, marginLeft: 30, marginRight: 30, padding: 0, textAlign: 'left', fontWeight: 'bold'}}>
@@ -478,7 +503,7 @@ export const EditRecipe = ({ route, navigation}) => {
         defaultValue={instructionsText}
       />
       {/* Save Button */}
-      <TouchableOpacity onPress={() => SaveEdit()} style={[editStyles.button,  {backgroundColor: '#983429'}]}>
+      <TouchableOpacity onPress={() => SaveEdit()} style={[editStyles.button, {backgroundColor: '#983429'}]}>
         <Text style={editStyles.buttonText}> Save </Text>
       </TouchableOpacity>
       {/* Cancel/Back Button */}
@@ -486,10 +511,7 @@ export const EditRecipe = ({ route, navigation}) => {
       style={[editStyles.button, {backgroundColor: '#983429'}]} >
         <Text style={editStyles.buttonText}> Cancel </Text>
       </TouchableOpacity>
-      
-
       </SafeAreaView> 
-      
       </InputScrollView>
       </>
   )
