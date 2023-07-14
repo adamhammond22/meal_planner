@@ -12,6 +12,10 @@ import { LoadEmptyRecipe } from '../viewRecipe';
 import {styles} from '../homepageStyle';
 /* Import SQLite functions */
 import * as SQLite from 'expo-sqlite';
+/* Import custom searchbar */
+import { CustomSearchBar } from '../components/Searchbar';
+/* Import Fake Recipes */
+import { fakeRecipes } from '../../assets/fakeRecipes';
 
 /* Init SQLite database obj */
 const db = SQLite.openDatabase('recipe.db');
@@ -25,9 +29,12 @@ const MultipleRecipesScreen = ({navigation}) => {
   /* isLoading is true if we're currently loading our list of recipes */
   const [isLoading, setIsLoading] = useState(true);
 
-  /* Recipes is the state containing the list of currently loaded recipes, we may need ot limit the size of recipes (in the case the user has like 500 recipes) */
-  const [recipes, setRecipes] = useState([]);
-  
+  /* Loaded recipes is the state containing the list of currently loaded recipes, we may need ot limit the size of recipes (in the case the user has like 500 recipes) */
+  const [loadedRecipes, setLoadedRecipes] = useState([]);
+
+  /* Shown recipes is the state containing the list of currently shown recipes, this is what the search function modifies */
+  const [shownRecipes, setShownRecipes] = useState([]);
+
   /* useEffect calls this every time this application is loaded, we make sure a table exists and call loadRecipes() */
   useEffect(() => {
     CreateTable()
@@ -42,7 +49,6 @@ const MultipleRecipesScreen = ({navigation}) => {
   // Separated out of useEffect so that it could be called by DEBUG_DELETE_TABLE
   const CreateTable = () =>{
     db.transaction(tx => {
-      console.log("CREATE NEW TABLE")
       tx.executeSql(
         // ingredients is currently set to store a TEXT type, as I expect us to parse them into a text, but we can change the data type if there's something better
         'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, ingredients TEXT, instructions TEXT);',
@@ -54,17 +60,13 @@ const MultipleRecipesScreen = ({navigation}) => {
 
   /* Navigation function that takes a recipe id or null, and properly routing to the desired screen */
   const navigateToRecipe = (id) => {
-    console.log("attempting to navigate to id: ", id)
 
     /* If the ID is null, we need to create a new recipe */
     if (id == null) {
-      console.log("creating new recipe")
       /* Attempt Creating a new Recipe */
       addRecipe('New Recipe')
         /* Upon success, navigate to edit screen*/
         .then((newRecipeId) => {
-          console.log('New recipe created with ID:', newRecipeId);
-          console.log("navigating to view recipe");
           navigation.replace('Edit-Recipe', { recipeId: newRecipeId , nullLoad: true});
         })
         /* Upon failure, remain on this screen*/
@@ -74,7 +76,6 @@ const MultipleRecipesScreen = ({navigation}) => {
     
     /* If the ID is non-null, navigate to view it */
     } else{
-      console.log("navigating to view recipe")
       LoadEmptyRecipe(id)
       navigation.replace('View-Recipe', { recipeId: id, preLoaded: false})
     }
@@ -84,7 +85,6 @@ const MultipleRecipesScreen = ({navigation}) => {
   const DEBUG_DELETE_TABLE = () => {
     console.log("TABLE DROPPED")
     db.transaction(tx => {
-      console.log("DROP OLD TABLE")
       tx.executeSql(
         'DROP TABLE Recipes;',
         null,
@@ -92,6 +92,23 @@ const MultipleRecipesScreen = ({navigation}) => {
       );
     });
   }
+
+
+  const DEBUG_ADD_RECIPES = () => {
+    
+    for (const rec of fakeRecipes) {
+      new Promise((resolve, reject) => {
+        db.transaction(tx => {
+          tx.executeSql('INSERT INTO Recipes (name, description, ingredients, instructions, image) values (?, ?, ?, ?, ?)', [rec.name, rec.desc, rec.ingr, rec.inst, null], 
+          (_, { insertId }) => resolve(insertId),
+          (_, error) => reject(error)
+          );
+        }, null,null);
+      });  
+    }
+    loadRecipes();
+  }
+
 
   /* SQLLite Function that selects all Recipes from database.
   Updates the Recipes state and setsIsLoading state to false when completed */
@@ -104,7 +121,8 @@ const MultipleRecipesScreen = ({navigation}) => {
             recipesList.push(results.rows.item(i));
         
           /* When the callback is completed, update our 2 states */
-          setRecipes(recipesList);
+          setLoadedRecipes(recipesList);
+          setShownRecipes(recipesList);
           setIsLoading(false);
         });
         (_, error) => console.log("App.js: loadRecipes() error: ", error) // Error callback
@@ -114,7 +132,6 @@ const MultipleRecipesScreen = ({navigation}) => {
   /* SQLLite Function that adds the given recipe name with a promise to return the new id */
   const addRecipe = (recipeName) => {
     
-    console.log(" in add recipe: name: ", recipeName)
     return new Promise((resolve, reject) => {
       db.transaction(tx => {
         //tx.executeSql('INSERT INTO Recipes (name, description, ingredients, instructions) values (?, ?, ?, ?)', [recipeName, '', [], ''], 
@@ -161,6 +178,53 @@ const MultipleRecipesScreen = ({navigation}) => {
     </TouchableOpacity >
   );
 
+
+  /* Function to handle a change to the search input, it takes the searchInput string and sets the "filtered recipes" state
+  accordingly  */
+  const handleSearchInputChange = (searchInput) => {
+
+    const lowerCaseInput = searchInput.toLowerCase() //our lowercase search input
+
+    /* Custom sorting function to prioritize recipes with the search in the name field, and then alphabetically sort otherwise */
+    function customSearchSort(a, b) {
+      const lowerCaseNameA = a.name.toLowerCase()
+      const lowerCaseNameB = b.name.toLowerCase()
+
+      /* If only the a name includes the search query */
+      if (lowerCaseNameA.includes(lowerCaseInput) && !(lowerCaseNameB.toLowerCase().includes(lowerCaseInput))) {
+        return -1 // -1 will ensure A stays in front of B
+
+      /* If only the b name includes the search query */
+      } else if (!(lowerCaseNameA.includes(lowerCaseInput)) && lowerCaseNameB.toLowerCase().includes(lowerCaseInput)) {
+        return 1 // 1 will ensure B gets swapped in front of A
+
+      /* Otherwise evaluate alphabetically by casting to numbers and subtracting b from a*/
+      } else {
+        return Number(a.name) - Number(b.name)
+      }
+    }
+  
+    /* Sanity check that the search input is a string */
+    if(typeof(searchInput) === 'string') {
+
+      const lowerCaseInput = searchInput.toLowerCase()
+
+       /* Filter out entries with no matches in any field */
+      const filteredRecipes = loadedRecipes.filter(recipe => {
+        const {name, description, ingredients, instructions} = recipe
+        return (name.toLowerCase().includes(lowerCaseInput) || description.toLowerCase().includes(lowerCaseInput) ||
+          ingredients.toLowerCase().includes(lowerCaseInput) || instructions.toLowerCase().includes(lowerCaseInput))
+      });
+      /* Sort the filtered recipes by the custom sort function */
+      filteredRecipes.sort(customSearchSort);
+      /* Update the shown recipes state to reflect our new search*/
+      setShownRecipes(filteredRecipes);
+      
+    }
+  }
+
+
+
   /* If Loading, simply show that we're loading */
   if (isLoading || !fontsLoaded) {
     return (
@@ -182,12 +246,18 @@ const MultipleRecipesScreen = ({navigation}) => {
             {/* style for now */}
             <Text style={[{color:'red'}, {textAlign:'center'}, {fontSize:20}]}> Delete Everything (DEBUG)</Text>
           </TouchableOpacity>
-
+          {/* <Button title="Delete EVERYTHING (debug)" onPress={() => DEBUG_DELETE_TABLE()} /> */}
+          <TouchableOpacity onPress={() => DEBUG_ADD_RECIPES()}>
+            {/* style for now */}
+            <Text style={[{color:'orange'}, {fontSize:20}]}> ADD RECIPES (DEBUG)</Text>
+          </TouchableOpacity>
+          {/* Custom Search Bar */}
+          <CustomSearchBar onInputChange={handleSearchInputChange}/>
           <Text style={styles.title}>All Recipes</Text>
           
           {/* Render our recipes in a list */}
           <FlatList
-          data={recipes}
+          data={shownRecipes}
           keyExtractor={({ id }) => id.toString()}
           renderItem={renderRecipes}
           />

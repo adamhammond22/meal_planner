@@ -68,7 +68,6 @@ function setLoadedRecipe(recipe){
     loadedRecipe.description = ''
   }
   /* Check if recipe object has ingredients */
-  console.log(recipe.ingredients)
   if (recipe.ingredients) {
     // TODO: Write SQL to ingredent Array Parser
     //loadedRecipe.ingredients = recipe.ingredients
@@ -312,7 +311,6 @@ export const EditRecipe = ({ route, navigation}) => {
         quality: 1,
       });
   
-      console.log(result);
   
       if (!result.canceled) {
         setImage(result.assets[0].uri);
