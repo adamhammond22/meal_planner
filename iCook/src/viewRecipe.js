@@ -43,7 +43,9 @@ let loadedRecipe = {
   // This is the instruction text
   instructions: 'Return to main menu. Do not pass Go. Do not collect $200.',
   // Recipie Image, null if no image
-  image: null
+  image: null,
+  // Recipe tags, null if no tags
+  tags: [ "null" ]
 }
 
 function formatIngredients(recipe, databaseIngredientString) {
@@ -57,9 +59,20 @@ function formatIngredients(recipe, databaseIngredientString) {
   })
 }
 
+function formatTags(recipe, databaseTagsString) {
+  var databaseTagsArray = databaseTagsString.split('@')
+  databaseTagsArray.forEach((element) => {
+    if(element == '') {
+      return
+    }
+    recipe.tags.push({element})
+  })
+}
+
 /* Sets the components of loaded recipe individually to account for the fact that not all components are in the
 database currently */
 function setLoadedRecipe(recipe){
+  console.log("~setLoadedRecipe: loading recipe from db")
   loadedRecipe.name = recipe.name
   /* Check if recipe object has a description */
   if (recipe.description) {
@@ -89,6 +102,15 @@ function setLoadedRecipe(recipe){
   }else{
     loadedRecipe.image = null
   }
+  console.log(recipe.tags)
+  if(recipe.tags) {
+    loadedRecipe.tags = []
+    console.log("formatting tags")
+    formatTags(loadedRecipe, recipe.tags)
+  } else {
+    console.log("no tags")
+    loadedRecipe.tags = []
+  }
 
 }
 
@@ -101,6 +123,7 @@ export const LoadEmptyRecipe =  () => {
     loadedRecipe.ingredients = []
     loadedRecipe.instructions = "Write Instructions Here"
     loadedRecipe.image = null
+    loadedRecipe.tags = []
 }
 
 // View Recipe Screen takes navigation context and "route" which stores our recipe id and if the recipe is already pre loaded (recipeId, preLoaded)
@@ -127,7 +150,7 @@ export const ViewRecipe = ({ route, navigation}) => {
   useEffect(() => {
     db.transaction(tx => {
       tx.executeSql(
-        'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, ingredients TEXT, instructions TEXT)',
+        'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, ingredients TEXT, instructions TEXT, tags TEXT)',
         [],
         () => loadRecipe(loadedRecipe.id)
       );
@@ -208,6 +231,19 @@ export const ViewRecipe = ({ route, navigation}) => {
         }
       }
     });
+
+    // List to contain JSX for tags list (initial render)
+    const tagsList = []
+
+    // Loop through all tags and add JSX to list
+    loadedRecipe.tags.forEach((element, index) => {
+      tagsList.push(
+        <Text key={index} style={{marginTop: 5, marginLeft: 15, marginRight: 15, padding: 0, textAlign: 'left', color: '#EDBD65', fontSize: 15, fontFamily: 'Orienta'}}>
+          {element}
+        </Text>
+      )
+    })
+
     return (
     // The scroll view container allows the user to scroll through the components
     <View style={styles.wrapper}>
@@ -241,6 +277,14 @@ export const ViewRecipe = ({ route, navigation}) => {
         style={styles.sectionText}>
         {loadedRecipe.instructions}
       </Text>
+      </View>
+      {/* Tags Section Title */}
+      <Text style={styles.sectionHeaders}>
+        Recipe Tags
+      </Text>
+      {/* Show Recipe Tags */}
+      <View style={styles.flatlistContainer}>
+        {tagsList}
       </View>
     </ScrollView>
 
@@ -301,7 +345,13 @@ export const EditRecipe = ({ route, navigation}) => {
   
   const [ingredientCount, setIngredientCount] = useState(loadedRecipe.ingredients.length)
 
-  const [image, setImage] = useState(loadedRecipe.image);
+  const [image, setImage] = useState(loadedRecipe.image)
+
+  let tagsJSXList = []
+
+  const [tagArray, setTagArray] = useState([...loadedRecipe.tags])
+
+  const [tagsCount, setTagsCount] = useState(loadedRecipe.tags.length)
   
   const pickImage = async () => {
       // No permissions request is necessary for launching the image library
@@ -327,6 +377,7 @@ export const EditRecipe = ({ route, navigation}) => {
       loadedRecipe.ingredients = ingredientArray
       loadedRecipe.instructions = instructionsText
       loadedRecipe.image = image
+      loadedRecipe.tags = tagArray
       // Saves to database
       updateRecipe( loadedRecipe )
       // Goes back to view page
@@ -353,6 +404,22 @@ export const EditRecipe = ({ route, navigation}) => {
     setIngredientCount(ingredientCount - 1)
   }  
   
+  const AddTag = () => {
+    let tempArray = tagArray
+    tempArray.push("")
+    setTagArray(tempArray)
+    setTagsCount(tagsCount + 1)
+  }
+
+  const RemoveTag = (indexToRemove) => {
+    let tempArray = tagArray
+    tempArray = tempArray.filter((_, index) => index !== indexToRemove);
+    // Update Tag Array
+    setTagArray(tempArray)
+    // Update Tag Count
+    setTagsCount(tagsCount - 1)
+  }
+
   /* Load our ingredient jsx before rendering */
   loadIngredientView()
   
@@ -416,6 +483,49 @@ export const EditRecipe = ({ route, navigation}) => {
     return formattedIngredients
   }
 
+  function formatTagsToString(tags) {
+    let tagsString = ''
+    tags.forEach((element) => {
+      tagsString += element + '@'
+    });
+    console.log("saved %s to db", tagsString)
+    return tagsString
+  }
+
+  function loadTagsView() {
+    tagsJSXList.length = 0
+    tagArray.forEach((element, index) => {
+      tagsJSXList.push(
+        <View  key={index} style = {{flexDirection: 'row', flex: 4, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 5, alignItems: 'center'}}>
+            {/* Tag Input */}
+            <TextInput
+              style={{ flexGrow: 4, borderWidth:  1, marginTop: 20, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
+              editable
+              multiline={true}
+              numberOfLines={1}
+              blurOnSubmit={true}
+              onChangeText={value => (tagArray[index] = value)}
+              defaultValue={element.name}
+            />
+            {/* Delete Tag Button */}
+            <View style={styles.deleteIngredient} >
+              <TouchableOpacity onPress={() => RemoveTag(index)} >
+                <Text>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+      )
+    });
+    tagsJSXList.push(
+      <TouchableOpacity  key={tagArray.length} style = {{flexDirection: 'row', flex: 4, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 5, borderRadius: 7}}
+      onPress={() => AddTag()}>
+        <Text>Add New Tag</Text>
+      </TouchableOpacity>
+    );
+  }
+  // Rendering Tags 
+  loadTagsView();
+
   /*SQLite Function that updates the Name in the database */
   function updateRecipe(recipe) {
     /* The ingredents are going to need to be parsed into text or something to go into the database, then 
@@ -461,6 +571,16 @@ export const EditRecipe = ({ route, navigation}) => {
       null,
       null,
     );
+    const tagString = formatTagsToString(recipe.tags)
+    db.transaction(
+      tx => {
+        tx.executeSql(`UPDATE Recipes SET tags = ? WHERE id = ?;`, 
+        [tagString, recipe.id]);
+      },
+      null,
+      null,
+    );
+    console.log("db updated, tags= %s", tagString)
     return
   };
 
@@ -475,7 +595,7 @@ export const EditRecipe = ({ route, navigation}) => {
         {marginBottom: 5}, 
         {marginLeft: 20}, 
         {marginRight: 20}, 
-      {padding: 10}, 
+        {padding: 10}, 
         {textAlign: 'center'}]}
          editable
          multiline={true}
@@ -531,6 +651,15 @@ export const EditRecipe = ({ route, navigation}) => {
         onChangeText={value => setInstructionText(value)}
         defaultValue={instructionsText}
       />
+      <TextInput/>
+      {/* Tags Section Title */}
+      <Text 
+        style = {styles.sectionHeaders}>
+        Recipe Tags
+      </Text>
+      {/* Show Tags */}
+      {tagsJSXList}
+
       <View style={styles.buttomButtons}>
       {/* Save Button */}
       <View style={styles.parent}>
@@ -541,7 +670,7 @@ export const EditRecipe = ({ route, navigation}) => {
       {/* Cancel/Back Button */}
       <View style={styles.parent}>
       <TouchableOpacity  onPress={() => {console.log("Cancel: ", loadedRecipe.ingredients.length); navigation.replace('View-Recipe', {recipeId: loadedRecipe.id, preLoaded: true})}}
-      style={[editStyles.button, {backgroundColor: '#983429'}]} >
+        style={[editStyles.button, {backgroundColor: '#983429'}]} >
         <Text style={editStyles.buttonText}> Cancel </Text>
       </TouchableOpacity>
       </View>
