@@ -81,7 +81,6 @@ function setLoadedRecipe(recipe){
     loadedRecipe.description = ''
   }
   /* Check if recipe object has ingredients */
-  console.log(recipe.ingredients)
   if (recipe.ingredients) {
     // TODO: Write SQL to ingredent Array Parser
     //loadedRecipe.ingredients = recipe.ingredients
@@ -362,7 +361,6 @@ export const EditRecipe = ({ route, navigation}) => {
         quality: 1,
       });
   
-      console.log(result);
   
       if (!result.canceled) {
         setImage(result.assets[0].uri);
@@ -422,6 +420,17 @@ export const EditRecipe = ({ route, navigation}) => {
 
   /* Load our ingredient jsx before rendering */
   loadIngredientView()
+
+  const ValidateNumericIngredientInput = (input, ingredientIndex) => {
+    validInput = input.replace(/[^0-9.]/g, '')
+    if(validInput != ''){
+      ingredientArray[ingredientIndex].amount = parseFloat(validInput)
+    }
+  }
+
+  const ValidateAlphebeticIngredientInput = (input, ingredientIndex) => {
+    ingredientArray[ingredientIndex].name = input.replace(/[\~\*]/gi, '')
+  }
   
   // Iterates through the ingredients and puts them in ingredientsList to display
   function loadIngredientView(){
@@ -437,8 +446,9 @@ export const EditRecipe = ({ route, navigation}) => {
             multiline={true}
             numberOfLines={1}
             blurOnSubmit={true}
-            onChangeText={value => (ingredientArray[index].amount = parseFloat(value))}
+            onChangeText={value => {ValidateNumericIngredientInput(value, index)}}
             defaultValue={element.amount.toString()}
+            
           />
           {/* Unit Select */}
           <SelectList 
@@ -455,7 +465,7 @@ export const EditRecipe = ({ route, navigation}) => {
             multiline={true}
             numberOfLines={1}
             blurOnSubmit={true}
-            onChangeText={value => (ingredientArray[index].name = value)}
+            onChangeText={value => (ValidateAlphebeticIngredientInput(value, index))}
             defaultValue={element.name}
           />
           {/* Delete Ingredient Button */}
