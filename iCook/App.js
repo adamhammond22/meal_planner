@@ -1,9 +1,10 @@
-import React from 'react'
-import { StyleSheet, SafeAreaView } from 'react-native'
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, SafeAreaView, View } from 'react-native'
 import { NavigationContainer } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons'; // Import Ionicons from react-native-vector-icons
+import LottieView from 'lottie-react-native';
 
 import globalStyles from './src/globalStyles'
 
@@ -37,6 +38,27 @@ function Home() {
   );
 }
 const App = () => {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulating a delay to show the Lottie animation
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 3000); // Change the delay time as needed
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <LottieView
+          source={require('./assets/co-chef.json')} // Update the path to your animation file
+          autoPlay
+          loop
+        />
+      </View>
+    );
+  }
+
   return (
 
     <SafeAreaView style={{flex: 1}}>
@@ -86,5 +108,17 @@ const App = () => {
     </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#EDBD65',
+  },
+});
 
 export default App;
