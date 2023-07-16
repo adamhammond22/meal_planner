@@ -340,6 +340,18 @@ export const EditRecipe = ({ route, navigation}) => {
     // Update Ingredient Count (forces an update durring the add)
     setIngredientCount(ingredientCount + 1)
   }
+
+  // This function deletes the passed recipe and returns to the main screen
+  const deleteRecipeFromEditPage = (id) => {
+    db.transaction(
+      tx => {
+        tx.executeSql(`DELETE FROM Recipes where id = ?;`, [id]);
+      },
+      null,
+      null
+    );
+    navigation.replace('Multi-Screen')
+  };
   
   /* Function to Remove an ingredient from the ingredientList, specified by given index */
   const RemoveIngredent = (indexToRemove) => {
@@ -541,6 +553,11 @@ export const EditRecipe = ({ route, navigation}) => {
         onChangeText={value => setInstructionText(value)}
         defaultValue={instructionsText}
       />
+      {/* Delete Button */}
+      <TouchableOpacity
+      onPress = {() => deleteRecipeFromEditPage(loadedRecipe.id)} style={[editStyles.button, {backgroundColor: '#983429'}]}>
+        <Text>DELETE RECIPE</Text>
+      </TouchableOpacity>
       <View style={styles.buttomButtons}>
       {/* Save Button */}
       <View style={styles.parent}>
