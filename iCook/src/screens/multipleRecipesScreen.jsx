@@ -95,7 +95,6 @@ const MultipleRecipesScreen = ({navigation}) => {
 
 
   const DEBUG_ADD_RECIPES = () => {
-    
     for (const rec of fakeRecipes) {
       new Promise((resolve, reject) => {
         db.transaction(tx => {
@@ -179,47 +178,90 @@ const MultipleRecipesScreen = ({navigation}) => {
   );
 
 
-  /* Function to handle a change to the search input, it takes the searchInput string and sets the "filtered recipes" state
-  accordingly  */
-  const handleSearchInputChange = (searchInput) => {
+  /*Boolean Function - if ANY recipe field includes this string, return true, otherwise false */
+  function recipeIncludesString(recipe, string) {
+    const {name, description, ingredients, instructions} = recipe
+    if( name.toLowerCase().includes(string) ||
+      description.toLowerCase().includes(string) ||
+      ingredients.toLowerCase().includes(string) ||
+      instructions.toLowerCase().includes(string)
+    ) {  
+      return true
 
-    const lowerCaseInput = searchInput.toLowerCase() //our lowercase search input
+    } else {
+      return false
+    }
+  }
+
+  /* Boolean function returning True if all queries in the queryList show up in the recipe*/
+  function recipeContainsQueries(recipe, queryList) {
+    //iterate over all queries
+    for (const query of queryList) {
+      // if one of the queries does NOT show up anywhere in the recipe, this recipe should be filtered out
+      if(!recipeIncludesString(recipe, query)) {
+        return false
+      }
+    }
+    // at this point- all queries show up in the recipe, do not filter
+    return true
+  }
+
+  /* Boolean function returning True if a SINGLE query in the queryList is included in the name*/
+  function recipeNameContainsQueries(recipe, queryList) {
+    const recipeName = recipe.name
+    //iterate over all queries
+    for (const query of queryList) {
+
+      // if one of the queries appears in the name, return true
+      if(recipeName.toLowerCase().includes(query)) {
+        return true
+      }
+    }
+    //at this point, no queries show up in the name, return false
+    return false
+  }
+
+  /* Function to handle a change to the search input, it takes the searchInputList of strings and sets the "filtered recipes" state
+  accordingly  */
+  const handleSearchInputChange = (searchInputList) => {
+    console.log("calling handleSearchInputChange, the list is:", searchInputList)
+    // map our search inputs to lowercase
+    const lowerCaseInputList = searchInputList.map((item) => item.toLowerCase()) 
 
     /* Custom sorting function to prioritize recipes with the search in the name field, and then alphabetically sort otherwise */
     function customSearchSort(a, b) {
-      const lowerCaseNameA = a.name.toLowerCase()
-      const lowerCaseNameB = b.name.toLowerCase()
 
-      /* If only the a name includes the search query */
-      if (lowerCaseNameA.includes(lowerCaseInput) && !(lowerCaseNameB.toLowerCase().includes(lowerCaseInput))) {
+      const aContainsQueryInName = recipeNameContainsQueries(a, lowerCaseInputList)
+      const bContainsQueryInName = recipeNameContainsQueries(b, lowerCaseInputList)
+
+      if (aContainsQueryInName && !bContainsQueryInName) {
         return -1 // -1 will ensure A stays in front of B
 
-      /* If only the b name includes the search query */
-      } else if (!(lowerCaseNameA.includes(lowerCaseInput)) && lowerCaseNameB.toLowerCase().includes(lowerCaseInput)) {
+      } else if (!aContainsQueryInName && bContainsQueryInName) {
         return 1 // 1 will ensure B gets swapped in front of A
 
       /* Otherwise evaluate alphabetically by casting to numbers and subtracting b from a*/
       } else {
-        return Number(a.name) - Number(b.name)
+        return a.name[0].localeCompare(b.name[0])
       }
     }
   
-    /* Sanity check that the search input is a string */
-    if(typeof(searchInput) === 'string') {
-
-      const lowerCaseInput = searchInput.toLowerCase()
-
+    /* Check that the search input is non-empty  */
+    if(lowerCaseInputList.length > 0) {
+      console.log("search list len", lowerCaseInputList.length)
        /* Filter out entries with no matches in any field */
       const filteredRecipes = loadedRecipes.filter(recipe => {
-        const {name, description, ingredients, instructions} = recipe
-        return (name.toLowerCase().includes(lowerCaseInput) || description.toLowerCase().includes(lowerCaseInput) ||
-          ingredients.toLowerCase().includes(lowerCaseInput) || instructions.toLowerCase().includes(lowerCaseInput))
+        return(recipeContainsQueries(recipe, lowerCaseInputList))
       });
+      console.log("filtered len", filteredRecipes.length)
       /* Sort the filtered recipes by the custom sort function */
       filteredRecipes.sort(customSearchSort);
       /* Update the shown recipes state to reflect our new search*/
       setShownRecipes(filteredRecipes);
-      
+    
+    /* Check if the search input is empty, simply show all recipes  */
+    } else {
+      setShownRecipes(loadedRecipes);
     }
   }
 

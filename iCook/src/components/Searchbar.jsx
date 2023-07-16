@@ -27,20 +27,30 @@ export const CustomSearchBar = ({ onInputChange }) => {
 
   // ========== Input Handling Functions ========== //
 
-  /* handleInputChange handles the local change of input state, and executes the given 'onInputChange' function if applicable */
+  /* handleInputChange handles the local changes of input and currentSearches state, and executes the given 'onInputChange' function if applicable */
   /* Note: onInputChange is given the "trimmed" input, removing leading and trailing whitespace from the actual search */
   const handleInputChange = (givenInput) => {
-    setInput(givenInput)
 
     /* If we're given a parent onInputChange function, use it */
     if(onInputChange) {
       // get a copy of our array of current searches and push our newest search to it
       searchesArray = [...currentSearches]
-      searchesArray.push(givenInput.trim())
+      // only push the given input if it's not whitespace
+      if(givenInput.trim() != "") {
+        searchesArray.push(givenInput.trim())
+      }
       // pass the copy into the parent's 'onInputChange' function
       onInputChange(searchesArray);
     }
   }
+
+  /* Whenever input or currentSearches lists are changed, we must call handleInputChange to update our parent's state */
+  React.useEffect(() => {
+    console.log("currentSearches State has been updated, calling handle input, the state is now", currentSearches, "input isL", input);
+    if(handleInputChange) {
+      handleInputChange(input)
+    }
+  }, [currentSearches, input]);
 
   /* Function handling when "return" is hit- submitting a search */
   /* Note: we "trim" the input when adding it to the array as well- trailing and leading whitespace is not saved */
@@ -54,6 +64,7 @@ export const CustomSearchBar = ({ onInputChange }) => {
     }
     //clear the searchbar, as we've "submitted" our search, and it will be shown elsewhere
     this.search.clear();
+    setInput("")
   }
 
   /* Function removing a single search by it's name in the currentSearches state array */
@@ -71,6 +82,7 @@ export const CustomSearchBar = ({ onInputChange }) => {
 
   /* Function cancelling all current searches */
   const cancelSearch = () => {
+    // clear our current searches
     setCurrentSearches([])
   }
 
@@ -95,9 +107,9 @@ export const CustomSearchBar = ({ onInputChange }) => {
 
   /* Function that renders all of the previous searches as buttons */
   const renderCurrentSearches = () => {
-    return currentSearches.map((item, _) => (
-    <View  style={{borderWidth: 3, borderColor: '#293137', flexDirection: 'row', borderRadius:10, margin:2, padding:4,
-      marginHorizontal:1, alignItems: 'center'}}>
+    return currentSearches.map((item, index) => (
+    <View style={{borderWidth: 3, borderColor: '#293137', flexDirection: 'row', borderRadius:10, margin:2, padding:4,
+      marginHorizontal:1, alignItems: 'center'}} key={index}>
     
       <Text style={{fontSize: 18, flexWrap: 'wrap', maxWidth: SearchBarWidth}}>{item}</Text>
       {/* <Button title="Delete" onPress={() => deleteRecipe(item.id)} /> */}
@@ -120,7 +132,7 @@ export const CustomSearchBar = ({ onInputChange }) => {
         round={true}
         searchIcon={{}}
         loadingProps={{}}
-        onChangeText={newInput => handleInputChange(newInput)}
+        onChangeText={newInput => setInput(newInput)}
         onClearText={{}}
         ref={search => this.search = search}
         placeholder="Type Search Here ..."
