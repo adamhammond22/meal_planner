@@ -3,7 +3,7 @@
 // import react states
 import React, { useState, useEffect } from 'react'
 //import react native components
-import { SafeAreaView, Text, View, TouchableOpacity, FlatList } from 'react-native'
+import { SafeAreaView, Text, View, TouchableOpacity, FlatList, Alert } from 'react-native'
 // import function for expo-font
 import { useFonts } from 'expo-font';
 // import empty recipe loader
@@ -157,6 +157,7 @@ const MultipleRecipesScreen = ({navigation}) => {
     );
   };
 
+
   /* Function rendering a single database item into jsx */
   const renderRecipes = ({ item }) => (
     <TouchableOpacity  style={styles.recipeWrapper}
@@ -171,7 +172,24 @@ const MultipleRecipesScreen = ({navigation}) => {
           <Text style={[styles.recipeButton, {alignSelf:'flex-end'}, {justifyContent:'center'},{padding:10}  ]} >Add to Shopping</Text>
         </TouchableOpacity>
         {/* <Button title="Delete" onPress={() => deleteRecipe(item.id)} /> */}
-        <TouchableOpacity onPress={() => deleteRecipe(item.id)}>
+         {/* <TouchableOpacity onPress={() => deleteAlert(item.id)}>  */}
+         {/* <TouchableOpacity onPress={() => deleteRecipe(item.id)}> */}
+         <TouchableOpacity onPress={() =>
+      Alert.alert('Delete Recipe?', 'Are you sure you want to delete this recipe?', 
+      [
+        {
+          text: 'Cancel',
+          onPress:() => console.log("Cancel: "),
+          style: 'cancel'
+        },
+        {
+          text: 'Delete',
+          onPress: () => deleteRecipe(item.id),
+          style: 'ok'
+        },
+      ],
+      )}
+      >
           <Text style={[styles.recipeButton, {alignSelf:'flex-end'}, {justifyContent:'center'},{padding:10}  ]}> Delete </Text>
         </TouchableOpacity>
       </View>

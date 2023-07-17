@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 // import expo fonts function
 import { useFonts } from 'expo-font';
 // Import react-native components
-import { StyleSheet, SafeAreaView, Button, Text, TextInput, View, ScrollView, TouchableOpacity, Image, Platform } from 'react-native'
+import { StyleSheet, SafeAreaView, Button, Text, TextInput, View, ScrollView, TouchableOpacity, Image, Platform, Alert } from 'react-native'
 // This import allows for the scroll bar to follow user input as they type
 import InputScrollView from 'react-native-input-scroll-view'
 // Import SQLite functions
@@ -392,6 +392,24 @@ export const EditRecipe = ({ route, navigation}) => {
     setIngredientCount(ingredientCount + 1)
   }
 
+  // Alert that pops up when user presses delete button on edit page
+  const deleteAlert = (id) =>{
+
+      Alert.alert('Delete Recipe?', 'Are you sure you want to delete this recipe?', [
+        {
+          text: 'Cancel',
+          onPress:() => {() => {console.log("Cancel: ", loadedRecipe.ingredients.length); navigation.replace('View-Recipe', {recipeId: loadedRecipe.id, preLoaded: true})}},
+          style: 'cancel'
+        },
+        {
+          text: 'Delete',
+          onPress: () => deleteRecipeFromEditPage(loadedRecipe.id),
+          style: 'ok'
+        },
+
+      ]);
+    };
+
   // This function deletes the passed recipe and returns to the main screen
   const deleteRecipeFromEditPage = (id) => {
     db.transaction(
@@ -683,11 +701,17 @@ export const EditRecipe = ({ route, navigation}) => {
       {tagsJSXList}
 
       {/* Delete Button */}
-      <TouchableOpacity
-      onPress = {() => deleteRecipeFromEditPage(loadedRecipe.id)} style={[editStyles.button, {backgroundColor: '#983429'}]}>
-        <Text>DELETE RECIPE</Text>
-      </TouchableOpacity>
       <View style={styles.buttomButtons}>
+      <View style={styles.parent}>
+      <TouchableOpacity
+      onPress = {() => deleteAlert(loadedRecipe.id)} style={[editStyles.button, {backgroundColor: '#983429'}]}>
+      {/* <TouchableOpacity
+      onPress = {() => deleteRecipeFromEditPage(loadedRecipe.id)} style={[editStyles.button, {backgroundColor: '#983429'}]}> */}
+        <Text style={editStyles.buttonText}> Delete</Text>
+      </TouchableOpacity>
+      </View>
+      
+     
       {/* Save Button */}
       <View style={styles.parent}>
       <TouchableOpacity onPress={() => SaveEdit()} style={[editStyles.button, {backgroundColor: '#983429'}]}>
