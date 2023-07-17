@@ -158,7 +158,10 @@ const MultipleRecipesScreen = ({navigation}) => {
   };
 
   function formatTags(tagString) {
-    tagArray = tagString.split("@")
+    if(tagString == null){
+      return ''
+    }
+    tagArray = tagString.split('@')
     formattedString = 'Tags: '
     firstTag = true
     tagArray.forEach((tag) => {
