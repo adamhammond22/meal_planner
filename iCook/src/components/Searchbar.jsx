@@ -46,7 +46,6 @@ export const CustomSearchBar = ({ onInputChange }) => {
 
   /* Whenever input or currentSearches lists are changed, we must call handleInputChange to update our parent's state */
   React.useEffect(() => {
-    console.log("currentSearches State has been updated, calling handle input, the state is now", currentSearches, "input isL", input);
     if(handleInputChange) {
       handleInputChange(input)
     }
