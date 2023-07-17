@@ -14,6 +14,7 @@ import { SelectList } from 'react-native-dropdown-select-list'
 import { editStyles } from './editRecipeStyle';
 //import image picker
 import * as ImagePicker from 'expo-image-picker';
+import { FlatList } from 'react-native-web';
 
 // Init SQLite database obj
 const db = SQLite.openDatabase('recipe.db');
@@ -258,6 +259,10 @@ export const ViewRecipe = ({ route, navigation}) => {
         style={styles.descriptionStyle}>
         {loadedRecipe.description}
       </Text> 
+      {/* View Image */}
+      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+      {loadedRecipe.image && <Image source={{ uri: loadedRecipe.image }} style={{ width: 200, height: 200 }} />}
+      </View>
       {/* Ingredents section title */}
       <Text 
         style={styles.sectionHeaders}>
@@ -620,8 +625,10 @@ export const EditRecipe = ({ route, navigation}) => {
   return (
     <>
     {/* This scroll view follows the location the user is typing. The keyboardOffset is set to prevent the keyboard on ios for hiding the curser */}
+    
       <InputScrollView style={[editStyles.backgroundColor, {backgroundColor:'#983429'}]} keyboardOffset = {120}>
       <SafeAreaView > 
+      
       {/* Enter name of recipe */}
       <TextInput style={[editStyles.sectionText,  {borderWidth:  1},
         {marginTop: 40},
@@ -657,13 +664,14 @@ export const EditRecipe = ({ route, navigation}) => {
         defaultValue={descriptionText}/> 
 
       {/* Image Picker */}
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+       
         <TouchableOpacity onPress={() => pickImage()} style={styles.uploadImage}>
           <Text style={styles.buttonText}>Upload an Image</Text>
           </TouchableOpacity>
-        {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
-      </View>
-
+       {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
+       
+       </View>
       {/* Ingredents section title */}
       <Text 
         style={styles.sectionHeaders}>
@@ -718,6 +726,7 @@ export const EditRecipe = ({ route, navigation}) => {
       </View>
       </SafeAreaView> 
       </InputScrollView>
+     
       </>
   )
 }
