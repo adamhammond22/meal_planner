@@ -158,7 +158,7 @@ const MultipleRecipesScreen = ({navigation}) => {
   };
 
   function formatTags(tagString) {
-    if (tagString==null) {
+    if (tagString==null || tagString =='') {
       return '(No Tags)'
     }
     tagArray = tagString.split("@")
