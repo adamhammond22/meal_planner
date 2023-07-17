@@ -99,7 +99,7 @@ const MultipleRecipesScreen = ({navigation}) => {
     for (const rec of fakeRecipes) {
       new Promise((resolve, reject) => {
         db.transaction(tx => {
-          tx.executeSql('INSERT INTO Recipes (name, description, ingredients, instructions, image, tags) values (?, ?, ?, ?, ?, ?)', [rec.name, rec.desc, rec.ingr, rec.inst, null, null], 
+          tx.executeSql('INSERT INTO Recipes (name, description, ingredients, instructions, image, tags) values (?, ?, ?, ?, ?, ?)', [rec.name, rec.desc, rec.ingr, rec.inst, null, ''], 
           (_, { insertId }) => resolve(insertId),
           (_, error) => reject(error)
           );
@@ -158,6 +158,9 @@ const MultipleRecipesScreen = ({navigation}) => {
   };
 
   function formatTags(tagString) {
+    if (tagString==null) {
+      return '(No Tags)'
+    }
     tagArray = tagString.split("@")
     formattedString = 'Tags: '
     firstTag = true
@@ -233,9 +236,17 @@ const MultipleRecipesScreen = ({navigation}) => {
        /* Filter out entries with no matches in any field */
       const filteredRecipes = loadedRecipes.filter(recipe => {
         const {name, description, ingredients, instructions, tags} = recipe
-        return (name.toLowerCase().includes(lowerCaseInput) || description.toLowerCase().includes(lowerCaseInput) ||
+
+        if(tags==null) {
+          return (name.toLowerCase().includes(lowerCaseInput) || description.toLowerCase().includes(lowerCaseInput) ||
+          ingredients.toLowerCase().includes(lowerCaseInput) || instructions.toLowerCase().includes(lowerCaseInput))
+        }
+        else {
+          return (name.toLowerCase().includes(lowerCaseInput) || description.toLowerCase().includes(lowerCaseInput) ||
           ingredients.toLowerCase().includes(lowerCaseInput) || instructions.toLowerCase().includes(lowerCaseInput)) ||
           tags.toLowerCase().includes(lowerCaseInput)
+        }
+        
       });
       /* Sort the filtered recipes by the custom sort function */
       filteredRecipes.sort(customSearchSort);
