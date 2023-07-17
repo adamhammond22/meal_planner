@@ -117,10 +117,10 @@ function setLoadedRecipe(recipe){
 database id. It'll also need to parse it into proper formate here or on the otherside of the backend load function before passing
 it to loadedRecipe */
 export const LoadEmptyRecipe =  () => {
-    loadedRecipe.name = "New Recipe"
-    loadedRecipe.description = "Recipe Description"
+    loadedRecipe.name = ""
+    loadedRecipe.description = ""
     loadedRecipe.ingredients = []
-    loadedRecipe.instructions = "Write Instructions Here"
+    loadedRecipe.instructions = ""
     loadedRecipe.image = null
     loadedRecipe.tags = []
 }
@@ -443,7 +443,7 @@ export const EditRecipe = ({ route, navigation}) => {
   }
 
   const ValidateAlphebeticIngredientInput = (input, ingredientIndex) => {
-    ingredientArray[ingredientIndex].name = input.replace(/[\~\*]/gm, '')
+    ingredientArray[ingredientIndex].name = input.replace(/[\~\*]/g, '')
   }
   
   // Iterates through the ingredients and puts them in ingredientsList to display
@@ -521,6 +521,10 @@ export const EditRecipe = ({ route, navigation}) => {
     return tagsString
   }
 
+  const ValidateTagInput = (input, tagIndex) => {
+    tagArray[tagIndex] = input.replace(/[\@]/g, '')
+  }
+
   function loadTagsView() {
     tagsJSXList.length = 0
     tagArray.forEach((element, index) => {
@@ -533,8 +537,8 @@ export const EditRecipe = ({ route, navigation}) => {
               multiline={true}
               numberOfLines={1}
               blurOnSubmit={true}
-              onChangeText={value => (tagArray[index] = value)}
-              defaultValue={element.name}
+              onChangeText={value => ValidateTagInput(tagArray[index], value)}
+              defaultValue={element}
             />
             {/* Delete Tag Button */}
             <View style={styles.deleteIngredient} >
@@ -631,7 +635,9 @@ export const EditRecipe = ({ route, navigation}) => {
          numberOfLines={1}
          blurOnSubmit={true}
          onChangeText={value => setNameText(value)}
-         defaultValue={nameText} />
+         defaultValue={nameText} 
+         placeholder = 'Recipe Name'
+         />
         
        {/* Enter description */}
       <TextInput style={[editStyles.sectionText,  {borderWidth:  1}, 
@@ -648,7 +654,7 @@ export const EditRecipe = ({ route, navigation}) => {
         multiline
         scrollEnabled={false}
         onChangeText={value => setDescriptonText(value)}
-        defaultValue={descriptionText} /> 
+        defaultValue={descriptionText}/> 
 
       {/* Image Picker */}
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -679,6 +685,7 @@ export const EditRecipe = ({ route, navigation}) => {
         scrollEnabled={false}
         onChangeText={value => setInstructionText(value)}
         defaultValue={instructionsText}
+        placeholder = 'Recipe Instructions'
       />
       <TextInput/>
       {/* Tags Section Title */}
