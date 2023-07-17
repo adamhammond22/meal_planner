@@ -6,12 +6,12 @@ const editStyles = StyleSheet.create({
 
     backgroundColor: {
       flex:1,
-      backgroundColor: '#983429'
+      backgroundColor: '#031E33'
     },
     decriptionInput:{
          fontFamily: 'Orienta',
         fontSize: 15,
-        color: '#EDBD65',
+        color: '#062D4A',
         borderWidth:  1, 
         marginTop: 0, 
         marginBottom: 10, 
@@ -23,7 +23,7 @@ const editStyles = StyleSheet.create({
     recipeName: {
         fontFamily: 'Orienta',
         fontSize: 15,
-        color: '#EDBD65',
+        color: '#062D4A',
         textAlign: 'center',
         borderWidth:  1,
         marginTop: 0,
@@ -37,17 +37,17 @@ const editStyles = StyleSheet.create({
       descriptionStyle: {
         fontFamily: 'Orienta',
         fontSize: 15,
-        color: '#EDBD65',
+        color: '#062D4A',
         textAlign: 'center'
         
       },
       sectionText: {
         fontFamily: 'Orienta',
         fontSize: 15,
-        color: '#EDBD65',
+        color: '#545252',
         textAlign: 'left',
-        paddingLeft: 15,
-        paddingTop: 5,
+        paddingLeft: 10,
+        paddingTop: 7,
         paddingRight: 15 
       },
       sectionHeaders: {
@@ -77,9 +77,10 @@ const editStyles = StyleSheet.create({
       buttonText: {
         fontFamily: 'Orienta',
         fontSize: 15,
-        color: '#E29137',
+        color: '#062D4A',
         textAlign: 'center',
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        paddingRight: 5
       },
       parent: {
         width: 60,

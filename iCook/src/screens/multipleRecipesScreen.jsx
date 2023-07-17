@@ -251,10 +251,11 @@ const MultipleRecipesScreen = ({navigation}) => {
             {/* style for now */}
             <Text style={[{color:'orange'}, {fontSize:20}]}> ADD RECIPES (DEBUG)</Text>
           </TouchableOpacity>
-          {/* Custom Search Bar */}
-          <CustomSearchBar onInputChange={handleSearchInputChange}/>
-          <Text style={styles.title}>All Recipes</Text>
           
+          <Text style={styles.title}>Recipes</Text>
+          {/* Custom Search Bar */}
+          <CustomSearchBar onInputChange={handleSearchInputChange} inputStyle={[{backgroundColor: '#D9D9D9'}]}/>
+          <View style={[{paddingBottom: 10}]}></View>
           {/* Render our recipes in a list */}
           <FlatList
           data={shownRecipes}
