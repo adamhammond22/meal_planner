@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 // import expo fonts function
 import { useFonts } from 'expo-font';
 // Import react-native components
-import { StyleSheet, SafeAreaView, Button, Text, TextInput, View, ScrollView, TouchableOpacity, Image, Platform } from 'react-native'
+import { StyleSheet, SafeAreaView, Button, Text, TextInput, View, ScrollView, TouchableOpacity, Platform } from 'react-native'
 // This import allows for the scroll bar to follow user input as they type
 import InputScrollView from 'react-native-input-scroll-view'
 // Import SQLite functions
@@ -14,7 +14,7 @@ import { SelectList } from 'react-native-dropdown-select-list'
 import { editStyles } from './editRecipeStyle';
 //import image picker
 import * as ImagePicker from 'expo-image-picker';
-import { FlatList } from 'react-native-web';
+import { Image } from 'expo-image';
 
 // Init SQLite database obj
 const db = SQLite.openDatabase('recipe.db');
@@ -143,6 +143,8 @@ export const ViewRecipe = ({ route, navigation}) => {
   /* Load our fonts */
   const [fontsLoaded] = useFonts({
     'Orienta': require('../assets/fonts/Orienta-Regular.ttf'),
+    'Ovo-Regular': require('../assets/fonts/Ovo-Regular.ttf'),
+    'TangerineRegular': require('../assets/fonts/Tangerine-Regular.ttf'),
   });
   
  
@@ -190,6 +192,10 @@ export const ViewRecipe = ({ route, navigation}) => {
 
     // All the ingredent renders are loaded into here and called in the return statment
     const ingredientList = []
+
+    const blurhash =
+  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
+
     // This loop compiles all the ingredents into ingredients list to be direclty shown with .push
     loadedRecipe.ingredients.forEach((element, index) => {
       // If no unit selected
@@ -197,7 +203,7 @@ export const ViewRecipe = ({ route, navigation}) => {
         // If should be singular
         if(element.amount > 0 && element.amount <= 1){
           ingredientList.push(
-            <Text key={index} style={{marginTop: 5, marginLeft: 15, marginRight: 15, padding: 0, textAlign: 'left', color: '#EDBD65', fontSize: 15, fontFamily: 'Orienta'}}>
+            <Text key={index} style={{marginTop: 5, marginLeft: 15, marginRight: 15, padding: 0, textAlign: 'left', color: '#AFB8BA', fontSize: 15, fontFamily: 'Orienta'}}>
               {element.amount} {element.name}
             </Text>
           );
@@ -205,7 +211,7 @@ export const ViewRecipe = ({ route, navigation}) => {
         // If should be plural
         else{
           ingredientList.push(
-            <Text key={index} style={{marginTop: 5, marginLeft: 15, marginRight: 15, padding: 0, textAlign: 'left', color: '#EDBD65', fontSize: 15, fontFamily: 'Orienta'}}>
+            <Text key={index} style={{marginTop: 5, marginLeft: 15, marginRight: 15, padding: 0, textAlign: 'left', color: '#AFB8BA', fontSize: 15, fontFamily: 'Orienta'}}>
               {element.amount} {element.name}s
             </Text>
           )
@@ -216,7 +222,7 @@ export const ViewRecipe = ({ route, navigation}) => {
         // If should be singular
         if(element.amount > 0 && element.amount <= 1){
           ingredientList.push(
-            <Text key={index} style={{marginTop: 5, marginLeft: 15, marginRight: 15, padding: 0, textAlign: 'left', color: '#EDBD65', fontSize: 15, fontFamily: 'Orienta'}}>
+            <Text key={index} style={{marginTop: 5, marginLeft: 15, marginRight: 15, padding: 0, textAlign: 'left', color: '#AFB8BA', fontSize: 15, fontFamily: 'Orienta'}}>
               {element.amount} {Unit[element.unit].value} of {element.name}
             </Text>
           )
@@ -224,7 +230,7 @@ export const ViewRecipe = ({ route, navigation}) => {
         // If should be plural
         else{
           ingredientList.push(
-            <Text key={index} style={{marginTop: 5, marginLeft: 15, marginRight: 15, padding: 0, textAlign: 'left', color: '#EDBD65', fontSize: 15, fontFamily: 'Orienta'}}>
+            <Text key={index} style={{marginTop: 5, marginLeft: 15, marginRight: 15, padding: 0, textAlign: 'left', color: '#AFB8BA', fontSize: 15, fontFamily: 'Orienta'}}>
               {element.amount} {Unit[element.unit].value}s of {element.name}
             </Text>
           )
@@ -255,14 +261,15 @@ export const ViewRecipe = ({ route, navigation}) => {
       <Text style={styles.recipeName}>
         {loadedRecipe.name}
       </Text>
+      {/* Display Image */}
+      <View style={[{alignItems: 'center', paddingTop: 10, paddingBottom: 10, borderRadius: 200/2}]}>
+      <Image source={{ uri: loadedRecipe.image }} style={{ width: 300, height: 200, borderRadius: 12.5/2 }} />
+      </View>
+      {/* Description */}
       <Text 
         style={styles.descriptionStyle}>
         {loadedRecipe.description}
       </Text> 
-      {/* View Image */}
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-      {loadedRecipe.image && <Image source={{ uri: loadedRecipe.image }} style={{ width: 200, height: 200 }} />}
-      </View>
       {/* Ingredents section title */}
       <Text 
         style={styles.sectionHeaders}>
@@ -456,11 +463,12 @@ export const EditRecipe = ({ route, navigation}) => {
     ingredientJSXList.length = 0
     ingredientArray.forEach((element, index) => {
       ingredientJSXList.push(
-        <View  key={index} style = {{flexDirection: 'row', flex: 4, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 5, alignItems: 'center'}}>
+        <View  key={index} style = {{flexDirection: 'row', flex: 4, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 5, alignItems: 'center', backgroundColor: '#062D4A', borderRadius: 7, borderColor: '#062D4A'}}>
           {/* Amount Input */}
           <TextInput
             // Consistant width to have all units afterward line up. 75 should be wide enough for the allowed 6 characters
-            style={{width: 75, minWidth: 75, maxWidth: 75, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 5, marginRight: 10, paddingBottom: 5, paddingLeft: 5, paddingRight: 5, textAlign: 'center', fontWeight: 'bold'}}
+            //style={{width: 75, minWidth: 75, maxWidth: 75, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 5, marginRight: 10, paddingBottom: 5, paddingLeft: 5, paddingRight: 5, textAlign: 'center', fontWeight: 'bold'}}
+            style={{ width: 75, minWidth: 75, maxWidth: 75, borderWidth:  1, minHeight: 48, borderWidth:  1, marginTop: 8, marginBottom: 5, marginLeft: 5, marginRight: 10, padding: 10, textAlign: 'center', fontFamily: 'Orienta', borderRadius: 10, paddingTop: 14, color: '#545252', backgroundColor: '#D9D9D9'}}
             editable
             keyboardType='numeric'
             multiline={true}
@@ -472,17 +480,20 @@ export const EditRecipe = ({ route, navigation}) => {
             maxLength={6}
           />
           {/* Unit Select */}
+          <View style={[{backgroundColor: '#D9D9D9'}, {borderRadius: 10}, {borderColor: '#D9D9D9'}]}>
           <SelectList 
-            style = {{}}
-            setSelected={(key) => (ingredientArray[index].unit = key)} 
-            data={Unit} 
-            save='key'
-            defaultOption={Unit[element.unit]}
+          style = {{ height: 40}}
+          setSelected={(key) => (ingredientArray[index].unit = key)} 
+          data={Unit} 
+          save='key'
+          defaultOption={Unit[element.unit]}
           />
+          </View>
           {/* Name Input */}
           <TextInput
             // Needs flexGrow to fill remaining space, needs flexShrink to not overflow
-            style={{flexGrow: 1, flexShrink: 1, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 10, marginRight: 10, paddingBottom: 5, paddingLeft: 5, paddingRight: 5, textAlign: 'center', fontWeight: 'bold'}}
+            //style={{flexGrow: 1, flexShrink: 1, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 10, marginRight: 10, paddingBottom: 5, paddingLeft: 5, paddingRight: 5, textAlign: 'center', fontWeight: 'bold'}}
+            style={{ flexGrow: 1, flexShrink: 1, minHeight: 48, borderWidth:  1, marginTop: 8, marginBottom: 5, marginLeft: 10, marginRight: 10, paddingBottom: 5, paddingLeft: 5, paddingRight: 5, textAlign: 'center', fontFamily: 'Orienta', borderRadius: 10, paddingTop: 14, color: '#545252', backgroundColor: '#D9D9D9'}}
             editable
             multiline={true}
             //numberOfLines={1}
@@ -493,18 +504,21 @@ export const EditRecipe = ({ route, navigation}) => {
           />
           {/* Delete Ingredient Button */}
           <View style={styles.deleteIngredient} >
-            <TouchableOpacity style = {{ borderWidth:  1, padding: 5, marginRight: 5}}
+            {/*<TouchableOpacity style = {{ borderWidth:  1, padding: 5, marginRight: 5}}
             onPress={() => RemoveIngredent(index)} >
               <Text>Delete</Text>
+            </TouchableOpacity>*/}
+            <TouchableOpacity onPress={() => RemoveIngredent(index)} >
+              <Text style={[{color: '#FFFFFF', borderWidth:  1, padding: 5, marginRight: 5 }, {fontFamily: 'Orienta'}]}>Delete</Text>
             </TouchableOpacity>
           </View>
         </View>
       );
     });
     ingredientJSXList.push(
-      <TouchableOpacity  key={ingredientArray.length} style = {{flexDirection: 'row', flex: 4, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 5, borderRadius: 7}}
+      <TouchableOpacity  key={ingredientArray.length} style = {{flexDirection: 'row', flex: 4, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 5, borderRadius: 7, backgroundColor: '#FFFFFF'}}
       onPress={() => AddIngredent()}>
-        <Text>Add Ingredient</Text>
+        <Text style={[{color: '#031E33'}, {fontFamily: 'Orienta'}, {paddingLeft: 10}]}>Add Ingredient</Text>
       </TouchableOpacity>
     );
   }
@@ -625,8 +639,7 @@ export const EditRecipe = ({ route, navigation}) => {
   return (
     <>
     {/* This scroll view follows the location the user is typing. The keyboardOffset is set to prevent the keyboard on ios for hiding the curser */}
-    
-      <InputScrollView style={[editStyles.backgroundColor, {backgroundColor:'#983429'}]} keyboardOffset = {120}>
+      <InputScrollView style={[editStyles.backgroundColor, {backgroundColor:'#031E33'}]} keyboardOffset = {120}>
       <SafeAreaView > 
       
       {/* Enter name of recipe */}
@@ -636,7 +649,9 @@ export const EditRecipe = ({ route, navigation}) => {
         {marginLeft: 20}, 
         {marginRight: 20}, 
         {padding: 10}, 
-        {textAlign: 'center'}]}
+        {textAlign: 'left'},
+      {backgroundColor: '#D9D9D9'},
+      {borderRadius: 5}]}
          editable
          multiline={true}
          numberOfLines={1}
@@ -652,11 +667,13 @@ export const EditRecipe = ({ route, navigation}) => {
         {marginBottom: 10}, 
         {marginLeft: 20}, 
         {marginRight: 20}, 
-        {padding: 10}, 
-        {textAlign: 'center'}]}
+        {padding: 10},
+        {textAlign: 'left'},
+        {backgroundColor: '#D9D9D9'},
+      {borderRadius: 5}]}
 
         placeholder="Description"
-        placeholderTextColor={'#EDBD65'}
+        placeholderTextColor={'#AFB8BA'}
         editable
         multiline
         scrollEnabled={false}
@@ -669,9 +686,9 @@ export const EditRecipe = ({ route, navigation}) => {
         <TouchableOpacity onPress={() => pickImage()} style={styles.uploadImage}>
           <Text style={styles.buttonText}>Upload an Image</Text>
           </TouchableOpacity>
-       {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
-       
-       </View>
+        {image && <Image source={{ uri: image }} style={{ width: 300, height: 200, borderRadius: 12.5 }} />}
+      </View>
+
       {/* Ingredents section title */}
       <Text 
         style={styles.sectionHeaders}>
@@ -687,7 +704,7 @@ export const EditRecipe = ({ route, navigation}) => {
       </Text>
       {/* Instruction Text */}
       <TextInput
-        style={{borderWidth:  1, marginTop: 5, marginBottom: 30, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'left', borderRadius: 7}}
+        style={{borderWidth:  1, marginTop: 5, marginBottom: 30, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'left', borderRadius: 7, backgroundColor: '#D9D9D9', fontFamily: 'Orienta', color: '#545252', paddingTop: 10}}
         editable
         multiline
         scrollEnabled={false}
@@ -712,14 +729,14 @@ export const EditRecipe = ({ route, navigation}) => {
       <View style={styles.buttomButtons}>
       {/* Save Button */}
       <View style={styles.parent}>
-      <TouchableOpacity onPress={() => SaveEdit()} style={[editStyles.button, {backgroundColor: '#983429'}]}>
+      <TouchableOpacity onPress={() => SaveEdit()} style={[editStyles.button, {backgroundColor: '#ECEAE4'}]}>
         <Text style={editStyles.buttonText}> Save </Text>
       </TouchableOpacity>
       </View>
       {/* Cancel/Back Button */}
       <View style={styles.parent}>
       <TouchableOpacity  onPress={() => {console.log("Cancel: ", loadedRecipe.ingredients.length); navigation.replace('View-Recipe', {recipeId: loadedRecipe.id, preLoaded: true})}}
-        style={[editStyles.button, {backgroundColor: '#983429'}]} >
+      style={[editStyles.button, {backgroundColor: '#ECEAE4'}]} >
         <Text style={editStyles.buttonText}> Cancel </Text>
       </TouchableOpacity>
       </View>
@@ -736,46 +753,46 @@ export const EditRecipe = ({ route, navigation}) => {
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    backgroundColor: '#983429'
+    backgroundColor: '#031E33'
   },
   recipeName: {
     paddingTop: 20,
-    fontFamily: 'Orienta',
-    fontSize: 32,
-    color: '#EDBD65',
+    fontFamily: 'TangerineRegular',
+    fontSize: 64,
+    color: '#ECEAE4',
     textAlign: 'center'
   },
   descriptionStyle: {
     fontFamily: 'Orienta',
     fontSize: 15,
-    color: '#EDBD65',
+    color: '#ECEAE4',
     textAlign: 'center'
   },
   sectionText: {
     fontFamily: 'Orienta',
     fontSize: 15,
-    color: '#EDBD65',
+    color: '#AFB8BA',
     textAlign: 'left',
     paddingLeft: 15,
     paddingTop: 5,
     paddingRight: 15 
   },
   sectionHeaders: {
-    fontFamily: 'Orienta',
+    fontFamily: 'Ovo-Regular',
     fontSize: 20,
-    color: '#EDBD65',
+    color: '#ECEAE4',
     textAlign: 'left',
     paddingLeft: 30,
     paddingTop: 20 
   },
   flatlistContainer: {
-    backgroundColor: '#293137',
+    backgroundColor: '#062D4A',
     marginVertical: 15,
     marginHorizontal: 30,
     paddingTop: 5,
     paddingBottom: 11,
     justifyContent: 'center',
-    borderRadius: 7
+    borderRadius: 3
   },
   button: {
     alignItems: 'center',
@@ -783,14 +800,14 @@ const styles = StyleSheet.create({
     paddingTop: 7,
     borderRadius: 4,
     elevation: 3,
-    backgroundColor: '#EDBD65',
+    backgroundColor: '#ECEAE4',
   },
   uploadImage:{
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 4,
     elevation: 3,
-    backgroundColor: '#EDBD65',
+    backgroundColor: '#ECEAE4',
     width: 140,
     height: 30,
     marginTop: 10,
@@ -799,14 +816,14 @@ const styles = StyleSheet.create({
   buttonText: {
     fontFamily: 'Orienta',
     fontSize: 15,
-    color: '#293137',
+    color: '#062D4A',
     textAlign: 'center',
     fontWeight: 'bold'
   },
   parent: {
     width: 60,
     height: 30,
-    backgroundColor: '#EDBD65',
+    backgroundColor: '#ECEAE4',
     margin: 20,
     borderRadius: 3
   },
@@ -814,6 +831,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center'
+  },
+  image: {
+    flex: 1,
+    width: '100%',
+    backgroundColor: '#0553',
   }
 })
 
