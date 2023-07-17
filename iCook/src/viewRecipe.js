@@ -65,7 +65,7 @@ function formatTags(recipe, databaseTagsString) {
     if(element == '') {
       return
     }
-    recipe.tags.push(element)
+    recipe.tags.push({element})
   })
 }
 
@@ -149,7 +149,7 @@ export const ViewRecipe = ({ route, navigation}) => {
   useEffect(() => {
     db.transaction(tx => {
       tx.executeSql(
-        'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, ingredients TEXT, instructions TEXT, image BLOB, tags TEXT)',
+        'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, ingredients TEXT, instructions TEXT, tags TEXT)',
         [],
         () => loadRecipe(loadedRecipe.id)
       );
@@ -236,11 +236,9 @@ export const ViewRecipe = ({ route, navigation}) => {
 
     // Loop through all tags and add JSX to list
     loadedRecipe.tags.forEach((element, index) => {
-      console.log("adding: %s to tagsList", element)
       tagsList.push(
         <Text key={index} style={{marginTop: 5, marginLeft: 15, marginRight: 15, padding: 0, textAlign: 'left', color: '#EDBD65', fontSize: 15, fontFamily: 'Orienta'}}>
-          { element }
-          { console.log("value of loadedRecipe.tags: %s", element)}
+          {element}
         </Text>
       )
     })
