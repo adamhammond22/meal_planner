@@ -393,6 +393,18 @@ export const EditRecipe = ({ route, navigation}) => {
     // Update Ingredient Count (forces an update durring the add)
     setIngredientCount(ingredientCount + 1)
   }
+
+  // This function deletes the passed recipe and returns to the main screen
+  const deleteRecipeFromEditPage = (id) => {
+    db.transaction(
+      tx => {
+        tx.executeSql(`DELETE FROM Recipes where id = ?;`, [id]);
+      },
+      null,
+      null
+    );
+    navigation.replace('Multi-Screen')
+  };
   
   /* Function to Remove an ingredient from the ingredientList, specified by given index */
   const RemoveIngredent = (indexToRemove) => {
@@ -421,7 +433,7 @@ export const EditRecipe = ({ route, navigation}) => {
   }
 
   /* Load our ingredient jsx before rendering */
-  loadIngredientView()
+  loadIngredientEdit()
 
   const ValidateNumericIngredientInput = (input, ingredientIndex) => {
     validInput = input.replace(/[^0-9.]/g, '')
@@ -431,48 +443,53 @@ export const EditRecipe = ({ route, navigation}) => {
   }
 
   const ValidateAlphebeticIngredientInput = (input, ingredientIndex) => {
-    ingredientArray[ingredientIndex].name = input.replace(/[\~\*]/gi, '')
+    ingredientArray[ingredientIndex].name = input.replace(/[\~\*]/gm, '')
   }
   
   // Iterates through the ingredients and puts them in ingredientsList to display
-  function loadIngredientView(){
+  function loadIngredientEdit(){
     ingredientJSXList.length = 0
     ingredientArray.forEach((element, index) => {
       ingredientJSXList.push(
         <View  key={index} style = {{flexDirection: 'row', flex: 4, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 5, alignItems: 'center'}}>
           {/* Amount Input */}
           <TextInput
-            style={{ flexGrow: 1, borderWidth:  1, marginTop: 20, marginBottom: 5, marginLeft: 10, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
+            // Consistant width to have all units afterward line up. 75 should be wide enough for the allowed 6 characters
+            style={{width: 75, minWidth: 75, maxWidth: 75, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 5, marginRight: 10, paddingBottom: 5, paddingLeft: 5, paddingRight: 5, textAlign: 'center', fontWeight: 'bold'}}
             editable
             keyboardType='numeric'
             multiline={true}
-            numberOfLines={1}
             blurOnSubmit={true}
             onChangeText={value => {ValidateNumericIngredientInput(value, index)}}
             defaultValue={element.amount.toString()}
-            
+            placeholder = '###'
+            // Limited to 6 characters to keep edit display looking neat
+            maxLength={6}
           />
           {/* Unit Select */}
           <SelectList 
-          style = {{ flexGrow: 1}}
-          setSelected={(key) => (ingredientArray[index].unit = key)} 
-          data={Unit} 
-          save='key'
-          defaultOption={Unit[element.unit]}
+            style = {{}}
+            setSelected={(key) => (ingredientArray[index].unit = key)} 
+            data={Unit} 
+            save='key'
+            defaultOption={Unit[element.unit]}
           />
           {/* Name Input */}
           <TextInput
-            style={{ flexGrow: 4, borderWidth:  1, marginTop: 20, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
+            // Needs flexGrow to fill remaining space, needs flexShrink to not overflow
+            style={{flexGrow: 1, flexShrink: 1, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 10, marginRight: 10, paddingBottom: 5, paddingLeft: 5, paddingRight: 5, textAlign: 'center', fontWeight: 'bold'}}
             editable
             multiline={true}
-            numberOfLines={1}
+            //numberOfLines={1}
             blurOnSubmit={true}
             onChangeText={value => (ValidateAlphebeticIngredientInput(value, index))}
             defaultValue={element.name}
+            placeholder='Ingrident Name'
           />
           {/* Delete Ingredient Button */}
           <View style={styles.deleteIngredient} >
-            <TouchableOpacity onPress={() => RemoveIngredent(index)} >
+            <TouchableOpacity style = {{ borderWidth:  1, padding: 5, marginRight: 5}}
+            onPress={() => RemoveIngredent(index)} >
               <Text>Delete</Text>
             </TouchableOpacity>
           </View>
@@ -672,6 +689,11 @@ export const EditRecipe = ({ route, navigation}) => {
       {/* Show Tags */}
       {tagsJSXList}
 
+      {/* Delete Button */}
+      <TouchableOpacity
+      onPress = {() => deleteRecipeFromEditPage(loadedRecipe.id)} style={[editStyles.button, {backgroundColor: '#983429'}]}>
+        <Text>DELETE RECIPE</Text>
+      </TouchableOpacity>
       <View style={styles.buttomButtons}>
       {/* Save Button */}
       <View style={styles.parent}>
