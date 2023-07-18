@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native'
-import { primaryContainerColor, primaryTextColor, deleteButtonColor } from './globalStyle';
+import { primaryContainerColor, primaryTextColor, deleteButtonColor, primaryBackgroundColor } from './globalStyle';
 
 const inputTextColor = '#545252'
 const inputBackgroundColor = '#D9D9D9'
@@ -131,7 +131,8 @@ const editStyles = StyleSheet.create({
     borderWidth:  1, 
     padding: 5, 
     marginRight: 5,
-    backgroundColor: deleteButtonColor
+    backgroundColor: primaryTextColor,
+    borderRadius: 5,
   },
   ingredientAddButtonStyle:{
     flexDirection: 'row', 
@@ -189,7 +190,8 @@ const editStyles = StyleSheet.create({
     borderWidth:  1, 
     padding: 5, 
     marginRight: 5,
-    backgroundColor: deleteButtonColor
+    backgroundColor: primaryTextColor,
+    borderRadius: 5,
   },
   tagAddButtonStyle:{
     flexDirection: 'row', 
@@ -237,19 +239,22 @@ const editStyles = StyleSheet.create({
 
   // Delete Buttons Style ----------------------------------------------------------------------------------
   parentDeleteStyle: {
-    width: 100,
+    width: 150,
     height: 30,
-    backgroundColor: deleteButtonColor,
+    justifyContent: 'center',
+    // backgroundColor: primaryBackgroundColor,
+    backgroundColor: primaryTextColor,
     margin: 20,
     borderRadius: 3
   },
   buttonDeleteStyle: {
+    textDecorationColor: 'red',
     alignItems: 'center',
     justifyContent: 'center',
     paddingTop: 7,
     borderRadius: 4,
     elevation: 3,
-    backgroundColor: deleteButtonColor,
+    backgroundColor: primaryBackgroundColor,
   },
 });
 export {editStyles}

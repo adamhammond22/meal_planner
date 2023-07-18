@@ -496,7 +496,7 @@ export const EditRecipe = ({ route, navigation}) => {
           {/* Delete Ingredient Button */}
           <TouchableOpacity style = {editStyles.ingredientDeleteButtonStyle}
             onPress={() => RemoveIngredent(index)} >
-              <Text>Delete</Text>
+              <Text style={[globalStyles.buttonTextStyle, {color:'red'}]}>Delete</Text>
           </TouchableOpacity>
         </View>
       );
@@ -548,7 +548,7 @@ export const EditRecipe = ({ route, navigation}) => {
             {/* Delete Tag Button */}
             <TouchableOpacity style = {editStyles.tagDeleteButtonStyle}
             onPress={() => RemoveTag(index)} >
-              <Text>Delete</Text>
+              <Text style={[globalStyles.buttonTextStyle, {color:'red'}]}>Delete</Text>
             </TouchableOpacity>
           </View>
       )
@@ -686,9 +686,9 @@ export const EditRecipe = ({ route, navigation}) => {
       {/* Delete Button */}
       <View style={globalStyles.bottomButtonStyle}>
         <View style={editStyles.parentDeleteStyle}>
-          <TouchableOpacity style={[editStyles.buttonDeleteStyle]}
+          <TouchableOpacity style={[editStyles.buttonStyle]}
           onPress = {() => deleteAlert(loadedRecipe.id)}>
-            <Text style={globalStyles.buttonTextStyle}>DELETE RECIPE</Text>
+            <Text style={[globalStyles.buttonTextStyle, {color:'red'}]}>DELETE RECIPE</Text>
           </TouchableOpacity>
         </View>
       </View>
