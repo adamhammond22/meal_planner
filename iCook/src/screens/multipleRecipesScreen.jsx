@@ -98,6 +98,8 @@ const MultipleRecipesScreen = ({navigation}) => {
   /* Load our fonts */
   const [fontsLoaded] = useFonts({
     'Orienta': require('../../assets/fonts/Orienta-Regular.ttf'),
+    'Ovo-Regular': require('../../assets/fonts/Ovo-Regular.ttf'),
+    'TangerineRegular': require('../../assets/fonts/Tangerine-Regular.ttf'),
   });
 
 
