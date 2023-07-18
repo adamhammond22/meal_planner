@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 // import expo fonts function
-import { useFonts } from 'expo-font';
+//import { useFonts } from 'expo-font';
 // /import useFonts from '../useFonts';
 // Import react-native components
 import { StyleSheet, SafeAreaView, Button, Text, TextInput, View, ScrollView, TouchableOpacity, Image, Platform } from 'react-native'
@@ -17,7 +17,7 @@ import { viewStyles } from './styleSheets/viewRecipeStyle'
 //import image picker
 import * as ImagePicker from 'expo-image-picker';
 import { FlatList } from 'react-native-web';
-import { globalStyles } from './styleSheets/globalStyle';
+import { globalStyles, loadFonts } from './styleSheets/globalStyle';
 
 // Init SQLite database obj
 const db = SQLite.openDatabase('recipe.db');
@@ -144,11 +144,12 @@ export const ViewRecipe = ({ route, navigation}) => {
 
   
   /* Load our fonts */
-  const [fontsLoaded] = useFonts({
+  /*const [fontsLoaded] = useFonts({
     'Orienta-Regular': require('../assets/fonts/Orienta-Regular.ttf'),
     'Ovo-Regular': require('../assets/fonts/Ovo-Regular.ttf'),
     'Tangerine-Regular': require('../assets/fonts/Tangerine-Regular.ttf'),
-  });
+  });*/
+  loadFonts();
  
   /* useEffect calls this every time this application is loaded, we make sure a table exists and call loadRecipes() */
   useEffect(() => {
@@ -183,7 +184,7 @@ export const ViewRecipe = ({ route, navigation}) => {
     }
   };
   /* If Loading, simply show that we're loading */
-  if (isLoading || !fontsLoaded) {
+  if (isLoading){//} || !fontsLoaded) {
     return (
         <View style={editStyles.loading}>
           <Text>Loading Recipe...</Text>

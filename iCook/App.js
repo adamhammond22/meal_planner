@@ -5,7 +5,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import LottieView from 'lottie-react-native';
-import { useFonts } from 'expo-font';
+import { loadFonts } from './src/styleSheets/globalStyle';
+//import { useFonts } from 'expo-font';
 
 import { ViewRecipe, LoadRecipe, EditRecipe } from './src/viewRecipe'
 import MultipleRecipesScreen from './src/screens/multipleRecipesScreen'
@@ -38,11 +39,12 @@ function Home() {
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
 
-  const [fontsLoaded] = useFonts({
+  /*const [fontsLoaded] = useFonts({
     'Orienta': require('./assets/fonts/Orienta-Regular.ttf'),
     'Ovo-Regular': require('./assets/fonts/Ovo-Regular.ttf'),
     'TangerineRegular': require('./assets/fonts/Tangerine-Regular.ttf'),
-  });
+  });*/
+  loadFonts()
 
   useEffect(() => {
     setTimeout(() => {
@@ -50,7 +52,7 @@ const App = () => {
     }, 3000);
   }, []);
 
-  if (isLoading || !fontsLoaded) {
+  if (isLoading){//} || !fontsLoaded) {
     return (
       <View style={styles.loadingContainer}>
         <LottieView
@@ -90,7 +92,7 @@ const App = () => {
               backgroundColor: '#062D4A',
             },
             headerTitleStyle: {
-              fontFamily: 'TangerineRegular',
+              fontFamily: 'Tangerine-Regular',
               color: '#ECEAE4',
               fontWeight: 'bold', 
               fontSize: 24,

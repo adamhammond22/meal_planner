@@ -1,7 +1,13 @@
 import { StyleSheet } from 'react-native'
 import {SafeAreaView, Button, Text, View, TouchableOpacity, Image, useEffect} from 'react-native'
-import { useFonts } from 'expo-font';
 import * as Font from 'expo-font';
+
+export const loadFonts = async () =>{
+await Font.loadAsync({
+    'Orienta-Regular': require('../../assets/fonts/Orienta-Regular.ttf'),
+    'Ovo-Regular': require('../../assets/fonts/Ovo-Regular.ttf'),
+    'Tangerine-Regular': require('../../assets/fonts/Tangerine-Regular.ttf'),
+});}
 
 export const primaryBackgroundColor = '#031E33'
 export const primaryTextColor = '#ECEAE4'

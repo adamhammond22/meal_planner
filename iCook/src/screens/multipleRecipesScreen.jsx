@@ -4,8 +4,6 @@
 import React, { useState, useEffect } from 'react'
 //import react native components
 import { SafeAreaView, Text, View, TouchableOpacity, FlatList } from 'react-native'
-// import function for expo-font
-import { useFonts } from 'expo-font';
 // import empty recipe loader
 import { LoadEmptyRecipe } from '../viewRecipe';
 // import homepage style sheet
@@ -16,6 +14,8 @@ import * as SQLite from 'expo-sqlite';
 import { CustomSearchBar } from '../components/Searchbar';
 /* Import Fake Recipes */
 import { fakeRecipes } from '../../assets/fakeRecipes';
+// Import loadFonts from the global Style Sheet
+import { loadFonts } from '../styleSheets/globalStyle';
 
 /* Init SQLite database obj */
 const db = SQLite.openDatabase('recipe.db');
@@ -97,12 +97,12 @@ const MultipleRecipesScreen = ({navigation}) => {
 
   /* Load our fonts */
   /* Load our fonts */
-  const [fontsLoaded] = useFonts({
+  /*const [fontsLoaded] = useFonts({
     'Orienta-Regular': require('../../assets/fonts/Orienta-Regular.ttf'),
     'Ovo-Regular': require('../../assets/fonts/Ovo-Regular.ttf'),
     'Tangerine-Regular': require('../../assets/fonts/Tangerine-Regular.ttf'),
-  });
-
+  });*/
+  loadFonts();
 
   /* ========== Helper Functions ========== */
 
@@ -307,7 +307,7 @@ const MultipleRecipesScreen = ({navigation}) => {
   );
 
   /* If Loading, simply show that we're loading */
-  if (isLoading || !fontsLoaded) {
+  if (isLoading){//} || !fontsLoaded) {
     return (
       <SafeAreaView>
         <View style={styles.loading}>
