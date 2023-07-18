@@ -38,7 +38,7 @@ const viewStyles = StyleSheet.create(
         fontFamily: 'Orienta-Regular'
     },
     sectionTextStyle: {
-        fontFamily: 'Ovo-Regular',
+        fontFamily: 'Orienta-Regular',
         fontSize: 15,
         color: primaryTextColor,
         textAlign: 'left',
@@ -47,7 +47,7 @@ const viewStyles = StyleSheet.create(
         paddingRight: 15 
     },
     sectionHeaderStyle: {
-        fontFamily: 'Orienta-Regular',
+        fontFamily: 'Ovo-Regular',
         fontSize: 20,
         color: primaryTextColor,
         textAlign: 'left',

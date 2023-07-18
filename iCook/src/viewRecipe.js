@@ -253,7 +253,7 @@ export const ViewRecipe = ({ route, navigation}) => {
         </Text> 
         {/* View Image */}
         <View style={globalStyles.imageContainerStyle}>
-        {loadedRecipe.image && <Image source={{ uri: loadedRecipe.image }} style={globalStyles.imageStyle} />}
+        {loadedRecipe.image && <Image source={{ uri: loadedRecipe.image }} style={[globalStyles.imageStyle, {marginTop: 10}]} />}
         </View>
         {/* Ingredents section title */}
         <Text 
