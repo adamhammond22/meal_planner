@@ -17,6 +17,7 @@ import { fakeRecipes } from '../../assets/fakeRecipes';
 // Import loadFonts from the global Style Sheet
 import { loadFonts } from '../styleSheets/globalStyle';
 
+
 /* Init SQLite database obj */
 const db = SQLite.openDatabase('recipe.db');
 
@@ -25,11 +26,12 @@ const db = SQLite.openDatabase('recipe.db');
 
 /* Boolean Function - if ANY recipe field includes this string, return true, otherwise false */
 function recipeIncludesString(recipe, string) {
-  const {name, description, ingredients, instructions} = recipe
+  const {name, description, ingredients, instructions, tags} = recipe
   if( name.toLowerCase().includes(string) ||
     description.toLowerCase().includes(string) ||
     ingredients.toLowerCase().includes(string) ||
-    instructions.toLowerCase().includes(string)
+    instructions.toLowerCase().includes(string) ||
+    tags.toLowerCase().includes(string)
   ) {  
     return true
 
@@ -96,12 +98,6 @@ const MultipleRecipesScreen = ({navigation}) => {
 
 
   /* Load our fonts */
-  /* Load our fonts */
-  /*const [fontsLoaded] = useFonts({
-    'Orienta-Regular': require('../../assets/fonts/Orienta-Regular.ttf'),
-    'Ovo-Regular': require('../../assets/fonts/Ovo-Regular.ttf'),
-    'Tangerine-Regular': require('../../assets/fonts/Tangerine-Regular.ttf'),
-  });*/
   loadFonts();
 
   /* ========== Helper Functions ========== */
@@ -158,7 +154,7 @@ const MultipleRecipesScreen = ({navigation}) => {
     for (const rec of fakeRecipes) {
       new Promise((resolve, reject) => {
         db.transaction(tx => {
-          tx.executeSql('INSERT INTO Recipes (name, description, ingredients, instructions, image, tags) values (?, ?, ?, ?, ?, ?)', [rec.name, rec.desc, rec.ingr, rec.inst, null, ''], 
+          tx.executeSql('INSERT INTO Recipes (name, description, ingredients, instructions, image, tags) values (?, ?, ?, ?, ?, ?)', [rec.name, rec.desc, rec.ingr, rec.inst, null, rec.tag], 
           (_, { insertId }) => resolve(insertId),
           (_, error) => reject(error)
           );
@@ -309,20 +305,24 @@ const MultipleRecipesScreen = ({navigation}) => {
       <Text numberOfLines={2} ellipsizeMode="tail" style={homeStyles.descripText}>{formatTags(item.tags)}</Text>
 
       <View style={homeStyles.recipeButtonRowStyle}>
+
         {/* Add To Shopping Button */}
         <TouchableOpacity onPress={() => console.log("not implemented!")}>
-          <Text style={[homeStyles.recipeButton, {alignSelf:'flex-end'}, {justifyContent:'center'},{padding:10}  ]} >Add to Shopping</Text>
+          <Text style={[homeStyles.recipeButton]} >Add to Shopping</Text>
         </TouchableOpacity>
+
         {/* Delete Button */}
         <TouchableOpacity onPress={() => deleteAlert(item.id)}>
-          <Text style={[homeStyles.recipeButton, {alignSelf:'flex-end'}, {justifyContent:'center'},{padding:10}  ]}> Delete </Text>
+          <Text style={[homeStyles.recipeButton]}> Delete </Text>
         </TouchableOpacity>
+
       </View>
+
     </TouchableOpacity >
   );
 
   /* If Loading, simply show that we're loading */
-  if (isLoading){//} || !fontsLoaded) {
+  if (isLoading) {
     return (
       <SafeAreaView>
         <View style={homeStyles.loading}>
@@ -336,36 +336,45 @@ const MultipleRecipesScreen = ({navigation}) => {
   return (
     
       <SafeAreaView style={homeStyles.home}>
-      {/* <View style={homeStyles.recipeWrapper}> */}
-          {/* Debug Buttons Area */}
-          <View style = {homeStyles.debugEndLineStyle}>
-            {/* <Button title="Delete EVERYTHING (debug)" onPress={() => DEBUG_DELETE_TABLE()} /> */}
-            <TouchableOpacity onPress={() => DEBUG_DELETE_TABLE()}>
-              {/* style for now */}
-              <Text style={homeStyles.debugDeleteStyle}> DELETE EVERYTHING (DEBUG)</Text>
-            </TouchableOpacity>
-            {/* <Button title="Delete EVERYTHING (debug)" onPress={() => DEBUG_DELETE_TABLE()} /> */}
-            <TouchableOpacity onPress={() => DEBUG_ADD_RECIPES()}>
-              {/* style for now */}
-              <Text style={homeStyles.debugAddStyle}> ADD RECIPES (DEBUG)</Text>
-            </TouchableOpacity>
-          </View>
-          <Text style={homeStyles.title}>Recipes</Text>
-          {/* Custom Search Bar */}
-          <CustomSearchBar onInputChange={handleSearchInputChange} inputStyle={homeStyles.searchBarInputStyle}/>
-          <View style={homeStyles.searchBarBufferStyle}></View>
-          {/* Render our recipes in a list */}
-          <FlatList
-          data={shownRecipes}
-          keyExtractor={({ id }) => id.toString()}
-          renderItem={renderRecipes}
-          />
 
-          {/* <Button title={"New Recipe"} onPress= {() => navigateToRecipe(null) } /> */}
-          <TouchableOpacity onPress= {() => navigateToRecipe(null) }>
-            <Text style={[homeStyles.button, homeStyles.newRecipeButtonAdditionsStyle]}> Adds New Recipe </Text>
+        {/* Debug Buttons Area */}
+        <View style = {homeStyles.debugEndLineStyle}>
+
+          {/* <Button title="Delete EVERYTHING (debug)" onPress={() => DEBUG_DELETE_TABLE()} /> */}
+          <TouchableOpacity onPress={() => DEBUG_DELETE_TABLE()}>
+
+            {/* style for now */}
+            <Text style={homeStyles.debugDeleteStyle}> DELETE EVERYTHING (DEBUG)</Text>
           </TouchableOpacity>
-      {/* </View> */}
+
+          {/* <Button title="Delete EVERYTHING (debug)" onPress={() => DEBUG_DELETE_TABLE()} /> */}
+          <TouchableOpacity onPress={() => DEBUG_ADD_RECIPES()}>
+
+            {/* style for now */}
+            <Text style={homeStyles.debugAddStyle}> ADD RECIPES (DEBUG)</Text>
+
+          </TouchableOpacity>
+
+        </View>
+
+
+        <Text style={homeStyles.title}>Recipes</Text>
+
+        {/* Custom Search Bar */}
+        <CustomSearchBar onInputChange={handleSearchInputChange} inputStyle={homeStyles.searchBarInputStyle}/>
+        <View style={homeStyles.searchBarBufferStyle}></View>
+
+        {/* Render our recipes in a list */}
+        <FlatList
+        data={shownRecipes}
+        keyExtractor={({ id }) => id.toString()}
+        renderItem={renderRecipes}
+        />
+
+        {/* <Button title={"New Recipe"} onPress= {() => navigateToRecipe(null) } /> */}
+        <TouchableOpacity onPress= {() => navigateToRecipe(null) }>
+          <Text style={[homeStyles.button, homeStyles.newRecipeButtonAdditionsStyle]}> Adds New Recipe </Text>
+        </TouchableOpacity>
       </SafeAreaView>
   )
 }

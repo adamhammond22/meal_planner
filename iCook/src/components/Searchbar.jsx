@@ -1,11 +1,15 @@
 /* Searchbar.jsx defines and exports the CustomSearchBar component */
 import * as React from "react";
-import { SearchBar, Icon, Button } from "@rneui/base";
-import { Text, View, TouchableOpacity, FlatList  } from 'react-native'
+import { SearchBar, Icon } from "@rneui/base";
+import { Text, View, TouchableOpacity  } from 'react-native';
+
+import { searchStyles} from "../styleSheets/searchStyle";
 
 const SearchBarHeight = 40
 const SearchBarWidth = '90%'
 
+
+/* Small Helper function that returns True if the input is all whitespace text */
 function isNotWhitespace(input) {
   return /^\S+$/.test(input.trim());
 }
@@ -94,10 +98,9 @@ export const CustomSearchBar = ({ onInputChange }) => {
       return
     } else{
       return(
-        <View  style={{flexDirection: 'row', borderRadius:10, margin:2, padding:4,
-        marginHorizontal:1, alignItems: 'center'}}>
+        <View  style={searchStyles.previousSearchCancelContainerStyle}>
           <TouchableOpacity onPress={() => cancelSearch()}>
-            <Icon name= 'cancel'/>
+            <Icon  iconStyle ={searchStyles.previousSearchIconStyle} name= 'cancel'/>
         </TouchableOpacity>
         </View>
       )
@@ -107,13 +110,12 @@ export const CustomSearchBar = ({ onInputChange }) => {
   /* Function that renders all of the previous searches as buttons */
   const renderCurrentSearches = () => {
     return currentSearches.map((item, index) => (
-    <View style={{borderWidth: 3, borderColor: '#293137', flexDirection: 'row', borderRadius:10, margin:2, padding:4,
-      marginHorizontal:1, alignItems: 'center'}} key={index}>
+    <View style={searchStyles.previousSearchIndividualContainerStyle} key={index}>
     
-      <Text style={{fontSize: 18, flexWrap: 'wrap', maxWidth: SearchBarWidth}}>{item}</Text>
+      <Text style={searchStyles.previousSearchTextStyle}>{item}</Text>
       {/* <Button title="Delete" onPress={() => deleteRecipe(item.id)} /> */}
       <TouchableOpacity onPress={() => removeSearch(item)}>
-        <Icon name= 'delete' />
+        <Icon iconStyle ={searchStyles.previousSearchIconStyle} name= 'delete' />
       </TouchableOpacity>
 
     </View >         
@@ -122,27 +124,24 @@ export const CustomSearchBar = ({ onInputChange }) => {
 
 
   return (
-    <View style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'center',}}>
+    <View style={ searchStyles.searchContainerStyle}>
       {/* Imported searchbar */}
       <SearchBar
         platform="default"
-        containerStyle={{height: SearchBarHeight, width: SearchBarWidth, padding: 0, backgroundColor: 'rgba(0, 0, 0, 0)', borderTopWidth: 0, borderBottomWidth: 0}}
-        inputContainerStyle={{height: SearchBarHeight, width: '100%'}}
+        containerStyle={searchStyles.searchbarContainerStyle}
+        inputContainerStyle={searchStyles.searchInputContainerStyle}
+        inputStyle={searchStyles.inputStyle}
+        placeholderTextColor='#AFB8BA'
         round={true}
-        searchIcon={{}}
-        loadingProps={{}}
         onChangeText={newInput => setInput(newInput)}
-        onClearText={{}}
         ref={search => this.search = search}
         placeholder="Type Search Here ..."
-        placeholderTextColor="#888"
         clearButtonTitle="Clear"
         onSubmitEditing ={() => handleSubmit()}
-        cancelButtonProps={{}}
         value={input}
       />
       {/* Render our previous searches and the cancel button */}
-      <View style={{maxWidth: SearchBarWidth, flexWrap:'wrap', flexDirection: 'row', justifyContent:'center'}} >
+      <View style={searchStyles.previousSearchContainerStyle} >
         {renderCurrentSearches()}
         {conditionallyRenderCancelButton()}
       </View>

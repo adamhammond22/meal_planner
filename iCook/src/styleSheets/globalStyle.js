@@ -1,10 +1,10 @@
 import { StyleSheet } from 'react-native'
 import * as Font from 'expo-font';
 
-export const primaryBackgroundColor = '#031E33'
-export const primaryTextColor = '#ECEAE4'
-export const primaryContainerColor = '#062D4A'
-export const deleteButtonColor = '#EF0107'
+export const primaryBackgroundColor = '#031E33' //dark blue
+export const primaryTextColor = '#ECEAE4' //cream
+export const primaryContainerColor = '#062D4A' //lighter blue
+export const deleteButtonColor = '#EF0107' //red
 
 export const loadFonts = async () =>{
     await Font.loadAsync({

@@ -2,14 +2,6 @@ import { StyleSheet } from 'react-native'
 import {primaryBackgroundColor, primaryTextColor, primaryContainerColor} from '../styleSheets/globalStyle'
 
 const homeStyles = StyleSheet.create({
-  // container: {
-  //   flex: 1,
-  //   backgroundColor: 'grey',
-  //   alignItems: 'center'
-  // },
-  // wrapper: {
-  //   flex: 1
-  // },
   home: {
     flex:1,
     backgroundColor: primaryBackgroundColor
@@ -66,12 +58,7 @@ const homeStyles = StyleSheet.create({
     justifyContent:"center",
     marginTop: 10,
     marginBottom: -38,
-    fontWeight: 'bold',
-    /*
-    flexDirection:'row'}, 
-    margin: 10, 
-    justifyContent:'center'*/
-    // wordWrap: 'break-word'
+    fontWeight: 'bold'
   },
   title: {
     fontFamily: 'Tangerine-Regular',
