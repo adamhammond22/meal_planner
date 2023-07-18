@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native'
 import {SafeAreaView, Button, Text, View, TouchableOpacity, Image, useEffect} from 'react-native'
 import { useFonts } from 'expo-font';
+import {primaryBackgroundColor, primaryTextColor, primaryContainerColor} from '../styleSheets/globalStyle'
 
 const styles = StyleSheet.create({
     // container: {
@@ -13,12 +14,12 @@ const styles = StyleSheet.create({
     // },
     home: {
       flex:1,
-      backgroundColor: '#031E33'
+      backgroundColor: primaryBackgroundColor
     
     },
     recipeWrapper: {
       display:'flex',
-      backgroundColor: '#062D4A',
+      backgroundColor: primaryContainerColor,
       borderRadius: 7,
       marginBottom: 5,
       marginLeft:10,
@@ -32,7 +33,7 @@ const styles = StyleSheet.create({
       alignSelf: 'flex-start',
       justifyContent:"space-between",
       alignSelf:"auto",
-      color: '#ECEAE4',
+      color: primaryTextColor,
       textAlign: 'left',
       paddingLeft: 15,
       paddingTop: 10,
@@ -40,7 +41,7 @@ const styles = StyleSheet.create({
       fontWeight: '400',
     },
     descripText:{
-      fontFamily: 'Orienta',
+      fontFamily: 'Orienta-Regular',
       alignSelf: 'flex-start',
       color: '#AFB8BA',
       fontWeight: '400',
@@ -49,8 +50,8 @@ const styles = StyleSheet.create({
       fontSize: 12,
     },
     recipeButton:{
-      fontFamily: 'Orienta',
-      color: '#ECEAE4',
+      fontFamily: 'Orienta-Regular',
+      color: primaryTextColor,
       fontSize: 15,
       flexDirection:'row',
       alignItems:'flex-end',
@@ -60,8 +61,8 @@ const styles = StyleSheet.create({
       fontWeight: '400',
     },
     button:{
-      fontFamily: 'Orienta',
-      color: '#ECEAE4',
+      fontFamily: 'Orienta-Regular',
+      color: primaryTextColor,
       fontSize: 15,
       alignContent:"center",
       justifyContent:"center",
@@ -72,8 +73,8 @@ const styles = StyleSheet.create({
       // wordWrap: 'break-word'
     },
     title: {
-      fontFamily: 'TangerineRegular',
-      color: '#ECEAE4',
+      fontFamily: 'Tangerine-Regular',
+      color: primaryTextColor,
       fontSize: 64,
       textAlign: 'center',
       // textDecorationLine:'underline',
@@ -81,8 +82,8 @@ const styles = StyleSheet.create({
       marginBottom: 15,
     },
     description:{
-      fontFamily: 'Orienta',
-      color: '#062D4A',
+      fontFamily: 'Orienta-Regular',
+      color: primaryTextColor,
       textAlign:"left",
     },
     images:{
