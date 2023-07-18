@@ -1,57 +1,60 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, SafeAreaView, View } from 'react-native'
-import { NavigationContainer } from '@react-navigation/native'
-import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import { StyleSheet, SafeAreaView, View } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import Ionicons from 'react-native-vector-icons/Ionicons'; // Import Ionicons from react-native-vector-icons
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import LottieView from 'lottie-react-native';
+import { useFonts } from 'expo-font';
 
-import globalStyles from './src/globalStyles'
+import globalStyles from './src/globalStyles';
 
-import { ViewRecipe, LoadRecipe, EditRecipe } from './src/viewRecipe'
-import MultipleRecipesScreen from './src/screens/multipleRecipesScreen'
+import { ViewRecipe, LoadRecipe, EditRecipe } from './src/viewRecipe';
+import MultipleRecipesScreen from './src/screens/multipleRecipesScreen';
 
-// Define other screens...
 import CalendarScreen from './src/screens/CalendarScreen.jsx'; 
 import LoginScreen from './src/screens/LoginScreen.jsx'; 
 import ShopScreen from './src/screens/ShopScreen.jsx'; 
 import ShareScreen from './src/screens/ShareScreen.jsx';
-import { HeaderTitle } from '@react-navigation/elements';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// Create a new Home component that includes your Stack Navigator
 function Home() {
   return (
-    <Stack.Navigator initialRouteName='Multi-Screen'>
-      <Stack.Screen 
-      screenOptions={{headerShown: false}}
-        name="Multi-Screen" 
-        component={MultipleRecipesScreen} 
-        options={{ headerShown: false }} // this line hides the header
+    <Stack.Navigator initialRouteName="Multi-Screen">
+      <Stack.Screen
+        name="Multi-Screen"
+        component={MultipleRecipesScreen}
+        options={{ headerShown: false }}
       />
-      <Stack.Screen name="View-Recipe" component={ViewRecipe}/>
+      <Stack.Screen name="View-Recipe" component={ViewRecipe} />
       <Stack.Screen name="Edit-Recipe" component={EditRecipe} />
-      <Stack.Screen name="Delete-Recipe" component={EditRecipe}/>
+      <Stack.Screen name="Delete-Recipe" component={EditRecipe} />
     </Stack.Navigator>
   );
 }
+
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
 
+  const [fontsLoaded] = useFonts({
+    'Orienta': require('./assets/fonts/Orienta-Regular.ttf'),
+    'Ovo-Regular': require('./assets/fonts/Ovo-Regular.ttf'),
+    'TangerineRegular': require('./assets/fonts/Tangerine-Regular.ttf'),
+  });
+
   useEffect(() => {
-    // Simulating a delay to show the Lottie animation
     setTimeout(() => {
       setIsLoading(false);
-    }, 3000); // Change the delay time as needed
+    }, 3000);
   }, []);
 
-  if (isLoading) {
+  if (isLoading || !fontsLoaded) {
     return (
       <View style={styles.loadingContainer}>
         <LottieView
-          source={require('./assets/co-chef.json')} // Update the path to your animation file
+          source={require('./assets/co-chef.json')}
           autoPlay
           loop
         />
@@ -60,12 +63,10 @@ const App = () => {
   }
 
   return (
-
-    <SafeAreaView style={{flex: 1}}>
+    <SafeAreaView style={{ flex: 1 }}>
       <NavigationContainer>
-        <Tab.Navigator 
+        <Tab.Navigator
           screenOptions={({ route }) => ({
-
             tabBarIcon: ({ focused, color, size }) => {
               let iconName;
 
@@ -80,23 +81,25 @@ const App = () => {
               } else if (route.name === 'Login') {
                 iconName = focused ? 'log-in' : 'log-in-outline';
               }
+
               return <Ionicons name={iconName} size={size} color={color} />;
             },
-            
-            tabBarActiveTintColor: 'black',  
+            tabBarActiveTintColor: 'silver',
             tabBarInactiveTintColor: 'gray',
-            headerStyle:{
-              backgroundColor: '#ECEAE4',
+            headerStyle: {
+              backgroundColor: '#062D4A',
             },
-            headerTitleStyle : {
-              fontWeight: 'bold',
+            headerTitleStyle: {
+              fontFamily: 'TangerineRegular',
+              color: '#ECEAE4',
+              fontWeight: 'bold', 
               fontSize: 24,
-            
             },
-            tabBarStyle: {display: "absolute",
-                          backgroundColor: '#ECEAE4'},
-                    
-            })}
+            tabBarStyle: {
+              position: 'absolute',
+              backgroundColor: '#062D4A',
+            },
+          })}
         >
           <Tab.Screen name="Home" component={Home} />
           <Tab.Screen name="Calendar" component={CalendarScreen} />
@@ -107,7 +110,7 @@ const App = () => {
       </NavigationContainer>
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -117,7 +120,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#EDBD65',
+    backgroundColor: '#062D4A',
   },
 });
 
