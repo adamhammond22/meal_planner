@@ -86,7 +86,7 @@ const App = () => {
             tabBarActiveTintColor: 'black',  
             tabBarInactiveTintColor: 'gray',
             headerStyle:{
-              backgroundColor: '#EDBD65',
+              backgroundColor: '#ECEAE4',
             },
             headerTitleStyle : {
               fontWeight: 'bold',
@@ -94,7 +94,7 @@ const App = () => {
             
             },
             tabBarStyle: {display: "absolute",
-                          backgroundColor: '#EDBD65'},
+                          backgroundColor: '#ECEAE4'},
                     
             })}
         >

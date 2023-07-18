@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react'
 // import expo fonts function
 import { useFonts } from 'expo-font';
 // Import react-native components
-import { StyleSheet, SafeAreaView, Button, Text, TextInput, View, ScrollView, TouchableOpacity, Image, Platform } from 'react-native'
+import { StyleSheet, SafeAreaView, Button, Text, TextInput, View, ScrollView, TouchableOpacity, Platform } from 'react-native'
 // This import allows for the scroll bar to follow user input as they type
 import InputScrollView from 'react-native-input-scroll-view'
 // Import SQLite functions
@@ -14,6 +14,7 @@ import { SelectList } from 'react-native-dropdown-select-list'
 import { editStyles } from './editRecipeStyle';
 //import image picker
 import * as ImagePicker from 'expo-image-picker';
+import { Image } from 'expo-image';
 
 // Init SQLite database obj
 const db = SQLite.openDatabase('recipe.db');
@@ -43,7 +44,9 @@ let loadedRecipe = {
   // This is the instruction text
   instructions: 'Return to main menu. Do not pass Go. Do not collect $200.',
   // Recipie Image, null if no image
-  image: null
+  image: null,
+  // Recipe tags, null if no tags
+  tags: [ "null" ]
 }
 
 function formatIngredients(recipe, databaseIngredientString) {
@@ -57,9 +60,20 @@ function formatIngredients(recipe, databaseIngredientString) {
   })
 }
 
+function formatTags(recipe, databaseTagsString) {
+  var databaseTagsArray = databaseTagsString.split('@')
+  databaseTagsArray.forEach((element) => {
+    if(element == '') {
+      return
+    }
+    recipe.tags.push(element)
+  })
+}
+
 /* Sets the components of loaded recipe individually to account for the fact that not all components are in the
 database currently */
 function setLoadedRecipe(recipe){
+  console.log("~setLoadedRecipe: loading recipe from db")
   loadedRecipe.name = recipe.name
   /* Check if recipe object has a description */
   if (recipe.description) {
@@ -88,6 +102,15 @@ function setLoadedRecipe(recipe){
   }else{
     loadedRecipe.image = null
   }
+  console.log(recipe.tags)
+  if(recipe.tags) {
+    loadedRecipe.tags = []
+    console.log("formatting tags")
+    formatTags(loadedRecipe, recipe.tags)
+  } else {
+    console.log("no tags")
+    loadedRecipe.tags = []
+  }
 
 }
 
@@ -95,11 +118,12 @@ function setLoadedRecipe(recipe){
 database id. It'll also need to parse it into proper formate here or on the otherside of the backend load function before passing
 it to loadedRecipe */
 export const LoadEmptyRecipe =  () => {
-    loadedRecipe.name = "New Recipe"
-    loadedRecipe.description = "Recipe Description"
+    loadedRecipe.name = ""
+    loadedRecipe.description = ""
     loadedRecipe.ingredients = []
-    loadedRecipe.instructions = "Write Instructions Here"
+    loadedRecipe.instructions = ""
     loadedRecipe.image = null
+    loadedRecipe.tags = []
 }
 
 // View Recipe Screen takes navigation context and "route" which stores our recipe id and if the recipe is already pre loaded (recipeId, preLoaded)
@@ -119,6 +143,8 @@ export const ViewRecipe = ({ route, navigation}) => {
   /* Load our fonts */
   const [fontsLoaded] = useFonts({
     'Orienta': require('../assets/fonts/Orienta-Regular.ttf'),
+    'Ovo-Regular': require('../assets/fonts/Ovo-Regular.ttf'),
+    'TangerineRegular': require('../assets/fonts/Tangerine-Regular.ttf'),
   });
   
  
@@ -126,7 +152,7 @@ export const ViewRecipe = ({ route, navigation}) => {
   useEffect(() => {
     db.transaction(tx => {
       tx.executeSql(
-        'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, ingredients TEXT, instructions TEXT)',
+        'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, ingredients TEXT, instructions TEXT, image BLOB, tags TEXT)',
         [],
         () => loadRecipe(loadedRecipe.id)
       );
@@ -166,6 +192,10 @@ export const ViewRecipe = ({ route, navigation}) => {
 
     // All the ingredent renders are loaded into here and called in the return statment
     const ingredientList = []
+
+    const blurhash =
+  '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
+
     // This loop compiles all the ingredents into ingredients list to be direclty shown with .push
     loadedRecipe.ingredients.forEach((element, index) => {
       // If no unit selected
@@ -173,7 +203,7 @@ export const ViewRecipe = ({ route, navigation}) => {
         // If should be singular
         if(element.amount > 0 && element.amount <= 1){
           ingredientList.push(
-            <Text key={index} style={{marginTop: 5, marginLeft: 15, marginRight: 15, padding: 0, textAlign: 'left', color: '#EDBD65', fontSize: 15, fontFamily: 'Orienta'}}>
+            <Text key={index} style={{marginTop: 5, marginLeft: 15, marginRight: 15, padding: 0, textAlign: 'left', color: '#AFB8BA', fontSize: 15, fontFamily: 'Orienta'}}>
               {element.amount} {element.name}
             </Text>
           );
@@ -181,7 +211,7 @@ export const ViewRecipe = ({ route, navigation}) => {
         // If should be plural
         else{
           ingredientList.push(
-            <Text key={index} style={{marginTop: 5, marginLeft: 15, marginRight: 15, padding: 0, textAlign: 'left', color: '#EDBD65', fontSize: 15, fontFamily: 'Orienta'}}>
+            <Text key={index} style={{marginTop: 5, marginLeft: 15, marginRight: 15, padding: 0, textAlign: 'left', color: '#AFB8BA', fontSize: 15, fontFamily: 'Orienta'}}>
               {element.amount} {element.name}s
             </Text>
           )
@@ -192,7 +222,7 @@ export const ViewRecipe = ({ route, navigation}) => {
         // If should be singular
         if(element.amount > 0 && element.amount <= 1){
           ingredientList.push(
-            <Text key={index} style={{marginTop: 5, marginLeft: 15, marginRight: 15, padding: 0, textAlign: 'left', color: '#EDBD65', fontSize: 15, fontFamily: 'Orienta'}}>
+            <Text key={index} style={{marginTop: 5, marginLeft: 15, marginRight: 15, padding: 0, textAlign: 'left', color: '#AFB8BA', fontSize: 15, fontFamily: 'Orienta'}}>
               {element.amount} {Unit[element.unit].value} of {element.name}
             </Text>
           )
@@ -200,13 +230,28 @@ export const ViewRecipe = ({ route, navigation}) => {
         // If should be plural
         else{
           ingredientList.push(
-            <Text key={index} style={{marginTop: 5, marginLeft: 15, marginRight: 15, padding: 0, textAlign: 'left', color: '#EDBD65', fontSize: 15, fontFamily: 'Orienta'}}>
+            <Text key={index} style={{marginTop: 5, marginLeft: 15, marginRight: 15, padding: 0, textAlign: 'left', color: '#AFB8BA', fontSize: 15, fontFamily: 'Orienta'}}>
               {element.amount} {Unit[element.unit].value}s of {element.name}
             </Text>
           )
         }
       }
     });
+
+    // List to contain JSX for tags list (initial render)
+    const tagsList = []
+
+    // Loop through all tags and add JSX to list
+    loadedRecipe.tags.forEach((element, index) => {
+      console.log("adding: %s to tagsList", element)
+      tagsList.push(
+        <Text key={index} style={{marginTop: 5, marginLeft: 15, marginRight: 15, padding: 0, textAlign: 'left', color: '#EDBD65', fontSize: 15, fontFamily: 'Orienta'}}>
+          { element }
+          { console.log("value of loadedRecipe.tags: %s", element)}
+        </Text>
+      )
+    })
+
     return (
     // The scroll view container allows the user to scroll through the components
     <View style={styles.wrapper}>
@@ -216,6 +261,11 @@ export const ViewRecipe = ({ route, navigation}) => {
       <Text style={styles.recipeName}>
         {loadedRecipe.name}
       </Text>
+      {/* Display Image */}
+      <View style={[{alignItems: 'center', paddingTop: 10, paddingBottom: 10, borderRadius: 200/2}]}>
+      <Image source={{ uri: loadedRecipe.image }} style={{ width: 300, height: 200, borderRadius: 12.5/2 }} />
+      </View>
+      {/* Description */}
       <Text 
         style={styles.descriptionStyle}>
         {loadedRecipe.description}
@@ -240,6 +290,14 @@ export const ViewRecipe = ({ route, navigation}) => {
         style={styles.sectionText}>
         {loadedRecipe.instructions}
       </Text>
+      </View>
+      {/* Tags Section Title */}
+      <Text style={styles.sectionHeaders}>
+        Recipe Tags
+      </Text>
+      {/* Show Recipe Tags */}
+      <View style={styles.flatlistContainer}>
+        {tagsList}
       </View>
     </ScrollView>
 
@@ -300,7 +358,13 @@ export const EditRecipe = ({ route, navigation}) => {
   
   const [ingredientCount, setIngredientCount] = useState(loadedRecipe.ingredients.length)
 
-  const [image, setImage] = useState(loadedRecipe.image);
+  const [image, setImage] = useState(loadedRecipe.image)
+
+  let tagsJSXList = []
+
+  const [tagArray, setTagArray] = useState([...loadedRecipe.tags])
+
+  const [tagsCount, setTagsCount] = useState(loadedRecipe.tags.length)
   
   const pickImage = async () => {
       // No permissions request is necessary for launching the image library
@@ -325,6 +389,7 @@ export const EditRecipe = ({ route, navigation}) => {
       loadedRecipe.ingredients = ingredientArray
       loadedRecipe.instructions = instructionsText
       loadedRecipe.image = image
+      loadedRecipe.tags = tagArray
       // Saves to database
       updateRecipe( loadedRecipe )
       // Goes back to view page
@@ -340,6 +405,18 @@ export const EditRecipe = ({ route, navigation}) => {
     // Update Ingredient Count (forces an update durring the add)
     setIngredientCount(ingredientCount + 1)
   }
+
+  // This function deletes the passed recipe and returns to the main screen
+  const deleteRecipeFromEditPage = (id) => {
+    db.transaction(
+      tx => {
+        tx.executeSql(`DELETE FROM Recipes where id = ?;`, [id]);
+      },
+      null,
+      null
+    );
+    navigation.replace('Multi-Screen')
+  };
   
   /* Function to Remove an ingredient from the ingredientList, specified by given index */
   const RemoveIngredent = (indexToRemove) => {
@@ -351,8 +428,24 @@ export const EditRecipe = ({ route, navigation}) => {
     setIngredientCount(ingredientCount - 1)
   }  
   
+  const AddTag = () => {
+    let tempArray = tagArray
+    tempArray.push("")
+    setTagArray(tempArray)
+    setTagsCount(tagsCount + 1)
+  }
+
+  const RemoveTag = (indexToRemove) => {
+    let tempArray = tagArray
+    tempArray = tempArray.filter((_, index) => index !== indexToRemove);
+    // Update Tag Array
+    setTagArray(tempArray)
+    // Update Tag Count
+    setTagsCount(tagsCount - 1)
+  }
+
   /* Load our ingredient jsx before rendering */
-  loadIngredientView()
+  loadIngredientEdit()
 
   const ValidateNumericIngredientInput = (input, ingredientIndex) => {
     validInput = input.replace(/[^0-9.]/g, '')
@@ -362,58 +455,70 @@ export const EditRecipe = ({ route, navigation}) => {
   }
 
   const ValidateAlphebeticIngredientInput = (input, ingredientIndex) => {
-    ingredientArray[ingredientIndex].name = input.replace(/[\~\*]/gi, '')
+    ingredientArray[ingredientIndex].name = input.replace(/[\~\*]/g, '')
   }
   
   // Iterates through the ingredients and puts them in ingredientsList to display
-  function loadIngredientView(){
+  function loadIngredientEdit(){
     ingredientJSXList.length = 0
     ingredientArray.forEach((element, index) => {
       ingredientJSXList.push(
-        <View  key={index} style = {{flexDirection: 'row', flex: 4, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 5, alignItems: 'center'}}>
+        <View  key={index} style = {{flexDirection: 'row', flex: 4, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 5, alignItems: 'center', backgroundColor: '#062D4A', borderRadius: 7, borderColor: '#062D4A'}}>
           {/* Amount Input */}
           <TextInput
-            style={{ flexGrow: 1, borderWidth:  1, marginTop: 20, marginBottom: 5, marginLeft: 10, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
+            // Consistant width to have all units afterward line up. 75 should be wide enough for the allowed 6 characters
+            //style={{width: 75, minWidth: 75, maxWidth: 75, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 5, marginRight: 10, paddingBottom: 5, paddingLeft: 5, paddingRight: 5, textAlign: 'center', fontWeight: 'bold'}}
+            style={{ width: 75, minWidth: 75, maxWidth: 75, borderWidth:  1, minHeight: 48, borderWidth:  1, marginTop: 8, marginBottom: 5, marginLeft: 5, marginRight: 10, padding: 10, textAlign: 'center', fontFamily: 'Orienta', borderRadius: 10, paddingTop: 14, color: '#545252', backgroundColor: '#D9D9D9'}}
             editable
             keyboardType='numeric'
             multiline={true}
-            numberOfLines={1}
             blurOnSubmit={true}
             onChangeText={value => {ValidateNumericIngredientInput(value, index)}}
             defaultValue={element.amount.toString()}
-            
+            placeholder = '###'
+            // Limited to 6 characters to keep edit display looking neat
+            maxLength={6}
           />
           {/* Unit Select */}
+          <View style={[{backgroundColor: '#D9D9D9'}, {borderRadius: 10}, {borderColor: '#D9D9D9'}]}>
           <SelectList 
-          style = {{ flexGrow: 1}}
+          style = {{ height: 40}}
           setSelected={(key) => (ingredientArray[index].unit = key)} 
           data={Unit} 
           save='key'
           defaultOption={Unit[element.unit]}
           />
+          </View>
           {/* Name Input */}
           <TextInput
-            style={{ flexGrow: 4, borderWidth:  1, marginTop: 20, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
+            // Needs flexGrow to fill remaining space, needs flexShrink to not overflow
+            //style={{flexGrow: 1, flexShrink: 1, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 10, marginRight: 10, paddingBottom: 5, paddingLeft: 5, paddingRight: 5, textAlign: 'center', fontWeight: 'bold'}}
+            style={{ flexGrow: 1, flexShrink: 1, minHeight: 48, borderWidth:  1, marginTop: 8, marginBottom: 5, marginLeft: 10, marginRight: 10, paddingBottom: 5, paddingLeft: 5, paddingRight: 5, textAlign: 'center', fontFamily: 'Orienta', borderRadius: 10, paddingTop: 14, color: '#545252', backgroundColor: '#D9D9D9'}}
             editable
             multiline={true}
-            numberOfLines={1}
+            //numberOfLines={1}
             blurOnSubmit={true}
             onChangeText={value => (ValidateAlphebeticIngredientInput(value, index))}
             defaultValue={element.name}
+            placeholder='Ingrident Name'
           />
           {/* Delete Ingredient Button */}
           <View style={styles.deleteIngredient} >
-            <TouchableOpacity onPress={() => RemoveIngredent(index)} >
+            {/*<TouchableOpacity style = {{ borderWidth:  1, padding: 5, marginRight: 5}}
+            onPress={() => RemoveIngredent(index)} >
               <Text>Delete</Text>
+            </TouchableOpacity>*/}
+            <TouchableOpacity onPress={() => RemoveIngredent(index)} >
+              <Text style={[{color: '#FFFFFF', borderWidth:  1, padding: 5, marginRight: 5 }, {fontFamily: 'Orienta'}]}>Delete</Text>
             </TouchableOpacity>
           </View>
         </View>
       );
     });
     ingredientJSXList.push(
-      <TouchableOpacity  key={ingredientArray.length} style = {{flexDirection: 'row', flex: 4, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 5, borderRadius: 7}}
+      <TouchableOpacity  key={ingredientArray.length} style = {{flexDirection: 'row', flex: 4, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 5, borderRadius: 7, backgroundColor: '#FFFFFF'}}
       onPress={() => AddIngredent()}>
-        <Text>Add Ingredient</Text>
+        <Text style={[{color: '#031E33'}, {fontFamily: 'Orienta'}, {paddingLeft: 10}]}>Add Ingredient</Text>
       </TouchableOpacity>
     );
   }
@@ -425,6 +530,53 @@ export const EditRecipe = ({ route, navigation}) => {
     });
     return formattedIngredients
   }
+
+  function formatTagsToString(tags) {
+    let tagsString = ''
+    tags.forEach((element) => {
+      tagsString += element + '@'
+    });
+    console.log("saved %s to db", tagsString)
+    return tagsString
+  }
+
+  const ValidateTagInput = (input, tagIndex) => {
+    tagArray[tagIndex] = input.replace(/[\@]/g, '')
+  }
+
+  function loadTagsView() {
+    tagsJSXList.length = 0
+    tagArray.forEach((element, index) => {
+      tagsJSXList.push(
+        <View  key={index} style = {{flexDirection: 'row', flex: 4, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 5, alignItems: 'center'}}>
+            {/* Tag Input */}
+            <TextInput
+              style={{ flexGrow: 4, borderWidth:  1, marginTop: 20, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}}
+              editable
+              multiline={true}
+              numberOfLines={1}
+              blurOnSubmit={true}
+              onChangeText={value => ValidateTagInput(tagArray[index], value)}
+              defaultValue={element}
+            />
+            {/* Delete Tag Button */}
+            <View style={styles.deleteIngredient} >
+              <TouchableOpacity onPress={() => RemoveTag(index)} >
+                <Text>Delete</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+      )
+    });
+    tagsJSXList.push(
+      <TouchableOpacity  key={tagArray.length} style = {{flexDirection: 'row', flex: 4, borderWidth:  1, marginTop: 5, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 5, borderRadius: 7}}
+      onPress={() => AddTag()}>
+        <Text>Add New Tag</Text>
+      </TouchableOpacity>
+    );
+  }
+  // Rendering Tags 
+  loadTagsView();
 
   /*SQLite Function that updates the Name in the database */
   function updateRecipe(recipe) {
@@ -471,28 +623,43 @@ export const EditRecipe = ({ route, navigation}) => {
       null,
       null,
     );
+    const tagString = formatTagsToString(recipe.tags)
+    db.transaction(
+      tx => {
+        tx.executeSql(`UPDATE Recipes SET tags = ? WHERE id = ?;`, 
+        [tagString, recipe.id]);
+      },
+      null,
+      null,
+    );
+    console.log("db updated, tags= %s", tagString)
     return
   };
 
   return (
     <>
     {/* This scroll view follows the location the user is typing. The keyboardOffset is set to prevent the keyboard on ios for hiding the curser */}
-      <InputScrollView style={[editStyles.backgroundColor, {backgroundColor:'#983429'}]} keyboardOffset = {120}>
+      <InputScrollView style={[editStyles.backgroundColor, {backgroundColor:'#031E33'}]} keyboardOffset = {120}>
       <SafeAreaView > 
+      
       {/* Enter name of recipe */}
       <TextInput style={[editStyles.sectionText,  {borderWidth:  1},
         {marginTop: 40},
         {marginBottom: 5}, 
         {marginLeft: 20}, 
         {marginRight: 20}, 
-      {padding: 10}, 
-        {textAlign: 'center'}]}
+        {padding: 10}, 
+        {textAlign: 'left'},
+      {backgroundColor: '#D9D9D9'},
+      {borderRadius: 5}]}
          editable
          multiline={true}
          numberOfLines={1}
          blurOnSubmit={true}
          onChangeText={value => setNameText(value)}
-         defaultValue={nameText} />
+         defaultValue={nameText} 
+         placeholder = 'Recipe Name'
+         />
         
        {/* Enter description */}
       <TextInput style={[editStyles.sectionText,  {borderWidth:  1}, 
@@ -500,23 +667,26 @@ export const EditRecipe = ({ route, navigation}) => {
         {marginBottom: 10}, 
         {marginLeft: 20}, 
         {marginRight: 20}, 
-        {padding: 10}, 
-        {textAlign: 'center'}]}
+        {padding: 10},
+        {textAlign: 'left'},
+        {backgroundColor: '#D9D9D9'},
+      {borderRadius: 5}]}
 
         placeholder="Description"
-        placeholderTextColor={'#EDBD65'}
+        placeholderTextColor={'#AFB8BA'}
         editable
         multiline
         scrollEnabled={false}
         onChangeText={value => setDescriptonText(value)}
-        defaultValue={descriptionText} /> 
+        defaultValue={descriptionText}/> 
 
       {/* Image Picker */}
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+       
         <TouchableOpacity onPress={() => pickImage()} style={styles.uploadImage}>
           <Text style={styles.buttonText}>Upload an Image</Text>
           </TouchableOpacity>
-        {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
+        {image && <Image source={{ uri: image }} style={{ width: 300, height: 200, borderRadius: 12.5 }} />}
       </View>
 
       {/* Ingredents section title */}
@@ -534,30 +704,46 @@ export const EditRecipe = ({ route, navigation}) => {
       </Text>
       {/* Instruction Text */}
       <TextInput
-        style={{borderWidth:  1, marginTop: 5, marginBottom: 30, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'left', borderRadius: 7}}
+        style={{borderWidth:  1, marginTop: 5, marginBottom: 30, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'left', borderRadius: 7, backgroundColor: '#D9D9D9', fontFamily: 'Orienta', color: '#545252', paddingTop: 10}}
         editable
         multiline
         scrollEnabled={false}
         onChangeText={value => setInstructionText(value)}
         defaultValue={instructionsText}
+        placeholder = 'Recipe Instructions'
       />
+      <TextInput/>
+      {/* Tags Section Title */}
+      <Text 
+        style = {styles.sectionHeaders}>
+        Recipe Tags
+      </Text>
+      {/* Show Tags */}
+      {tagsJSXList}
+
+      {/* Delete Button */}
+      <TouchableOpacity
+      onPress = {() => deleteRecipeFromEditPage(loadedRecipe.id)} style={[editStyles.button, {backgroundColor: '#983429'}]}>
+        <Text>DELETE RECIPE</Text>
+      </TouchableOpacity>
       <View style={styles.buttomButtons}>
       {/* Save Button */}
       <View style={styles.parent}>
-      <TouchableOpacity onPress={() => SaveEdit()} style={[editStyles.button, {backgroundColor: '#983429'}]}>
+      <TouchableOpacity onPress={() => SaveEdit()} style={[editStyles.button, {backgroundColor: '#ECEAE4'}]}>
         <Text style={editStyles.buttonText}> Save </Text>
       </TouchableOpacity>
       </View>
       {/* Cancel/Back Button */}
       <View style={styles.parent}>
       <TouchableOpacity  onPress={() => {console.log("Cancel: ", loadedRecipe.ingredients.length); navigation.replace('View-Recipe', {recipeId: loadedRecipe.id, preLoaded: true})}}
-      style={[editStyles.button, {backgroundColor: '#983429'}]} >
+      style={[editStyles.button, {backgroundColor: '#ECEAE4'}]} >
         <Text style={editStyles.buttonText}> Cancel </Text>
       </TouchableOpacity>
       </View>
       </View>
       </SafeAreaView> 
       </InputScrollView>
+     
       </>
   )
 }
@@ -567,46 +753,46 @@ export const EditRecipe = ({ route, navigation}) => {
 const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
-    backgroundColor: '#983429'
+    backgroundColor: '#031E33'
   },
   recipeName: {
     paddingTop: 20,
-    fontFamily: 'Orienta',
-    fontSize: 32,
-    color: '#EDBD65',
+    fontFamily: 'TangerineRegular',
+    fontSize: 64,
+    color: '#ECEAE4',
     textAlign: 'center'
   },
   descriptionStyle: {
     fontFamily: 'Orienta',
     fontSize: 15,
-    color: '#EDBD65',
+    color: '#ECEAE4',
     textAlign: 'center'
   },
   sectionText: {
     fontFamily: 'Orienta',
     fontSize: 15,
-    color: '#EDBD65',
+    color: '#AFB8BA',
     textAlign: 'left',
     paddingLeft: 15,
     paddingTop: 5,
     paddingRight: 15 
   },
   sectionHeaders: {
-    fontFamily: 'Orienta',
+    fontFamily: 'Ovo-Regular',
     fontSize: 20,
-    color: '#EDBD65',
+    color: '#ECEAE4',
     textAlign: 'left',
     paddingLeft: 30,
     paddingTop: 20 
   },
   flatlistContainer: {
-    backgroundColor: '#293137',
+    backgroundColor: '#062D4A',
     marginVertical: 15,
     marginHorizontal: 30,
     paddingTop: 5,
     paddingBottom: 11,
     justifyContent: 'center',
-    borderRadius: 7
+    borderRadius: 3
   },
   button: {
     alignItems: 'center',
@@ -614,14 +800,14 @@ const styles = StyleSheet.create({
     paddingTop: 7,
     borderRadius: 4,
     elevation: 3,
-    backgroundColor: '#EDBD65',
+    backgroundColor: '#ECEAE4',
   },
   uploadImage:{
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 4,
     elevation: 3,
-    backgroundColor: '#EDBD65',
+    backgroundColor: '#ECEAE4',
     width: 140,
     height: 30,
     marginTop: 10,
@@ -630,14 +816,14 @@ const styles = StyleSheet.create({
   buttonText: {
     fontFamily: 'Orienta',
     fontSize: 15,
-    color: '#293137',
+    color: '#062D4A',
     textAlign: 'center',
     fontWeight: 'bold'
   },
   parent: {
     width: 60,
     height: 30,
-    backgroundColor: '#EDBD65',
+    backgroundColor: '#ECEAE4',
     margin: 20,
     borderRadius: 3
   },
@@ -645,6 +831,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center'
+  },
+  image: {
+    flex: 1,
+    width: '100%',
+    backgroundColor: '#0553',
   }
 })
 

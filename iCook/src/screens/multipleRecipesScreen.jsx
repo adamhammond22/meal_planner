@@ -108,7 +108,7 @@ const MultipleRecipesScreen = ({navigation}) => {
     db.transaction(tx => {
       tx.executeSql(
         // ingredients is currently set to store a TEXT type, as I expect us to parse them into a text, but we can change the data type if there's something better
-        'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, ingredients TEXT, instructions TEXT, image BLOB);',
+        'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, ingredients TEXT, instructions TEXT, image BLOB, tags TEXT);',
         [],
         () => loadRecipes()
       );
@@ -155,7 +155,7 @@ const MultipleRecipesScreen = ({navigation}) => {
     for (const rec of fakeRecipes) {
       new Promise((resolve, reject) => {
         db.transaction(tx => {
-          tx.executeSql('INSERT INTO Recipes (name, description, ingredients, instructions, image) values (?, ?, ?, ?, ?)', [rec.name, rec.desc, rec.ingr, rec.inst, null], 
+          tx.executeSql('INSERT INTO Recipes (name, description, ingredients, instructions, image, tags) values (?, ?, ?, ?, ?, ?)', [rec.name, rec.desc, rec.ingr, rec.inst, null, ''], 
           (_, { insertId }) => resolve(insertId),
           (_, error) => reject(error)
           );
@@ -258,6 +258,29 @@ const MultipleRecipesScreen = ({navigation}) => {
 
   /* ========== Rendering & Returing JSX ========== */
 
+  function formatTags(tagString) {
+    if (tagString==null || tagString =='') {
+      return '(No Tags)'
+    }
+    tagArray = tagString.split("@")
+    formattedString = 'Tags: '
+    firstTag = true
+    tagArray.forEach((tag) => {
+      if(tag == '') {
+        return formattedString
+      }
+      if(firstTag) {
+        formattedString += tag
+        firstTag = false
+      }
+      else {
+        formattedString += ' | ' + tag
+      }
+      
+    })
+    return formattedString
+  }
+
   /* Function rendering a single database item into jsx */
   const renderRecipes = ({ item }) => (
     <TouchableOpacity  style={styles.recipeWrapper}
@@ -265,6 +288,7 @@ const MultipleRecipesScreen = ({navigation}) => {
       
       <Text style={styles.recipe}>{item.name}</Text>
       <Text numberOfLines={2} ellipsizeMode="tail" style={styles.descripText}>{item.description}</Text>
+      <Text numberOfLines={2} ellipsizeMode="tail" style={styles.descripText}>{formatTags(item.tags)}</Text>
 
       <View style={[styles.buttons, {flexDirection:'row'}, {margin: 10}, {justifyContent:'center'}]}>
         {/* Add To Shopping Button */}
@@ -305,10 +329,11 @@ const MultipleRecipesScreen = ({navigation}) => {
             {/* style for now */}
             <Text style={[{color:'orange'}, {fontSize:20}]}> ADD RECIPES (DEBUG)</Text>
           </TouchableOpacity>
-          {/* Custom Search Bar */}
-          <CustomSearchBar onInputChange={handleSearchInputChange}/>
-          <Text style={styles.title}>All Recipes</Text>
           
+          <Text style={styles.title}>Recipes</Text>
+          {/* Custom Search Bar */}
+          <CustomSearchBar onInputChange={handleSearchInputChange} inputStyle={[{backgroundColor: '#D9D9D9'}]}/>
+          <View style={[{paddingBottom: 10}]}></View>
           {/* Render our recipes in a list */}
           <FlatList
           data={shownRecipes}

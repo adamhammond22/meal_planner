@@ -13,12 +13,12 @@ const styles = StyleSheet.create({
     // },
     home: {
       flex:1,
-      backgroundColor: '#983429'
+      backgroundColor: '#031E33'
     
     },
     recipeWrapper: {
       display:'flex',
-      backgroundColor: '#293137',
+      backgroundColor: '#062D4A',
       borderRadius: 7,
       marginBottom: 5,
       marginLeft:10,
@@ -28,11 +28,11 @@ const styles = StyleSheet.create({
       justifyContent:"center",
     },
     recipe: {
-      fontFamily: 'Orienta',
+      fontFamily: 'Ovo-Regular',
       alignSelf: 'flex-start',
       justifyContent:"space-between",
       alignSelf:"auto",
-      color: '#EDBD65',
+      color: '#ECEAE4',
       textAlign: 'left',
       paddingLeft: 15,
       paddingTop: 10,
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
     descripText:{
       fontFamily: 'Orienta',
       alignSelf: 'flex-start',
-      color: '#EDBD65',
+      color: '#AFB8BA',
       fontWeight: '400',
       paddingTop: 10,
       paddingLeft: 15,
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     },
     recipeButton:{
       fontFamily: 'Orienta',
-      color: '#EDBD65',
+      color: '#ECEAE4',
       fontSize: 15,
       flexDirection:'row',
       alignItems:'flex-end',
@@ -61,18 +61,20 @@ const styles = StyleSheet.create({
     },
     button:{
       fontFamily: 'Orienta',
-      color: '#293137',
+      color: '#ECEAE4',
       fontSize: 15,
       alignContent:"center",
       justifyContent:"center",
+      marginTop: 10,
+      marginBottom: -38,
       // fontFamily: 'Orienta',
       fontWeight: 'bold',
       // wordWrap: 'break-word'
     },
     title: {
-      fontFamily: 'Orienta',
-      color: '#EDBD65',
-      fontSize: 32,
+      fontFamily: 'TangerineRegular',
+      color: '#ECEAE4',
+      fontSize: 64,
       textAlign: 'center',
       // textDecorationLine:'underline',
       // textTransform: 'uppercase',
@@ -80,7 +82,7 @@ const styles = StyleSheet.create({
     },
     description:{
       fontFamily: 'Orienta',
-      color: '#EDBD65',
+      color: '#062D4A',
       textAlign:"left",
     },
     images:{
