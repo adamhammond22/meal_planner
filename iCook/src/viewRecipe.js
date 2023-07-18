@@ -163,7 +163,7 @@ export const ViewRecipe = ({ route, navigation}) => {
   /* SQLLite Function that loads the given recipeId
   Updates the Recipes state and setsIsLoading state to false when completed */
   const loadRecipe = (givenId) => {
-    if (isLoading || !fontsLoaded) {
+    if (isLoading) {
       db.transaction(tx => {
         tx.executeSql('SELECT * FROM Recipes WHERE id = ?', [givenId],
           (_, results) => {
@@ -183,7 +183,7 @@ export const ViewRecipe = ({ route, navigation}) => {
     }
   };
   /* If Loading, simply show that we're loading */
-  if (isLoading){//} || !fontsLoaded) {
+  if (isLoading || !fontsLoaded) {
     return (
         <View style={editStyles.loading}>
           <Text>Loading Recipe...</Text>
