@@ -1,6 +1,4 @@
 import { StyleSheet } from 'react-native'
-import {SafeAreaView, Button, Text, View, TouchableOpacity, Image, useEffect} from 'react-native'
-import { useFonts } from 'expo-font';
 import './globalStyle'
 import { primaryTextColor, primaryContainerColor } from './globalStyle';
 

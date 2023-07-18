@@ -7,7 +7,7 @@ import { SafeAreaView, Text, View, TouchableOpacity, FlatList } from 'react-nati
 // import empty recipe loader
 import { LoadEmptyRecipe } from '../viewRecipe';
 // import homepage style sheet
-import {styles} from '../styleSheets/homepageStyle';
+import {homeStyles} from '../styleSheets/homepageStyle';
 /* Import SQLite functions */
 import * as SQLite from 'expo-sqlite';
 /* Import custom searchbar */
@@ -286,21 +286,21 @@ const MultipleRecipesScreen = ({navigation}) => {
 
   /* Function rendering a single database item into jsx */
   const renderRecipes = ({ item }) => (
-    <TouchableOpacity  style={styles.recipeWrapper}
+    <TouchableOpacity  style={homeStyles.recipeWrapper}
     onPress={() => navigateToRecipe(item.id)} >
       
-      <Text style={styles.recipe}>{item.name}</Text>
-      <Text numberOfLines={2} ellipsizeMode="tail" style={styles.descripText}>{item.description}</Text>
-      <Text numberOfLines={2} ellipsizeMode="tail" style={styles.descripText}>{formatTags(item.tags)}</Text>
+      <Text style={homeStyles.recipe}>{item.name}</Text>
+      <Text numberOfLines={2} ellipsizeMode="tail" style={homeStyles.descripText}>{item.description}</Text>
+      <Text numberOfLines={2} ellipsizeMode="tail" style={homeStyles.descripText}>{formatTags(item.tags)}</Text>
 
-      <View style={[styles.buttons, {flexDirection:'row'}, {margin: 10}, {justifyContent:'center'}]}>
+      <View style={[homeStyles.buttons, {flexDirection:'row'}, {margin: 10}, {justifyContent:'center'}]}>
         {/* Add To Shopping Button */}
         <TouchableOpacity onPress={() => console.log("not implemented!")}>
-          <Text style={[styles.recipeButton, {alignSelf:'flex-end'}, {justifyContent:'center'},{padding:10}  ]} >Add to Shopping</Text>
+          <Text style={[homeStyles.recipeButton, {alignSelf:'flex-end'}, {justifyContent:'center'},{padding:10}  ]} >Add to Shopping</Text>
         </TouchableOpacity>
         {/* Delete Button */}
         <TouchableOpacity onPress={() => deleteRecipe(item.id)}>
-          <Text style={[styles.recipeButton, {alignSelf:'flex-end'}, {justifyContent:'center'},{padding:10}  ]}> Delete </Text>
+          <Text style={[homeStyles.recipeButton, {alignSelf:'flex-end'}, {justifyContent:'center'},{padding:10}  ]}> Delete </Text>
         </TouchableOpacity>
       </View>
     </TouchableOpacity >
@@ -310,7 +310,7 @@ const MultipleRecipesScreen = ({navigation}) => {
   if (isLoading){//} || !fontsLoaded) {
     return (
       <SafeAreaView>
-        <View style={styles.loading}>
+        <View style={homeStyles.loading}>
           <Text>Loading recipes...</Text>
         </View>
       </SafeAreaView>
@@ -320,23 +320,25 @@ const MultipleRecipesScreen = ({navigation}) => {
   /* Otherwise, render the whole multi recipe screen */
   return (
     
-      <SafeAreaView style={styles.home}>
-      {/* <View style={styles.recipeWrapper}> */}
-          {/* <Button title="Delete EVERYTHING (debug)" onPress={() => DEBUG_DELETE_TABLE()} /> */}
-          <TouchableOpacity onPress={() => DEBUG_DELETE_TABLE()}>
-            {/* style for now */}
-            <Text style={[{color:'red'}, {textAlign:'center'}, {fontSize:20}]}> Delete Everything (DEBUG)</Text>
-          </TouchableOpacity>
-          {/* <Button title="Delete EVERYTHING (debug)" onPress={() => DEBUG_DELETE_TABLE()} /> */}
-          <TouchableOpacity onPress={() => DEBUG_ADD_RECIPES()}>
-            {/* style for now */}
-            <Text style={[{color:'orange'}, {fontSize:20}]}> ADD RECIPES (DEBUG)</Text>
-          </TouchableOpacity>
-          
-          <Text style={styles.title}>Recipes</Text>
+      <SafeAreaView style={homeStyles.home}>
+      {/* <View style={homeStyles.recipeWrapper}> */}
+          {/* Debug Buttons Area */}
+          <View style = {homeStyles.debugEndLineStyle}>
+            {/* <Button title="Delete EVERYTHING (debug)" onPress={() => DEBUG_DELETE_TABLE()} /> */}
+            <TouchableOpacity onPress={() => DEBUG_DELETE_TABLE()}>
+              {/* style for now */}
+              <Text style={homeStyles.debugDeleteStyle}> DELETE EVERYTHING (DEBUG)</Text>
+            </TouchableOpacity>
+            {/* <Button title="Delete EVERYTHING (debug)" onPress={() => DEBUG_DELETE_TABLE()} /> */}
+            <TouchableOpacity onPress={() => DEBUG_ADD_RECIPES()}>
+              {/* style for now */}
+              <Text style={homeStyles.debugAddStyle}> ADD RECIPES (DEBUG)</Text>
+            </TouchableOpacity>
+          </View>
+          <Text style={homeStyles.title}>Recipes</Text>
           {/* Custom Search Bar */}
-          <CustomSearchBar onInputChange={handleSearchInputChange} inputStyle={[{backgroundColor: '#D9D9D9'}]}/>
-          <View style={[{paddingBottom: 10}]}></View>
+          <CustomSearchBar onInputChange={handleSearchInputChange} inputStyle={homeStyles.searchBarInputStyle}/>
+          <View style={homeStyles.searchBarBufferStyle}></View>
           {/* Render our recipes in a list */}
           <FlatList
           data={shownRecipes}
@@ -346,7 +348,7 @@ const MultipleRecipesScreen = ({navigation}) => {
 
           {/* <Button title={"New Recipe"} onPress= {() => navigateToRecipe(null) } /> */}
           <TouchableOpacity onPress= {() => navigateToRecipe(null) }>
-            <Text style={[styles.button, {textAlign:'center'}, {paddingBottom: 50}]}> Adds New Recipe </Text>
+            <Text style={[homeStyles.button, homeStyles.newRecipeButtonAdditionsStyle]}> Adds New Recipe </Text>
           </TouchableOpacity>
       {/* </View> */}
       </SafeAreaView>

@@ -1,20 +1,53 @@
 import { StyleSheet } from 'react-native'
-import {SafeAreaView, Button, Text, View, TouchableOpacity, Image, useEffect} from 'react-native'
-import { useFonts } from 'expo-font';
 import { primaryContainerColor, primaryTextColor, deleteButtonColor } from './globalStyle';
 
-//const primaryBackgroundColor = '#031E33'
 const inputTextColor = '#545252'
 const inputBackgroundColor = '#D9D9D9'
 
-
-
-
 const editStyles = StyleSheet.create({
-  wrapper: {
-    flex: 1,
-    backgroundColor: '#983429'
+  // Name Style -------------------------------------------------------------------------------
+  nameInputStyle: {
+    fontFamily: 'Orienta-Regular',
+    fontSize: 15,
+    color: inputTextColor,
+    textAlign: 'left',
+    paddingLeft: 10,
+    paddingTop: 7,
+    paddingRight: 15,
+
+    borderWidth:  1,
+    marginTop: 40,
+    marginBottom: 5, 
+    marginLeft: 20, 
+    marginRight: 20, 
+    padding: 10, 
+    textAlign: 'left',
+    backgroundColor: inputBackgroundColor,
+    borderRadius: 5
   },
+
+  // Description Style ------------------------------------------------------------------------
+  descriptionInputStyle: {
+    fontFamily: 'Orienta-Regular',
+    fontSize: 15,
+    color: inputTextColor,
+    textAlign: 'left',
+    paddingLeft: 10,
+    paddingTop: 7,
+    paddingRight: 15,
+
+    borderWidth:  1, 
+    marginTop: 0, 
+    marginBottom: 10, 
+    marginLeft: 20, 
+    marginRight: 20, 
+    padding: 10,
+    textAlign: 'left',
+    backgroundColor: inputBackgroundColor,
+    borderRadius: 5
+  },
+
+  // Image Button Style ------------------------------------------------------------------------
   uploadImageButtonStyle:{
     alignItems: 'center',
     justifyContent: 'center',
@@ -26,6 +59,7 @@ const editStyles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10
   },
+
   // Ingredient Styles --------------------------------------------------------------------------
   ingredientPanelStyle: {
     flexDirection: 'row', 
@@ -116,6 +150,7 @@ const editStyles = StyleSheet.create({
     fontFamily: 'Orienta-Regular', 
     paddingLeft: 10
   },
+
   // Tag Styles -----------------------------------------------------------------
   tagPanelStyle: {
     flexDirection: 'row', 
@@ -174,44 +209,7 @@ const editStyles = StyleSheet.create({
     paddingLeft: 10
   },
 
-  nameInputStyle: {
-    fontFamily: 'Orienta-Regular',
-    fontSize: 15,
-    color: inputTextColor,
-    textAlign: 'left',
-    paddingLeft: 10,
-    paddingTop: 7,
-    paddingRight: 15,
-
-    borderWidth:  1,
-    marginTop: 40,
-    marginBottom: 5, 
-    marginLeft: 20, 
-    marginRight: 20, 
-    padding: 10, 
-    textAlign: 'left',
-    backgroundColor: inputBackgroundColor,
-    borderRadius: 5
-  },
-  descriptionInputStyle: {
-    fontFamily: 'Orienta-Regular',
-    fontSize: 15,
-    color: inputTextColor,
-    textAlign: 'left',
-    paddingLeft: 10,
-    paddingTop: 7,
-    paddingRight: 15,
-
-    borderWidth:  1, 
-    marginTop: 0, 
-    marginBottom: 10, 
-    marginLeft: 20, 
-    marginRight: 20, 
-    padding: 10,
-    textAlign: 'left',
-    backgroundColor: inputBackgroundColor,
-    borderRadius: 5
-  },
+  // Instruction Style ----------------------------------------------------------------------------------------
   instructionInputStyle:{
     borderWidth:  1, 
     marginTop: 5, 
@@ -226,6 +224,8 @@ const editStyles = StyleSheet.create({
     color: inputTextColor, 
     paddingTop: 10
   },
+
+  // Header Style --------------------------------------------------------------------------------------------
   sectionHeaderStyle: {
     fontFamily: 'Ovo-Regular',
     fontSize: 20,
@@ -234,6 +234,8 @@ const editStyles = StyleSheet.create({
     paddingLeft: 30,
     paddingTop: 20 
   },
+
+  // Delete Buttons Style ----------------------------------------------------------------------------------
   parentDeleteStyle: {
     width: 100,
     height: 30,
@@ -251,6 +253,3 @@ const editStyles = StyleSheet.create({
   },
 });
 export {editStyles}
-
-
-//   , borderWidth:  1, marginTop: 20, marginBottom: 5, marginLeft: 20, marginRight: 20, padding: 10, textAlign: 'center', fontWeight: 'bold'}

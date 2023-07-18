@@ -5,8 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import LottieView from 'lottie-react-native';
-import { loadFonts } from './src/styleSheets/globalStyle';
-//import { useFonts } from 'expo-font';
+import { loadFonts, primaryContainerColor, primaryTextColor } from './src/styleSheets/globalStyle';
 
 import { ViewRecipe, LoadRecipe, EditRecipe } from './src/viewRecipe'
 import MultipleRecipesScreen from './src/screens/multipleRecipesScreen'
@@ -89,17 +88,17 @@ const App = () => {
             tabBarActiveTintColor: 'silver',
             tabBarInactiveTintColor: 'gray',
             headerStyle: {
-              backgroundColor: '#062D4A',
+              backgroundColor: primaryContainerColor,
             },
             headerTitleStyle: {
               fontFamily: 'Tangerine-Regular',
-              color: '#ECEAE4',
+              color: primaryTextColor,
               fontWeight: 'bold', 
               fontSize: 24,
             },
             tabBarStyle: {
               position: 'absolute',
-              backgroundColor: '#062D4A',
+              backgroundColor: primaryContainerColor,
             },
           })}
         >

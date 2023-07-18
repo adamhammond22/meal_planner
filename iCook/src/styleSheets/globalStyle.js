@@ -1,24 +1,27 @@
 import { StyleSheet } from 'react-native'
-import {SafeAreaView, Button, Text, View, TouchableOpacity, Image, useEffect} from 'react-native'
 import * as Font from 'expo-font';
-
-export const loadFonts = async () =>{
-await Font.loadAsync({
-    'Orienta-Regular': require('../../assets/fonts/Orienta-Regular.ttf'),
-    'Ovo-Regular': require('../../assets/fonts/Ovo-Regular.ttf'),
-    'Tangerine-Regular': require('../../assets/fonts/Tangerine-Regular.ttf'),
-});}
 
 export const primaryBackgroundColor = '#031E33'
 export const primaryTextColor = '#ECEAE4'
 export const primaryContainerColor = '#062D4A'
 export const deleteButtonColor = '#EF0107'
+
+export const loadFonts = async () =>{
+    await Font.loadAsync({
+        'Orienta-Regular': require('../../assets/fonts/Orienta-Regular.ttf'),
+        'Ovo-Regular': require('../../assets/fonts/Ovo-Regular.ttf'),
+        'Tangerine-Regular': require('../../assets/fonts/Tangerine-Regular.ttf'),
+    })
+}
+
 export const globalStyles = StyleSheet.create({
     wrapper: {
         flex: 1,
         backgroundColor: primaryBackgroundColor,
         marginBottom: 45
     },
+
+    // Main Button Styles ------------------------------------------------------------
     bottomButtonStyle: {
         alignItems: 'center',
         flexDirection: 'row',
@@ -46,6 +49,8 @@ export const globalStyles = StyleSheet.create({
         textAlign: 'center',
         fontWeight: 'bold'
     },
+
+    // Image Styles ----------------------------------------------------------------------
     imageContainerStyle: { 
         flex: 1,
         alignItems: 'center', 

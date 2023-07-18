@@ -1,22 +1,19 @@
 /* ViewRecipe.js contains the ViewRecipe component used to view a singular recipe */
 
 import React, { useState, useEffect } from 'react'
-// import expo fonts function
-//import { useFonts } from 'expo-font';
-// /import useFonts from '../useFonts';
 // Import react-native components
-import { StyleSheet, SafeAreaView, Button, Text, TextInput, View, ScrollView, TouchableOpacity, Image, Platform } from 'react-native'
+import { SafeAreaView, Button, Text, TextInput, View, ScrollView, TouchableOpacity, Image, Platform } from 'react-native'
 // This import allows for the scroll bar to follow user input as they type
 import InputScrollView from 'react-native-input-scroll-view'
 // Import SQLite functions
 import * as SQLite from 'expo-sqlite';
 // This allows for the dropdown list for the Units in the ingridents
 import { SelectList } from 'react-native-dropdown-select-list'
+// import image picker
+import * as ImagePicker from 'expo-image-picker';
+// Import for various style sheets
 import { editStyles } from './styleSheets/editRecipeStyle'
 import { viewStyles } from './styleSheets/viewRecipeStyle'
-//import image picker
-import * as ImagePicker from 'expo-image-picker';
-import { FlatList } from 'react-native-web';
 import { globalStyles, loadFonts } from './styleSheets/globalStyle';
 
 // Init SQLite database obj
@@ -105,13 +102,10 @@ function setLoadedRecipe(recipe){
   }else{
     loadedRecipe.image = null
   }
-  console.log(recipe.tags)
   if(recipe.tags) {
     loadedRecipe.tags = []
-    console.log("formatting tags")
     formatTags(loadedRecipe, recipe.tags)
   } else {
-    console.log("no tags")
     loadedRecipe.tags = []
   }
 
@@ -142,14 +136,8 @@ export const ViewRecipe = ({ route, navigation}) => {
   /* isLoading state is true if we're currently loading our recipe */
   const [isLoading, setIsLoading] = useState(!route.params.preLoaded);
 
-  
   /* Load our fonts */
-  /*const [fontsLoaded] = useFonts({
-    'Orienta-Regular': require('../assets/fonts/Orienta-Regular.ttf'),
-    'Ovo-Regular': require('../assets/fonts/Ovo-Regular.ttf'),
-    'Tangerine-Regular': require('../assets/fonts/Tangerine-Regular.ttf'),
-  });*/
-  loadFonts();
+  loadFonts
  
   /* useEffect calls this every time this application is loaded, we make sure a table exists and call loadRecipes() */
   useEffect(() => {
@@ -186,9 +174,11 @@ export const ViewRecipe = ({ route, navigation}) => {
   /* If Loading, simply show that we're loading */
   if (isLoading){//} || !fontsLoaded) {
     return (
+      <>
         <View style={editStyles.loading}>
           <Text>Loading Recipe...</Text>
         </View>
+      </>
     );
   } else {
   /* Otherwise, display our Recipe */
@@ -242,11 +232,9 @@ export const ViewRecipe = ({ route, navigation}) => {
 
     // Loop through all tags and add JSX to list
     loadedRecipe.tags.forEach((element, index) => {
-      console.log("adding: %s to tagsList", element)
       tagsList.push(
         <Text key={index} style={viewStyles.recipeTagStyle}>
           { element }
-          { console.log("value of loadedRecipe.tags: %s", element)}
         </Text>
       )
   })
@@ -520,7 +508,6 @@ export const EditRecipe = ({ route, navigation}) => {
     tags.forEach((element) => {
       tagsString += element + '@'
     });
-    console.log("saved %s to db", tagsString)
     return tagsString
   }
 
@@ -615,7 +602,6 @@ export const EditRecipe = ({ route, navigation}) => {
       null,
       null,
     );
-    console.log("db updated, tags= %s", tagString)
     return
   };
 
@@ -703,7 +689,7 @@ export const EditRecipe = ({ route, navigation}) => {
         {/* Cancel/Back Button */}
         <View style={globalStyles.parentStyle}>
           <TouchableOpacity style={globalStyles.buttonStyle} 
-          onPress={() => {console.log("Cancel: ", loadedRecipe.ingredients.length); navigation.replace('View-Recipe', {recipeId: loadedRecipe.id, preLoaded: true})}}>
+          onPress={() => {navigation.replace('View-Recipe', {recipeId: loadedRecipe.id, preLoaded: true})}}>
             <Text style={globalStyles.buttonTextStyle}> Cancel </Text>
           </TouchableOpacity>
         </View>
