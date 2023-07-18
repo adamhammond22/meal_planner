@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, SafeAreaView, View } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { StyleSheet, SafeAreaView, View } from 'react-native'
+import { NavigationContainer } from '@react-navigation/native'
+import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import LottieView from 'lottie-react-native';
 import { useFonts } from 'expo-font';
 
-import globalStyles from './src/globalStyles';
-
-import { ViewRecipe, LoadRecipe, EditRecipe } from './src/viewRecipe';
-import MultipleRecipesScreen from './src/screens/multipleRecipesScreen';
+import { ViewRecipe, LoadRecipe, EditRecipe } from './src/viewRecipe'
+import MultipleRecipesScreen from './src/screens/multipleRecipesScreen'
 
 import CalendarScreen from './src/screens/CalendarScreen.jsx'; 
 import LoginScreen from './src/screens/LoginScreen.jsx'; 
@@ -20,6 +18,8 @@ import ShareScreen from './src/screens/ShareScreen.jsx';
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
+
+// Create a new Home component that includes your Stack Navigator
 function Home() {
   return (
     <Stack.Navigator initialRouteName="Multi-Screen">

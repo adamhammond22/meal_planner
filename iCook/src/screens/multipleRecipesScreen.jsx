@@ -9,7 +9,7 @@ import { useFonts } from 'expo-font';
 // import empty recipe loader
 import { LoadEmptyRecipe } from '../viewRecipe';
 // import homepage style sheet
-import {styles} from '../homepageStyle';
+import {styles} from '../styleSheets/homepageStyle';
 /* Import SQLite functions */
 import * as SQLite from 'expo-sqlite';
 /* Import custom searchbar */
@@ -96,10 +96,11 @@ const MultipleRecipesScreen = ({navigation}) => {
 
 
   /* Load our fonts */
+  /* Load our fonts */
   const [fontsLoaded] = useFonts({
-    'Orienta': require('../../assets/fonts/Orienta-Regular.ttf'),
+    'Orienta-Regular': require('../../assets/fonts/Orienta-Regular.ttf'),
     'Ovo-Regular': require('../../assets/fonts/Ovo-Regular.ttf'),
-    'TangerineRegular': require('../../assets/fonts/Tangerine-Regular.ttf'),
+    'Tangerine-Regular': require('../../assets/fonts/Tangerine-Regular.ttf'),
   });
 
 
