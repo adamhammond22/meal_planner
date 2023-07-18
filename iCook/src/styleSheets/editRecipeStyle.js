@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native'
 import {SafeAreaView, Button, Text, View, TouchableOpacity, Image, useEffect} from 'react-native'
 import { useFonts } from 'expo-font';
-import { primaryContainerColor, primaryTextColor } from './globalStyle';
+import { primaryContainerColor, primaryTextColor, deleteButtonColor } from './globalStyle';
 
 //const primaryBackgroundColor = '#031E33'
 const inputTextColor = '#545252'
@@ -97,7 +97,7 @@ const editStyles = StyleSheet.create({
     borderWidth:  1, 
     padding: 5, 
     marginRight: 5,
-    backgroundColor: '#EF0107'
+    backgroundColor: deleteButtonColor
   },
   ingredientAddButtonStyle:{
     flexDirection: 'row', 
@@ -154,7 +154,7 @@ const editStyles = StyleSheet.create({
     borderWidth:  1, 
     padding: 5, 
     marginRight: 5,
-    backgroundColor: '#EF0107'
+    backgroundColor: deleteButtonColor
   },
   tagAddButtonStyle:{
     flexDirection: 'row', 
@@ -237,7 +237,7 @@ const editStyles = StyleSheet.create({
   parentDeleteStyle: {
     width: 100,
     height: 30,
-    backgroundColor: '#EF0107',
+    backgroundColor: deleteButtonColor,
     margin: 20,
     borderRadius: 3
   },
@@ -247,7 +247,7 @@ const editStyles = StyleSheet.create({
     paddingTop: 7,
     borderRadius: 4,
     elevation: 3,
-    backgroundColor: '#EF0107',
+    backgroundColor: deleteButtonColor,
   },
 });
 export {editStyles}

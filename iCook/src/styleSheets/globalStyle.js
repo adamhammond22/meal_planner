@@ -5,7 +5,8 @@ import * as Font from 'expo-font';
 
 export const primaryBackgroundColor = '#031E33'
 export const primaryTextColor = '#ECEAE4'
-export const primaryContainerColor = '#062D4A'//'#062D4A'
+export const primaryContainerColor = '#062D4A'
+export const deleteButtonColor = '#EF0107'
 export const globalStyles = StyleSheet.create({
     wrapper: {
         flex: 1,
