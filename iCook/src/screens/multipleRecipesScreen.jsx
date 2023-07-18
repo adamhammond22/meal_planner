@@ -20,12 +20,71 @@ import { fakeRecipes } from '../../assets/fakeRecipes';
 /* Init SQLite database obj */
 const db = SQLite.openDatabase('recipe.db');
 
-/* All Recipes Screen takes a navigation prop, and returns jsx*/
+
+/* ========== Helper Function ========== */
+
+/* Boolean Function - if ANY recipe field includes this string, return true, otherwise false */
+function recipeIncludesString(recipe, string) {
+  const {name, description, ingredients, instructions} = recipe
+  if( name.toLowerCase().includes(string) ||
+    description.toLowerCase().includes(string) ||
+    ingredients.toLowerCase().includes(string) ||
+    instructions.toLowerCase().includes(string)
+  ) {  
+    return true
+
+  } else {
+    return false
+  }
+}
+
+/* Boolean function returning True if all queries in the queryList show up in the recipe*/
+function recipeContainsQueries(recipe, queryList) {
+  //iterate over all queries
+  for (const query of queryList) {
+    // if one of the queries does NOT show up anywhere in the recipe, this recipe should be filtered out
+    if(!recipeIncludesString(recipe, query)) {
+      return false
+    }
+  }
+  // at this point- all queries show up in the recipe, do not filter
+  return true
+}
+
+/* Boolean function returning True if a SINGLE query in the queryList is included in the name*/
+function recipeNameContainsQueries(recipe, queryList) {
+  const recipeName = recipe.name
+  //iterate over all queries
+  for (const query of queryList) {
+
+    // if one of the queries appears in the name, return true
+    if(recipeName.toLowerCase().includes(query)) {
+      return true
+    }
+  }
+  //at this point, no queries show up in the name, return false
+  return false
+}
+
+
+
+
+/* ========== MultipleRecipesScreen Component ========== */
+
+/* All Recipes Screen takes a navigation prop, and returns jsx  */
 const MultipleRecipesScreen = ({navigation}) => {
+
+  /* ========== States and Effects ========== */
+
   React.useLayoutEffect(() => {
     navigation.setOptions({headerShown: false});
   }, [navigation]);
-    
+
+  /* useEffect calls this every time this application is loaded, we make sure a table exists and call loadRecipes() */
+  useEffect(() => {
+    CreateTable()
+  }, []);
+
   /* isLoading is true if we're currently loading our list of recipes */
   const [isLoading, setIsLoading] = useState(true);
 
@@ -35,18 +94,18 @@ const MultipleRecipesScreen = ({navigation}) => {
   /* Shown recipes is the state containing the list of currently shown recipes, this is what the search function modifies */
   const [shownRecipes, setShownRecipes] = useState([]);
 
-  /* useEffect calls this every time this application is loaded, we make sure a table exists and call loadRecipes() */
-  useEffect(() => {
-    CreateTable()
-  }, []);
 
   /* Load our fonts */
   const [fontsLoaded] = useFonts({
     'Orienta': require('../../assets/fonts/Orienta-Regular.ttf'),
+    'Ovo-Regular': require('../../assets/fonts/Ovo-Regular.ttf'),
+    'TangerineRegular': require('../../assets/fonts/Tangerine-Regular.ttf'),
   });
 
 
-  // Separated out of useEffect so that it could be called by DEBUG_DELETE_TABLE
+  /* ========== Helper Functions ========== */
+
+  // SQLLite function to creat a table if it doesn't exist
   const CreateTable = () =>{
     db.transaction(tx => {
       tx.executeSql(
@@ -71,7 +130,7 @@ const MultipleRecipesScreen = ({navigation}) => {
         })
         /* Upon failure, remain on this screen*/
         .catch((error) => {
-          console.log('Error adding recipe:', error);
+          console.log('MultipleRecipesScreen.jsx: Error adding recipe:', error);
         });
     
     /* If the ID is non-null, navigate to view it */
@@ -93,9 +152,8 @@ const MultipleRecipesScreen = ({navigation}) => {
     });
   }
 
-
+  // This Function adds a large list of dummy recipes from fakeRecipes.jsx into the database
   const DEBUG_ADD_RECIPES = () => {
-    
     for (const rec of fakeRecipes) {
       new Promise((resolve, reject) => {
         db.transaction(tx => {
@@ -125,7 +183,7 @@ const MultipleRecipesScreen = ({navigation}) => {
           setShownRecipes(recipesList);
           setIsLoading(false);
         });
-        (_, error) => console.log("App.js: loadRecipes() error: ", error) // Error callback
+        (_, error) => console.log("MultipleRecipesScreen.jsx: loadRecipes() error: ", error) // Error callback
     });
   };
 
@@ -156,6 +214,51 @@ const MultipleRecipesScreen = ({navigation}) => {
       loadRecipes
     );
   };
+
+
+  /* Function to handle a change to the search input, it takes the searchInputList of strings and sets the "filtered recipes" state
+  accordingly  */
+  const handleSearchInputChange = (searchInputList) => {
+    // map our search inputs to lowercase
+    const lowerCaseInputList = searchInputList.map((item) => item.toLowerCase()) 
+
+    /* Custom sorting function to prioritize recipes with the search in the name field, and then alphabetically sort otherwise */
+    function customSearchSort(a, b) {
+
+      const aContainsQueryInName = recipeNameContainsQueries(a, lowerCaseInputList)
+      const bContainsQueryInName = recipeNameContainsQueries(b, lowerCaseInputList)
+
+      if (aContainsQueryInName && !bContainsQueryInName) {
+        return -1 // -1 will ensure A stays in front of B
+
+      } else if (!aContainsQueryInName && bContainsQueryInName) {
+        return 1 // 1 will ensure B gets swapped in front of A
+
+      /* Otherwise evaluate alphabetically by casting to numbers and subtracting b from a*/
+      } else {
+        return a.name[0].localeCompare(b.name[0])
+      }
+    }
+  
+    /* Check that the search input is non-empty  */
+    if(lowerCaseInputList.length > 0) {
+       /* Filter out entries with no matches in any field */
+      const filteredRecipes = loadedRecipes.filter(recipe => {
+        return(recipeContainsQueries(recipe, lowerCaseInputList))
+      });
+      /* Sort the filtered recipes by the custom sort function */
+      filteredRecipes.sort(customSearchSort);
+      /* Update the shown recipes state to reflect our new search*/
+      setShownRecipes(filteredRecipes);
+    
+    /* Check if the search input is empty, simply show all recipes  */
+    } else {
+      setShownRecipes(loadedRecipes);
+    }
+  }
+
+
+  /* ========== Rendering & Returing JSX ========== */
 
   function formatTags(tagString) {
     if (tagString==null || tagString =='') {
@@ -190,73 +293,17 @@ const MultipleRecipesScreen = ({navigation}) => {
       <Text numberOfLines={2} ellipsizeMode="tail" style={styles.descripText}>{formatTags(item.tags)}</Text>
 
       <View style={[styles.buttons, {flexDirection:'row'}, {margin: 10}, {justifyContent:'center'}]}>
-        {/* <Button title="Add to Shopping" onPress={() => console.log("not implemented!")} /> */}
+        {/* Add To Shopping Button */}
         <TouchableOpacity onPress={() => console.log("not implemented!")}>
           <Text style={[styles.recipeButton, {alignSelf:'flex-end'}, {justifyContent:'center'},{padding:10}  ]} >Add to Shopping</Text>
         </TouchableOpacity>
-        {/* <Button title="Delete" onPress={() => deleteRecipe(item.id)} /> */}
+        {/* Delete Button */}
         <TouchableOpacity onPress={() => deleteRecipe(item.id)}>
           <Text style={[styles.recipeButton, {alignSelf:'flex-end'}, {justifyContent:'center'},{padding:10}  ]}> Delete </Text>
         </TouchableOpacity>
       </View>
     </TouchableOpacity >
   );
-
-
-  /* Function to handle a change to the search input, it takes the searchInput string and sets the "filtered recipes" state
-  accordingly  */
-  const handleSearchInputChange = (searchInput) => {
-
-    const lowerCaseInput = searchInput.toLowerCase() //our lowercase search input
-
-    /* Custom sorting function to prioritize recipes with the search in the name field, and then alphabetically sort otherwise */
-    function customSearchSort(a, b) {
-      const lowerCaseNameA = a.name.toLowerCase()
-      const lowerCaseNameB = b.name.toLowerCase()
-
-      /* If only the a name includes the search query */
-      if (lowerCaseNameA.includes(lowerCaseInput) && !(lowerCaseNameB.toLowerCase().includes(lowerCaseInput))) {
-        return -1 // -1 will ensure A stays in front of B
-
-      /* If only the b name includes the search query */
-      } else if (!(lowerCaseNameA.includes(lowerCaseInput)) && lowerCaseNameB.toLowerCase().includes(lowerCaseInput)) {
-        return 1 // 1 will ensure B gets swapped in front of A
-
-      /* Otherwise evaluate alphabetically by casting to numbers and subtracting b from a*/
-      } else {
-        return Number(a.name) - Number(b.name)
-      }
-    }
-  
-    /* Sanity check that the search input is a string */
-    if(typeof(searchInput) === 'string') {
-
-      const lowerCaseInput = searchInput.toLowerCase()
-
-       /* Filter out entries with no matches in any field */
-      const filteredRecipes = loadedRecipes.filter(recipe => {
-        const {name, description, ingredients, instructions, tags} = recipe
-
-        if(tags==null) {
-          return (name.toLowerCase().includes(lowerCaseInput) || description.toLowerCase().includes(lowerCaseInput) ||
-          ingredients.toLowerCase().includes(lowerCaseInput) || instructions.toLowerCase().includes(lowerCaseInput))
-        }
-        else {
-          return (name.toLowerCase().includes(lowerCaseInput) || description.toLowerCase().includes(lowerCaseInput) ||
-          ingredients.toLowerCase().includes(lowerCaseInput) || instructions.toLowerCase().includes(lowerCaseInput)) ||
-          tags.toLowerCase().includes(lowerCaseInput)
-        }
-        
-      });
-      /* Sort the filtered recipes by the custom sort function */
-      filteredRecipes.sort(customSearchSort);
-      /* Update the shown recipes state to reflect our new search*/
-      setShownRecipes(filteredRecipes);
-      
-    }
-  }
-
-
 
   /* If Loading, simply show that we're loading */
   if (isLoading || !fontsLoaded) {
