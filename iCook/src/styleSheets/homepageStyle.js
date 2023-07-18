@@ -53,8 +53,10 @@ const homeStyles = StyleSheet.create({
     flexDirection:'row',
     alignItems:'flex-end',
     // alignContent:"center",
-    // justifyContent:"center",
     fontWeight: '400',
+    alignSelf:'flex-end', 
+    justifyContent:'center',
+    padding:10
   },
   button:{
     fontFamily: 'Orienta-Regular',
@@ -65,6 +67,10 @@ const homeStyles = StyleSheet.create({
     marginTop: 10,
     marginBottom: -38,
     fontWeight: 'bold',
+    /*
+    flexDirection:'row'}, 
+    margin: 10, 
+    justifyContent:'center'*/
     // wordWrap: 'break-word'
   },
   title: {
@@ -100,7 +106,12 @@ const homeStyles = StyleSheet.create({
   searchBarBufferStyle: {
     paddingBottom: 10
   },
-  newRecipeButtonAdditionsStyle:{
+  recipeButtonRowStyle:{
+    flexDirection:'row', 
+    margin: 10, 
+    justifyContent:'center'
+  },
+  newRecipeButtonAdditionsStyle: {
     textAlign:'center', 
     paddingBottom: 15,
     marginBottom: 50

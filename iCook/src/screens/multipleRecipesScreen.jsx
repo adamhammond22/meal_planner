@@ -221,7 +221,6 @@ const MultipleRecipesScreen = ({navigation}) => {
     [
       {
         text: 'Cancel',
-        onPress:() => console.log("Cancel: "),
         style: 'cancel'
       },
       {
@@ -309,7 +308,7 @@ const MultipleRecipesScreen = ({navigation}) => {
       <Text numberOfLines={2} ellipsizeMode="tail" style={homeStyles.descripText}>{item.description}</Text>
       <Text numberOfLines={2} ellipsizeMode="tail" style={homeStyles.descripText}>{formatTags(item.tags)}</Text>
 
-      <View style={[homeStyles.buttons, {flexDirection:'row'}, {margin: 10}, {justifyContent:'center'}]}>
+      <View style={homeStyles.recipeButtonRowStyle}>
         {/* Add To Shopping Button */}
         <TouchableOpacity onPress={() => console.log("not implemented!")}>
           <Text style={[homeStyles.recipeButton, {alignSelf:'flex-end'}, {justifyContent:'center'},{padding:10}  ]} >Add to Shopping</Text>
