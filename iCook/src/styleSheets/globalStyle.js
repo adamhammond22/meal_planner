@@ -9,7 +9,8 @@ export const primaryContainerColor = '#062D4A'//'#062D4A'
 export const globalStyles = StyleSheet.create({
     wrapper: {
         flex: 1,
-        backgroundColor: primaryBackgroundColor
+        backgroundColor: primaryBackgroundColor,
+        marginBottom: 45
     },
     bottomButtonStyle: {
         alignItems: 'center',

@@ -296,7 +296,6 @@ export const ViewRecipe = ({ route, navigation}) => {
           {tagsList}
         </View>
       </ScrollView>
-
       <View style={globalStyles.bottomButtonStyle}>
         {/* Edit Button */}
         <View style={globalStyles.parentStyle}>
