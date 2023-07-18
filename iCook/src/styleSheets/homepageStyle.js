@@ -102,7 +102,8 @@ const homeStyles = StyleSheet.create({
   },
   newRecipeButtonAdditionsStyle:{
     textAlign:'center', 
-    paddingBottom: 50
+    paddingBottom: 15,
+    marginBottom: 50
   },
 
   debugDeleteStyle: {

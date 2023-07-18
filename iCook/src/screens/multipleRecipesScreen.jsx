@@ -3,7 +3,7 @@
 // import react states
 import React, { useState, useEffect } from 'react'
 //import react native components
-import { SafeAreaView, Text, View, TouchableOpacity, FlatList } from 'react-native'
+import { SafeAreaView, Text, View, TouchableOpacity, FlatList, Alert } from 'react-native'
 // import empty recipe loader
 import { LoadEmptyRecipe } from '../viewRecipe';
 // import homepage style sheet
@@ -206,15 +206,31 @@ const MultipleRecipesScreen = ({navigation}) => {
   };
 
   /* SQLite function to delete a recipe from the db */
-  const deleteRecipe = (id) => {
+  const deleteRecipe = (recipeId) => {
     db.transaction(
       tx => {
-        tx.executeSql(`DELETE FROM Recipes where id = ?;`, [id]);
+        tx.executeSql(`DELETE FROM Recipes where id = ?;`, [recipeId]);
       },
       null,
       loadRecipes
     );
   };
+
+  const deleteAlert = (recipeId) => {
+    Alert.alert('Delete Recipe?', 'Are you sure you want to delete this recipe?', 
+    [
+      {
+        text: 'Cancel',
+        onPress:() => console.log("Cancel: "),
+        style: 'cancel'
+      },
+      {
+        text: 'Delete',
+        onPress: () => deleteRecipe(recipeId),
+        style: 'ok'
+      },
+    ],)
+  }
 
 
   /* Function to handle a change to the search input, it takes the searchInputList of strings and sets the "filtered recipes" state
@@ -299,7 +315,7 @@ const MultipleRecipesScreen = ({navigation}) => {
           <Text style={[homeStyles.recipeButton, {alignSelf:'flex-end'}, {justifyContent:'center'},{padding:10}  ]} >Add to Shopping</Text>
         </TouchableOpacity>
         {/* Delete Button */}
-        <TouchableOpacity onPress={() => deleteRecipe(item.id)}>
+        <TouchableOpacity onPress={() => deleteAlert(item.id)}>
           <Text style={[homeStyles.recipeButton, {alignSelf:'flex-end'}, {justifyContent:'center'},{padding:10}  ]}> Delete </Text>
         </TouchableOpacity>
       </View>

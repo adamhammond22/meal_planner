@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 // Import react-native components
-import { SafeAreaView, Button, Text, TextInput, View, ScrollView, TouchableOpacity, Image, Platform } from 'react-native'
+import { SafeAreaView, Button, Text, TextInput, View, ScrollView, TouchableOpacity, Image, Platform, Alert } from 'react-native'
 // This import allows for the scroll bar to follow user input as they type
 import InputScrollView from 'react-native-input-scroll-view'
 // Import SQLite functions
@@ -388,16 +388,30 @@ export const EditRecipe = ({ route, navigation}) => {
   }
 
   // This function deletes the passed recipe and returns to the main screen
-  const deleteRecipeFromEditPage = (id) => {
+  const deleteRecipeFromEditPage = (recipeId) => {
     db.transaction(
       tx => {
-        tx.executeSql(`DELETE FROM Recipes where id = ?;`, [id]);
+        tx.executeSql(`DELETE FROM Recipes where id = ?;`, [recipeId]);
       },
       null,
       null
     );
     navigation.replace('Multi-Screen')
   };
+
+  const deleteAlert = (recipeId) => {
+    Alert.alert('Delete Recipe?', 'Are you sure you want to delete this recipe?', [
+      {
+        text: 'Cancel',
+        style: 'cancel'
+      },
+      {
+        text: 'Delete',
+        onPress: () => deleteRecipeFromEditPage(recipeId),
+        style: 'ok'
+      },
+    ]);
+  }
   
   /* Function to Remove an ingredient from the ingredientList, specified by given index */
   const RemoveIngredent = (indexToRemove) => {
@@ -529,6 +543,7 @@ export const EditRecipe = ({ route, navigation}) => {
               blurOnSubmit={true}
               onChangeText={value => ValidateTagInput(value, index)}
               defaultValue={element}
+              placeholder='Tag Name'
             />
             {/* Delete Tag Button */}
             <TouchableOpacity style = {editStyles.tagDeleteButtonStyle}
@@ -626,7 +641,6 @@ export const EditRecipe = ({ route, navigation}) => {
       <TextInput style={editStyles.descriptionInputStyle}
 
         placeholder="Description"
-        placeholderTextColor={'#EDBD65'}
         editable
         multiline
         scrollEnabled={false}
@@ -673,7 +687,7 @@ export const EditRecipe = ({ route, navigation}) => {
       <View style={globalStyles.bottomButtonStyle}>
         <View style={editStyles.parentDeleteStyle}>
           <TouchableOpacity style={[editStyles.buttonDeleteStyle]}
-          onPress = {() => deleteRecipeFromEditPage(loadedRecipe.id)}>
+          onPress = {() => deleteAlert(loadedRecipe.id)}>
             <Text style={globalStyles.buttonTextStyle}>DELETE RECIPE</Text>
           </TouchableOpacity>
         </View>
