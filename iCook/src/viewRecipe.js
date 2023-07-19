@@ -108,25 +108,23 @@ function setLoadedRecipe(recipe){
   } else {
     loadedRecipe.tags = []
   }
-
 }
 
 /* This function passes loads a recipy by name direclty from the mock-up save. For actual implimentation, it'll need to pass the 
 database id. It'll also need to parse it into proper formate here or on the otherside of the backend load function before passing
 it to loadedRecipe */
 export const LoadEmptyRecipe =  () => {
-    loadedRecipe.name = ""
-    loadedRecipe.description = ""
-    loadedRecipe.ingredients = []
-    loadedRecipe.instructions = ""
-    loadedRecipe.image = null
-    loadedRecipe.tags = []
+  loadedRecipe.name = ""
+  loadedRecipe.description = ""
+  loadedRecipe.ingredients = []
+  loadedRecipe.instructions = ""
+  loadedRecipe.image = null
+  loadedRecipe.tags = []
 }
 
 // View Recipe Screen takes navigation context and "route" which stores our recipe id and if the recipe is already pre loaded (recipeId, preLoaded)
 export const ViewRecipe = ({ route, navigation}) => {
   // remove "view-recipe" header
-
   React.useLayoutEffect(() => {
     navigation.setOptions({headerShown: false});
   }, [navigation]);
@@ -320,7 +318,6 @@ export const EditRecipe = ({ route, navigation}) => {
     LoadEmptyRecipe()
   }
   
-  
   // These variables keep track of the various chanded components. They will be tossed if cancel is hit, or applied to
   // loadedRecipe and saved to the database if save is hit
 
@@ -411,6 +408,25 @@ export const EditRecipe = ({ route, navigation}) => {
         style: 'ok'
       },
     ]);
+  }
+
+  const cancelEdit = (recipeId) => {
+    // nullLoad is true if this was a new recipe
+    if(route.params.nullLoad){
+      Alert.alert('Cancel Creating New Recipe?', 'Are you sure you want to delete this recipe?', [
+        {
+          text: 'Don\'t Delete',
+          style: 'cancel'
+        },
+        {
+          text: 'Delete',
+          onPress: () => deleteRecipeFromEditPage(recipeId),
+          style: 'ok'
+        },
+      ]);
+    }else{
+      navigation.replace('View-Recipe', {recipeId: loadedRecipe.id, preLoaded: true})
+    }
   }
   
   /* Function to Remove an ingredient from the ingredientList, specified by given index */
@@ -703,7 +719,7 @@ export const EditRecipe = ({ route, navigation}) => {
         {/* Cancel/Back Button */}
         <View style={globalStyles.parentStyle}>
           <TouchableOpacity style={globalStyles.buttonStyle} 
-          onPress={() => {navigation.replace('View-Recipe', {recipeId: loadedRecipe.id, preLoaded: true})}}>
+          onPress={() => cancelEdit(loadedRecipe.id)}>
             <Text style={globalStyles.buttonTextStyle}> Cancel </Text>
           </TouchableOpacity>
         </View>
