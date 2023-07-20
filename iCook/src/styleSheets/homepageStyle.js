@@ -72,18 +72,17 @@ const homeStyles = StyleSheet.create({
   description:{
     fontFamily: 'Orienta-Regular',
     color: primaryTextColor,
-    textAlign:"left",
-    paddingRight: 10
+    textAlign:"left"
   },
   images:{
-    height:100,
+    height:110,
     width:100,
     flexWrap:"wrap",
     flexDirection:"column",
     justifyContent:"center",
     resizeMode: 'contain',
     marginTop: 10,
-    borderRadius: 12.5
+    borderRadius: 12
   },
   seperator:{
     marginVertical: 8,
