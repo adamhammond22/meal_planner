@@ -3,7 +3,7 @@
 // import react states
 import React, { useState, useEffect } from 'react'
 //import react native components
-import { SafeAreaView, Text, View, TouchableOpacity, FlatList, Alert } from 'react-native'
+import { SafeAreaView, Text, View, TouchableOpacity, FlatList, Alert, Image } from 'react-native'
 // import empty recipe loader
 import { LoadEmptyRecipe } from '../viewRecipe';
 // import homepage style sheet
@@ -300,23 +300,31 @@ const MultipleRecipesScreen = ({navigation}) => {
     <TouchableOpacity  style={homeStyles.recipeWrapper}
     onPress={() => navigateToRecipe(item.id)} >
       
-      <Text style={homeStyles.recipe}>{item.name}</Text>
-      <Text numberOfLines={2} ellipsizeMode="tail" style={homeStyles.descripText}>{item.description}</Text>
-      <Text numberOfLines={2} ellipsizeMode="tail" style={homeStyles.descripText}>{formatTags(item.tags)}</Text>
+      <View style={[{flexDirection: 'row'}, {paddingLeft: 10}]}>
+        <Image source={{ uri: item.image }} style={homeStyles.images} />
+        <View style={[{flexDirection: 'column'}]}>
+          <Text style={homeStyles.recipe}>{item.name}</Text>
+          <Text numberOfLines={2} ellipsizeMode="tail" style={homeStyles.descripText}>{item.description}</Text>
+          <Text numberOfLines={2} ellipsizeMode="tail" style={homeStyles.descripText}>{formatTags(item.tags)}</Text>
 
-      <View style={homeStyles.recipeButtonRowStyle}>
+          <View style={homeStyles.recipeButtonRowStyle}>
 
-        {/* Add To Shopping Button */}
-        <TouchableOpacity onPress={() => console.log("not implemented!")}>
-          <Text style={[homeStyles.recipeButton]} >Add to Shopping</Text>
-        </TouchableOpacity>
+          {/* Add To Shopping Button */}
+          <TouchableOpacity onPress={() => console.log("not implemented!")}>
+            <Text style={[homeStyles.recipeButton]} >Add to Shopping</Text>
+          </TouchableOpacity>
 
-        {/* Delete Button */}
-        <TouchableOpacity onPress={() => deleteAlert(item.id)}>
-          <Text style={[homeStyles.recipeButton]}> Delete </Text>
-        </TouchableOpacity>
+          {/* Delete Button */}
+          <TouchableOpacity onPress={() => deleteAlert(item.id)}>
+            <Text style={[homeStyles.recipeButton]}> Delete </Text>
+          </TouchableOpacity>
 
+          </View>
+
+        </View>
       </View>
+
+      
 
     </TouchableOpacity >
   );

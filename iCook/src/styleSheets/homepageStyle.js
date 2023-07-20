@@ -15,7 +15,7 @@ const homeStyles = StyleSheet.create({
     marginRight:10,
     marginTop: 5,
     flexDirection: 'column',
-    justifyContent:"center",
+    justifyContent:"center"
   },
   recipe: {
     fontFamily: 'Ovo-Regular',
@@ -36,7 +36,7 @@ const homeStyles = StyleSheet.create({
     fontWeight: '400',
     paddingTop: 10,
     paddingLeft: 15,
-    fontSize: 12,
+    fontSize: 12
   },
   recipeButton:{
     fontFamily: 'Orienta-Regular',
@@ -73,6 +73,7 @@ const homeStyles = StyleSheet.create({
     fontFamily: 'Orienta-Regular',
     color: primaryTextColor,
     textAlign:"left",
+    paddingRight: 10
   },
   images:{
     height:100,
@@ -81,6 +82,8 @@ const homeStyles = StyleSheet.create({
     flexDirection:"column",
     justifyContent:"center",
     resizeMode: 'contain',
+    marginTop: 10,
+    borderRadius: 12.5
   },
   seperator:{
     marginVertical: 8,
