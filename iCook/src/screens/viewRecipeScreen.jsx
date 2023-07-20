@@ -1,4 +1,4 @@
-/* ViewRecipe.js contains the ViewRecipe component used to view a singular recipe */
+/* ViewRecipe.jsx contains the ViewRecipe component used to view a singular recipe */
 
 import React, { useState, useEffect } from 'react'
 // Import react-native components

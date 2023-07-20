@@ -5,7 +5,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import LottieView from 'lottie-react-native';
-import { loadFonts, primaryContainerColor, primaryTextColor } from './src/styleSheets/globalStyle';
+import { loadFonts, primaryBackgroundColor, primaryContainerColor, primaryTextColor } from './src/styleSheets/globalStyle';
 
 import { ViewRecipe, LoadRecipe, EditRecipe } from './src/screens/viewRecipeScreen'
 import MultipleRecipesScreen from './src/screens/multipleRecipesScreen'
@@ -64,7 +64,7 @@ const App = () => {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: primaryBackgroundColor}}>
       <NavigationContainer>
         <Tab.Navigator
           screenOptions={({ route }) => ({
@@ -88,7 +88,7 @@ const App = () => {
             tabBarActiveTintColor: 'silver',
             tabBarInactiveTintColor: 'gray',
             headerStyle: {
-              backgroundColor: primaryContainerColor,
+              backgroundColor: primaryBackgroundColor,
             },
             headerTitleStyle: {
               fontFamily: 'Tangerine-Regular',
@@ -104,7 +104,7 @@ const App = () => {
         >
           <Tab.Screen name="Home" component={Home} />
           <Tab.Screen name="Calendar" component={MealCartScreen} />
-          <Tab.Screen name="Planned Recipes" component={PlannedRecipeScreen} />
+          <Tab.Screen name="Planned Recipes" component={PlannedRecipeScreen} options={{unmountOnBlur: true}}/>
           <Tab.Screen name="Shopping List" component={ShoppingListScreen} />
           <Tab.Screen name="Login" component={LoginScreen} />
         </Tab.Navigator>

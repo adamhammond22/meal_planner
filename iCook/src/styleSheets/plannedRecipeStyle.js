@@ -7,23 +7,27 @@ const inCartContainerWidth = 40
 const plannedRecipeStyles = StyleSheet.create({
   // Containers -------------------------------------------------------------------------------
 
-  // Entire Search Container Style
-  mainContainerStyle: { flex: 1,
+  // Styling for the Main Container
+  mainContainerStyle: { display: 'flex',
+    flex: 1,
+    flexDirection: 'column',
     backgroundColor: primaryBackgroundColor,
   },
-  debugButtonStyle: {
-    color:'orange', 
-    textAlign:'center', 
-    fontSize:20,
-    marginBottom: 5
+  // Contains the Flatlist of recipes
+  flatListContainerStyle: {
+    flexShrink: 1,
   },
-  debugEndLineStyle:{
-    borderBottomColor: 'black',
-    borderBottomWidth: 3,
+  // Contains the top buttons
+  topButtonContainerStyle: {
+    justifyContent: 'space-between',
+    flexDirection: 'row',
   },
 
+  // Individual Recipes -------------------------------------------------------------------------------
 
-  recipeWrapper: {
+  // Wrapper for individual recipes in the FlatList
+  // RecipeInfo and inCart containers share the space inside the recipe wrapper
+  recipeWrapperStyle: {
     backgroundColor: 'primaryContainerColor',
     borderRadius: 7,
     marginBottom: 5,
@@ -33,8 +37,18 @@ const plannedRecipeStyles = StyleSheet.create({
     display:'flex',
     flexDirection: 'row',
   },
+  
+  // Recipe info container contains all recipe information
+  recipeInfoContainerStyle: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 1,
+    backgroundColor: primaryContainerColor,
+    padding: 8,
+  },
 
-  descripText:{
+  //recipe description styling
+  descripTextStyle:{
     fontFamily: 'Orienta-Regular',
     alignSelf: 'flex-start',
     color: '#AFB8BA',
@@ -43,7 +57,8 @@ const plannedRecipeStyles = StyleSheet.create({
     paddingLeft: 15,
     fontSize: 12,
   },
-  recipe: {
+  // recipe name styling
+  recipeStyle: {
     fontFamily: 'Ovo-Regular',
     alignSelf: 'flex-start',
     justifyContent:"space-between",
@@ -55,33 +70,81 @@ const plannedRecipeStyles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '400',
   },
-  recipeInfoContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    flexGrow: 1,
-    backgroundColor: primaryContainerColor,
-    padding: 8,
-  },
-  inCartContainer: {
+
+
+  // inCart container holds all inCart information and buttons
+  inCartContainerStyle: {
     width: inCartContainerWidth,
     display:'flex',
     backgroundColor: primaryContainerColor,
     justifyContent:"space-between",
     alignItems: 'center',
   },
-  inCartText: {
+
+  // inCart text, icon, and button styling
+  inCartTextStyle: {
     fontFamily: 'Orienta-Regular',
     fontSize: 20,
     color: primaryTextColor,
   },
-  iconStyle: {
+  inCartIconStyle: {
     color: primaryTextColor,
   },
-  inCartButton: {
+  inCartButtonStyle: {
     flex: 1,
     width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
   },
+
+  // Send to Shopping Button -------------------------------------------------------------------------------
+
+  sendToShoppingStyle: {
+    backgroundColor: primaryTextColor,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    borderRadius: 10,
+    padding: 5,
+    margin: 5,
+  },
+
+  sendToShoppingTextStyle: {
+    fontFamily: 'Orienta-Regular',
+    fontSize: 20,
+    color: primaryContainerColor,
+  },
+
+  sendToShoppingIconStyle: {
+    color: primaryContainerColor,
+  },
+
+ // Clear Planned Recipes Button -------------------------------------------------------------------------------
+
+ clearPlannedRecipesStyle: {
+  backgroundColor: primaryTextColor,
+  flexDirection: 'row',
+  justifyContent: 'center',
+  alignSelf: 'center',
+  borderRadius: 10,
+  padding: 5,
+  margin: 5,
+  marginBottom: 60,
+},
+
+clearPlannedRecipesTextStyle: {
+  fontFamily: 'Orienta-Regular',
+  flex: 1,
+  flexWrap: 1,
+  alignContent: 'center',
+  fontSize: 10,
+  color: primaryContainerColor,
+},
+
+clearPlannedRecipesIconStyle: {
+  paddingLeft: 10,
+  color: primaryContainerColor,
+},
+
 });
 export {plannedRecipeStyles}

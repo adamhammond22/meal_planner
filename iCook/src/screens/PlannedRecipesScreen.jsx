@@ -1,19 +1,21 @@
+/* PlannedRecipesScreen.jsx contains the PlannedRecipeScreen component used to view our planned recipes */
+
 import React, { useState, useEffect } from 'react'
 //import react native components
 import { SafeAreaView, Text, View, TouchableOpacity, FlatList, Alert } from 'react-native'
 /* Import SQLite functions */
 import * as SQLite from 'expo-sqlite';
-
+// importing icons
 import Icon from 'react-native-vector-icons/AntDesign';
-
+// import seperates stylesheer
 import { plannedRecipeStyles } from '../styleSheets/plannedRecipeStyle';
-
+//import formatTags function from helpers
 import { formatTags } from '../components/Helpers';
 
 /* Init SQLite database obj */
 const db = SQLite.openDatabase('recipe.db');
 
-
+/* PlannedRecipeScreen returns JSX to render our screen, and takes a naviation prop */
 export default function PlannedRecipeScreen ({navigation}) {
 
   /* ========== States and Effects ========== */
@@ -34,6 +36,38 @@ export default function PlannedRecipeScreen ({navigation}) {
   /* plannedRecipes is the state containing the list of items in the plannedRecipes */
   const [plannedRecipes, setPlannedRecipes] = useState([]);
   /* ========== Helper Functions ========== */
+
+
+  /* Function that handles the button press of 'send to shopping' */
+  const handleSendToShopping = () => {
+    console.log("Here, we handle sending to shopping!")
+  }
+
+  /* Function that handles the button press of 'clear planned recipes' */
+  const handleClearPlannedRecipes = () => {
+    Alert.alert('Clear Planned Recipes?', 'Are you sure you want to clear your planned recipes?', [
+      {
+        text: 'Cancel',
+        style: 'cancel'
+      },
+      {
+        text: 'Yes, Clear Planned Recipes',
+        onPress: () => clearPlannedRecipes(),
+        style: 'ok'
+      },
+    ]);
+  }
+
+  /* Sqllite function to set all inCart fields to 0, and call a reloading of the recipes. This
+  will effectively clear the planned recipes */
+  const clearPlannedRecipes = () => {
+    db.transaction (
+      tx => {
+        tx.executeSql(`UPDATE Recipes SET inCart = 0 WHERE inCart > 0`,
+        [], () => loadPlannedRecipes());
+      },
+    );
+  }
 
   // SQLLite function to create a table if it doesn't exist
   const CreateTable = () =>{
@@ -89,39 +123,49 @@ export default function PlannedRecipeScreen ({navigation}) {
     );
   };
 
-  const DEBUG_ADD_PLANNED = () => {
-    console.log("Adding planned")
-  }
-
-
   /* ========== Rendering & Returing JSX ========== */
 
   /* Function rendering a single database item into jsx */
   const renderPlannedRecipes = ({ item }) => (
     
-    <View  style={plannedRecipeStyles.recipeWrapper}>
-      <View style={plannedRecipeStyles.recipeInfoContainer}>
-        <Text style={plannedRecipeStyles.recipe}>{item.name}</Text>
-        <Text numberOfLines={2} ellipsizeMode="tail" style={plannedRecipeStyles.descripText}>{item.description}</Text>
-        <Text numberOfLines={2} ellipsizeMode="tail" style={plannedRecipeStyles.descripText}>{formatTags(item.tags)}</Text>
+    <View  style={plannedRecipeStyles.recipeWrapperStyle}>
+      <View style={plannedRecipeStyles.recipeInfoContainerStyle}>
+        <Text style={plannedRecipeStyles.recipeStyle}>{item.name}</Text>
+        <Text numberOfLines={2} ellipsizeMode="tail" style={plannedRecipeStyles.descripTextStyle}>{item.description}</Text>
+        <Text numberOfLines={2} ellipsizeMode="tail" style={plannedRecipeStyles.descripTextStyle}>{formatTags(item.tags)}</Text>
       </View>
-      <View style={plannedRecipeStyles.inCartContainer}>
+      <View style={plannedRecipeStyles.inCartContainerStyle}>
           {/* Increment Button */}
-        <TouchableOpacity onPress={() => incrementRecipeInCart(item.id)} style={plannedRecipeStyles.inCartButton}>
-          <Icon name='up' size={25}  style={plannedRecipeStyles.iconStyle}/>
+        <TouchableOpacity onPress={() => incrementRecipeInCart(item.id)} style={plannedRecipeStyles.inCartButtonStyle}>
+          <Icon name='up' size={25}  style={plannedRecipeStyles.inCartIconStyle}/>
         </TouchableOpacity>
         <View>
-          <Text style={plannedRecipeStyles.inCartText}>{item.inCart}</Text>
+          <Text style={plannedRecipeStyles.inCartTextStyle}>{item.inCart}</Text>
         </View>
         {/* Decrement Button  */}
-        <TouchableOpacity onPress={() => decrementRecipeInCart(item.id)} style={plannedRecipeStyles.inCartButton}>
-          <Icon name='down' size={25} style={plannedRecipeStyles.iconStyle}/>
+        <TouchableOpacity onPress={() => decrementRecipeInCart(item.id)} style={plannedRecipeStyles.inCartButtonStyle}>
+          <Icon name='down' size={25} style={plannedRecipeStyles.inCartIconStyle}/>
         </TouchableOpacity>
       </View>
     </View >
   );
 
-
+  /* This Function renders our footer button, which clears our planned recipes */
+  const clearPlannedRecipesFooter = () => {
+    if(plannedRecipes.length > 0) {
+    return (
+      <TouchableOpacity style={plannedRecipeStyles.clearPlannedRecipesStyle}
+        onPress={() => handleClearPlannedRecipes()} >
+        <Text style={plannedRecipeStyles.sendToShoppingTextStyle}>
+          Clear Planned Recipes
+        </Text>
+        <Icon name='close' size={25} style={plannedRecipeStyles.clearPlannedRecipesIconStyle}/>
+      </TouchableOpacity>
+    )
+    } else {
+      return null
+    }
+  }
 
   /* If Loading, simply show that we're loading */
   if (isLoading) {
@@ -134,17 +178,27 @@ export default function PlannedRecipeScreen ({navigation}) {
     );
   }
 
+  /* Otherwise returin our normal JSX */
   return (
     <View style={plannedRecipeStyles.mainContainerStyle}>
 
+      <TouchableOpacity style={plannedRecipeStyles.sendToShoppingStyle}
+        onPress={() => handleSendToShopping()}>
+        <Text style={plannedRecipeStyles.sendToShoppingTextStyle}>
+          Send to Shopping List
+        </Text>
+        <Icon name='shoppingcart' size={25} style={plannedRecipeStyles.sendToShoppingIconStyle}/>
+      </TouchableOpacity>
 
-        {/* Render our recipes in a list */}
+      {/* Render our recipes in a list */}
+      <View style={plannedRecipeStyles.flatListContainerStyle}>
         <FlatList
           data={plannedRecipes}
           keyExtractor={({ id }) => id.toString()}
           renderItem={renderPlannedRecipes}
+          ListFooterComponent={clearPlannedRecipesFooter}
         />
-
+      </View>  
     </View>
   );
 }
