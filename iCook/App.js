@@ -11,9 +11,9 @@ import { ViewRecipe, LoadRecipe, EditRecipe } from './src/screens/viewRecipeScre
 import MultipleRecipesScreen from './src/screens/multipleRecipesScreen'
 
 import MealCartScreen from './src/screens/MealCartScreen.jsx'; 
+import PlannedRecipeScreen from './src/screens/PlannedRecipesScreen';
+import ShoppingListScreen from './src/screens/ShoppingListScreen';
 import LoginScreen from './src/screens/LoginScreen.jsx'; 
-import ShoppingListScreen from './src/screens/ShoppingListScreen.jsx'; 
-import ShareScreen from './src/screens/ShareScreen.jsx';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -104,8 +104,8 @@ const App = () => {
         >
           <Tab.Screen name="Home" component={Home} />
           <Tab.Screen name="Calendar" component={MealCartScreen} />
-          <Tab.Screen name="Shop" component={ShoppingListScreen} />
-          <Tab.Screen name="Share" component={ShareScreen} />
+          <Tab.Screen name="Planned Recipes" component={PlannedRecipeScreen} />
+          <Tab.Screen name="Shopping List" component={ShoppingListScreen} />
           <Tab.Screen name="Login" component={LoginScreen} />
         </Tab.Navigator>
       </NavigationContainer>

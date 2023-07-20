@@ -17,6 +17,7 @@ import { fakeRecipes } from '../../assets/fakeRecipes';
 // Import loadFonts from the global Style Sheet
 import { loadFonts } from '../styleSheets/globalStyle';
 
+import { formatTags } from '../components/Helpers';
 
 /* Init SQLite database obj */
 const db = SQLite.openDatabase('recipe.db');
@@ -109,7 +110,7 @@ const MultipleRecipesScreen = ({navigation}) => {
       tx.executeSql(
         /* ingredients is currently set to store a TEXT type, as I expect us to parse them into a text, but we can 
         change the data type if there's something better */
-        'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, ingredients TEXT, instructions TEXT, image BLOB, tags TEXT);',
+        'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, ingredients TEXT, instructions TEXT, image BLOB, tags TEXT, inCart INTEGER);',
         [],
         () => loadRecipes()
       );
@@ -156,7 +157,7 @@ const MultipleRecipesScreen = ({navigation}) => {
     for (const rec of fakeRecipes) {
       new Promise((resolve, reject) => {
         db.transaction(tx => {
-          tx.executeSql('INSERT INTO Recipes (name, description, ingredients, instructions, image, tags) values (?, ?, ?, ?, ?, ?)', [rec.name, rec.desc, rec.ingr, rec.inst, null, rec.tag], 
+          tx.executeSql('INSERT INTO Recipes (name, description, ingredients, instructions, image, tags, inCart) values (?, ?, ?, ?, ?, ?, ?)', [rec.name, rec.desc, rec.ingr, rec.inst, null, rec.tag, 0], 
           (_, { insertId }) => resolve(insertId),
           (_, error) => reject(error)
           );
@@ -191,7 +192,7 @@ const MultipleRecipesScreen = ({navigation}) => {
     
     return new Promise((resolve, reject) => {
       db.transaction(tx => {
-        tx.executeSql('INSERT INTO Recipes (name, image, description, ingredients, instructions, tags) values (?, ?, ?, ?, ?, ?)', [recipeName, null, '', '' , '', ''], 
+        tx.executeSql('INSERT INTO Recipes (name, image, description, ingredients, instructions, tags, inCart) values (?, ?, ?, ?, ?, ?, ?)', [recipeName, null, '', '' , '', '', 0], 
         (_, { insertId }) => resolve(insertId),
         (_, error) => reject(error)
         );
@@ -206,12 +207,22 @@ const MultipleRecipesScreen = ({navigation}) => {
   const deleteRecipe = (recipeId) => {
     db.transaction(
       tx => {
-        tx.executeSql(`DELETE FROM Recipes where id = ?;`, [recipeId]);
+        tx.executeSql(`DELETE FROM Recipes where id = ?`, [recipeId]);
       },
       null,
       loadRecipes
     );
   };
+
+/*SQLite Function that updates the given recipe id, incrementing inCart by 1 */
+const updateRecipeInCart = (givenRecipeId) => {
+  db.transaction(
+    tx => {
+      tx.executeSql(`UPDATE Recipes SET inCart = inCart + 1 WHERE id = ?`,
+      [givenRecipeId]);
+    },
+  );
+};
 
   const deleteAlert = (recipeId) => {
     Alert.alert('Delete Recipe?', 'Are you sure you want to delete this recipe?', 
@@ -273,28 +284,7 @@ const MultipleRecipesScreen = ({navigation}) => {
 
   /* ========== Rendering & Returing JSX ========== */
 
-  function formatTags(tagString) {
-    if (tagString==null || tagString =='') {
-      return '(No Tags)'
-    }
-    tagArray = tagString.split("@")
-    formattedString = 'Tags: '
-    firstTag = true
-    tagArray.forEach((tag) => {
-      if(tag == '') {
-        return formattedString
-      }
-      if(firstTag) {
-        formattedString += tag
-        firstTag = false
-      }
-      else {
-        formattedString += ' | ' + tag
-      }
-      
-    })
-    return formattedString
-  }
+
 
   /* Function rendering a single database item into jsx */
   const renderRecipes = ({ item }) => (
@@ -308,8 +298,8 @@ const MultipleRecipesScreen = ({navigation}) => {
       <View style={homeStyles.recipeButtonRowStyle}>
 
         {/* Add To Shopping Button */}
-        <TouchableOpacity onPress={() => console.log("not implemented!")}>
-          <Text style={[homeStyles.recipeButton]} >Add to Shopping</Text>
+        <TouchableOpacity onPress={() => updateRecipeInCart(item.id)}>
+          <Text style={[homeStyles.recipeButton]} >Add to Planned</Text>
         </TouchableOpacity>
 
         {/* Delete Button */}

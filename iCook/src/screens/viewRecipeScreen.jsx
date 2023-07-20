@@ -141,7 +141,7 @@ export const ViewRecipe = ({ route, navigation}) => {
   useEffect(() => {
     db.transaction(tx => {
       tx.executeSql(
-        'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, ingredients TEXT, instructions TEXT, image BLOB, tags TEXT)',
+        'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, ingredients TEXT, instructions TEXT, image BLOB, tags TEXT, inCart INTEGER)',
         [],
         () => loadRecipe(loadedRecipe.id)
       );
@@ -156,6 +156,7 @@ export const ViewRecipe = ({ route, navigation}) => {
           (_, results) => {
             // Ensure we get exactly 1 result
             if (results.rows.length == 1) {
+              console.log(results.rows.item(0))
               // This assigns it to the global variable
               setLoadedRecipe(results.rows.item(0));
             } else {
