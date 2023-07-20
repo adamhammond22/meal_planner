@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react'
 //import react native components
 import { SafeAreaView, Text, View, TouchableOpacity, FlatList, Alert } from 'react-native'
 // import empty recipe loader
-import { LoadEmptyRecipe } from '../viewRecipe';
+import { LoadEmptyRecipe } from './viewRecipeScreen';
 // import homepage style sheet
 import {homeStyles} from '../styleSheets/homepageStyle';
 /* Import SQLite functions */
@@ -27,12 +27,12 @@ const db = SQLite.openDatabase('recipe.db');
 /* Boolean Function - if ANY recipe field includes this string, return true, otherwise false */
 function recipeIncludesString(recipe, string) {
   const {name, description, ingredients, instructions, tags} = recipe
-  if( name.toLowerCase().includes(string) ||
-    description.toLowerCase().includes(string) ||
-    ingredients.toLowerCase().includes(string) ||
-    instructions.toLowerCase().includes(string) ||
-    tags.toLowerCase().includes(string)
-  ) {  
+  if( (name != null && name.toLowerCase().includes(string)) ||
+    (description != null && description.toLowerCase().includes(string)) ||
+    (ingredients != null && ingredients.toLowerCase().includes(string)) ||
+    (instructions != null && instructions.toLowerCase().includes(string)) ||
+    (tags != null && tags.toLowerCase().includes(string))
+  ) {
     return true
 
   } else {
@@ -60,7 +60,7 @@ function recipeNameContainsQueries(recipe, queryList) {
   for (const query of queryList) {
 
     // if one of the queries appears in the name, return true
-    if(recipeName.toLowerCase().includes(query)) {
+    if(recipeName != null && recipeName.toLowerCase().includes(query)) {
       return true
     }
   }
@@ -90,7 +90,8 @@ const MultipleRecipesScreen = ({navigation}) => {
   /* isLoading is true if we're currently loading our list of recipes */
   const [isLoading, setIsLoading] = useState(true);
 
-  /* Loaded recipes is the state containing the list of currently loaded recipes, we may need ot limit the size of recipes (in the case the user has like 500 recipes) */
+  /* Loaded recipes is the state containing the list of currently loaded recipes, we may need ot limit the 
+  size of recipes (in the case the user has like 500 recipes) */
   const [loadedRecipes, setLoadedRecipes] = useState([]);
 
   /* Shown recipes is the state containing the list of currently shown recipes, this is what the search function modifies */
@@ -106,7 +107,8 @@ const MultipleRecipesScreen = ({navigation}) => {
   const CreateTable = () =>{
     db.transaction(tx => {
       tx.executeSql(
-        // ingredients is currently set to store a TEXT type, as I expect us to parse them into a text, but we can change the data type if there's something better
+        /* ingredients is currently set to store a TEXT type, as I expect us to parse them into a text, but we can 
+        change the data type if there's something better */
         'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, ingredients TEXT, instructions TEXT, image BLOB, tags TEXT);',
         [],
         () => loadRecipes()
@@ -189,8 +191,7 @@ const MultipleRecipesScreen = ({navigation}) => {
     
     return new Promise((resolve, reject) => {
       db.transaction(tx => {
-        //tx.executeSql('INSERT INTO Recipes (name, description, ingredients, instructions) values (?, ?, ?, ?)', [recipeName, '', [], ''], 
-        tx.executeSql('INSERT INTO Recipes (name, description, ingredients, instructions) values (?, ?, ?, ?)', [recipeName, ' ', '' , ''], 
+        tx.executeSql('INSERT INTO Recipes (name, image, description, ingredients, instructions, tags) values (?, ?, ?, ?, ?, ?)', [recipeName, null, '', '' , '', ''], 
         (_, { insertId }) => resolve(insertId),
         (_, error) => reject(error)
         );

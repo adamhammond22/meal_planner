@@ -12,9 +12,9 @@ import { SelectList } from 'react-native-dropdown-select-list'
 // import image picker
 import * as ImagePicker from 'expo-image-picker';
 // Import for various style sheets
-import { editStyles } from './styleSheets/editRecipeStyle'
-import { viewStyles } from './styleSheets/viewRecipeStyle'
-import { globalStyles, loadFonts } from './styleSheets/globalStyle';
+import { editStyles } from '../styleSheets/editRecipeStyle'
+import { viewStyles } from '../styleSheets/viewRecipeStyle'
+import { globalStyles, loadFonts } from '../styleSheets/globalStyle';
 
 // Init SQLite database obj
 const db = SQLite.openDatabase('recipe.db');
