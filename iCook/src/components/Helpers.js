@@ -22,3 +22,4 @@ export function formatTags(tagString) {
     })
     return formattedString
   }
+

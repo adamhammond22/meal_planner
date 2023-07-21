@@ -19,6 +19,10 @@ import { globalStyles, loadFonts } from '../styleSheets/globalStyle';
 // Init SQLite database obj
 const db = SQLite.openDatabase('recipe.db');
 
+/* import preloaded static URI iamges for debug recipes */
+import { fakeRecipeImages } from '../../assets/fakeRecipes';
+
+
 // An "enum" for units
 const Unit = [
     {key: 0, value: 'Whole'},
@@ -73,7 +77,6 @@ function formatTags(recipe, databaseTagsString) {
 /* Sets the components of loaded recipe individually to account for the fact that not all components are in the
 database currently */
 function setLoadedRecipe(recipe){
-  console.log("~setLoadedRecipe: loading recipe from db")
   loadedRecipe.name = recipe.name
   /* Check if recipe object has a description */
   if (recipe.description) {
@@ -156,7 +159,6 @@ export const ViewRecipe = ({ route, navigation}) => {
           (_, results) => {
             // Ensure we get exactly 1 result
             if (results.rows.length == 1) {
-              console.log(results.rows.item(0))
               // This assigns it to the global variable
               setLoadedRecipe(results.rows.item(0));
             } else {
@@ -252,7 +254,7 @@ export const ViewRecipe = ({ route, navigation}) => {
         </Text> 
         {/* View Image */}
         <View style={globalStyles.imageContainerStyle}>
-        {loadedRecipe.image && <Image source={{ uri: loadedRecipe.image }} style={[globalStyles.imageStyle, {marginTop: 10}]} />}
+        {loadedRecipe.image && <Image source={processURI(loadedRecipe.image)} style={globalStyles.imageStyle} />}
         </View>
         {/* Ingredents section title */}
         <Text 
@@ -470,6 +472,30 @@ export const EditRecipe = ({ route, navigation}) => {
     ingredientArray[ingredientIndex].name = input.replace(/[\~\*]/g, '')
   }
   
+
+  /* process URI is needed in order to process static images used for our debugging example recipes */
+  /* we import an array of required static assets from fakeRcipes.jsx, and the given image URI is'~~~<indexOfAsset>' */
+  processURI = (givenURI) => {
+    
+    /* if the URI is null, we can pass it as a URI and image component will ignore it */
+    if(givenURI == null) {
+      return({
+        uri: givenURI
+      })      
+
+    /*if the URI starts with our unique identifier, pull out the index and access the preloaded static img array */
+    } else if(givenURI.startsWith("~~~")) {
+      return(fakeRecipeImages[givenURI.substring(3)])
+    
+    /* Otherwise it's a locally stored image, simply use the uri we're given */
+    } else {
+      return({
+        uri: givenURI
+      })    
+    }
+  }
+
+
   // Iterates through the ingredients and puts them in ingredientsList to display
   function loadIngredientEdit(){
     ingredientJSXList.length = 0
@@ -669,7 +695,7 @@ export const EditRecipe = ({ route, navigation}) => {
         <TouchableOpacity onPress={() => pickImage()} style={editStyles.uploadImageButtonStyle}>
           <Text style = {globalStyles.buttonTextStyle}>Upload an Image</Text>
         </TouchableOpacity>
-        {image && <Image source={{ uri: image }} style={globalStyles.imageStyle} />}
+        {image && <Image source={processURI(image)} style={globalStyles.imageStyle} />}
       </View>
       {/* Ingredents section title */}
       <Text 

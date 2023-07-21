@@ -3,7 +3,7 @@
 // import react states
 import React, { useState, useEffect } from 'react'
 //import react native components
-import { SafeAreaView, Text, View, TouchableOpacity, FlatList, Alert } from 'react-native'
+import { SafeAreaView, Text, View, TouchableOpacity, FlatList, Alert, Image} from 'react-native'
 // import empty recipe loader
 import { LoadEmptyRecipe } from './viewRecipeScreen';
 // import homepage style sheet
@@ -21,6 +21,11 @@ import { formatTags } from '../components/Helpers';
 
 /* Init SQLite database obj */
 const db = SQLite.openDatabase('recipe.db');
+
+
+/* import preloaded static URI iamges for debug recipes */
+import { fakeRecipeImages } from '../../assets/fakeRecipes';
+
 
 
 /* ========== Helper Function ========== */
@@ -157,7 +162,7 @@ const MultipleRecipesScreen = ({navigation}) => {
     for (const rec of fakeRecipes) {
       new Promise((resolve, reject) => {
         db.transaction(tx => {
-          tx.executeSql('INSERT INTO Recipes (name, description, ingredients, instructions, image, tags, inCart) values (?, ?, ?, ?, ?, ?, ?)', [rec.name, rec.desc, rec.ingr, rec.inst, null, rec.tag, 0], 
+          tx.executeSql('INSERT INTO Recipes (name, description, ingredients, instructions, image, tags, inCart) values (?, ?, ?, ?, ?, ?, ?)', [rec.name, rec.desc, rec.ingr, rec.inst, rec.image, rec.tag, 0], 
           (_, { insertId }) => resolve(insertId),
           (_, error) => reject(error)
           );
@@ -284,30 +289,58 @@ const updateRecipeInCart = (givenRecipeId) => {
 
   /* ========== Rendering & Returing JSX ========== */
 
+  /* process URI is needed in order to process static images used for our debugging example recipes */
+  /* we import an array of required static assets from fakeRcipes.jsx, and the given image URI is'~~~<indexOfAsset>' */
+  processURI = (givenURI) => {
+    
+    /* if the URI is null, we can pass it as a URI and image component will ignore it */
+    if(givenURI == null) {
+      return({
+        uri: givenURI
+      })      
 
+    /*if the URI starts with our unique identifier, pull out the index and access the preloaded static img array */
+    } else if(givenURI.startsWith("~~~")) {
+      return(fakeRecipeImages[givenURI.substring(3)])
+    
+    /* Otherwise it's a locally stored image, simply use the uri we're given */
+    } else {
+      return({
+        uri: givenURI
+      })    
+    }
+  }
 
   /* Function rendering a single database item into jsx */
   const renderRecipes = ({ item }) => (
     <TouchableOpacity  style={homeStyles.recipeWrapper}
     onPress={() => navigateToRecipe(item.id)} >
-      
-      <Text style={homeStyles.recipe}>{item.name}</Text>
-      <Text numberOfLines={2} ellipsizeMode="tail" style={homeStyles.descripText}>{item.description}</Text>
-      <Text numberOfLines={2} ellipsizeMode="tail" style={homeStyles.descripText}>{formatTags(item.tags)}</Text>
 
-      <View style={homeStyles.recipeButtonRowStyle}>
+      <View style={[{flexDirection: 'row'}, {paddingLeft: 10}, {align: 'center'}]}>
+        <Image source={processURI(item.image)} style={homeStyles.images} />
+        <View style={[{flexDirection: 'column'}, {flexGrow: 1}, {flexShrink: 1}, {marginRight: 5}]}>
+          <Text style={homeStyles.recipe}>{item.name}</Text>
+          <Text numberOfLines={2} ellipsizeMode="tail" style={homeStyles.descripText}>{item.description}</Text>
+          <Text numberOfLines={2} ellipsizeMode="tail" style={homeStyles.descripText}>{formatTags(item.tags)}</Text>
 
-        {/* Add To Shopping Button */}
-        <TouchableOpacity onPress={() => updateRecipeInCart(item.id)}>
-          <Text style={[homeStyles.recipeButton]} >Add to Planned</Text>
-        </TouchableOpacity>
+          <View style={homeStyles.recipeButtonRowStyle}>
 
-        {/* Delete Button */}
-        <TouchableOpacity onPress={() => deleteAlert(item.id)}>
-          <Text style={[homeStyles.recipeButton]}> Delete </Text>
-        </TouchableOpacity>
+          {/* Add To Shopping Button */}
+          <TouchableOpacity onPress={() => updateRecipeInCart(item.id)}>
+            <Text style={[homeStyles.recipeButton]} >Add to Planned Recipes</Text>
+          </TouchableOpacity>
 
+          {/* Delete Button */}
+          <TouchableOpacity onPress={() => deleteAlert(item.id)}>
+            <Text style={[homeStyles.recipeButton]}> Delete </Text>
+          </TouchableOpacity>
+
+          </View>
+
+        </View>
       </View>
+
+
 
     </TouchableOpacity >
   );
