@@ -198,6 +198,7 @@ export default function PlannedRecipeScreen ({navigation}) {
     })
     const fullList = wholeArray.concat(volumeArray.concat(weightArray))
     CreateAndFillShoppingListTable(fullList);
+    console.log('New Shopping List Compiled')
   }
 
   /* Function that handles the button press of 'clear planned recipes' */
@@ -342,7 +343,7 @@ export default function PlannedRecipeScreen ({navigation}) {
       <TouchableOpacity style={plannedRecipeStyles.sendToShoppingStyle}
         onPress={() => handleSendToShopping()}>
         <Text style={plannedRecipeStyles.sendToShoppingTextStyle}>
-          Send to Shopping List
+          Compile New Shopping List
         </Text>
         <Icon name='shoppingcart' size={25} style={plannedRecipeStyles.sendToShoppingIconStyle}/>
       </TouchableOpacity>

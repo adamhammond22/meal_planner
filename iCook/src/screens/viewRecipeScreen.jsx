@@ -71,7 +71,6 @@ function formatTags(recipe, databaseTagsString) {
 }
 
 export const IngredientToText = (ingredient) => {
-  console.log(ingredient)
   // If no unit selected
   if (ingredient.unit == 0){
     // If should be singular
@@ -86,8 +85,8 @@ export const IngredientToText = (ingredient) => {
   // If unit selected
   else {
     // If should be singular
-    if((ingredient.amount > 0 && ingredient.amount <= 1) || ingredient.name.charAt(ingredient.name.length -1) == 's'){
-      return ingredient.amount +' '+ Unit[ingredient.unit].value + ' of ' + ingredient.name
+    if((ingredient.amount > 0 && ingredient.amount <= 1)){
+      return ingredient.amount + ' ' + Unit[ingredient.unit].value + ' of ' + ingredient.name
     }
     // If should be plural
     else{
@@ -182,7 +181,6 @@ export const ViewRecipe = ({ route, navigation}) => {
           (_, results) => {
             // Ensure we get exactly 1 result
             if (results.rows.length == 1) {
-              console.log(results.rows.item(0))
               // This assigns it to the global variable
               setLoadedRecipe(results.rows.item(0));
             } else {
