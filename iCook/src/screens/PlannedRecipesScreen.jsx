@@ -90,7 +90,6 @@ export default function PlannedRecipeScreen ({navigation}) {
       const newUnit = UnitConversion[ingredient.unit].newUnit
       const newAmount = ingredient.amount / UnitConversion[ingredient.unit].conversionMult
       ingredient = {name: ingredient.name, unit: newUnit, amount: newAmount}
-      console.log(ingredient)
     }
     return ingredient
   }
@@ -99,14 +98,11 @@ export default function PlannedRecipeScreen ({navigation}) {
   a single type (volume or weight). Ingredient1 must be in lesser or equal units to ingredient2 */
   const CombineIngredents = (ingredient1, ingredient2) => {
       let conversionIngreident = ingredient1;
-      console.log('Before Iteration: "unit": ' + conversionIngreident.unit + ' "amount": ' + conversionIngreident.amount +
-      ' -- To Go To: ' + ingredient2.unit)
       while(conversionIngreident.unit < ingredient2.unit){
         const newUnit = UnitConversion[conversionIngreident.unit].newUnit
         const newAmount = conversionIngreident.amount / UnitConversion[conversionIngreident.unit].conversionMult
         conversionIngreident = {name: ingredient1.name, unit: newUnit, amount: newAmount}
       }
-      console.log('After Iteration: "unit": ' + conversionIngreident.unit + ' "amount": ' + conversionIngreident.amount)
       conversionIngreident.amount = conversionIngreident.amount + ingredient2.amount
       return UpgradeToProperUnit(conversionIngreident)
   }
@@ -126,7 +122,6 @@ export default function PlannedRecipeScreen ({navigation}) {
         []
       );
     });
-    console.log('----------------Loading To Database------------------------')
     ingredientsList.forEach((ingredient) => {
       addIngredientToTable(ingredient)
     })
@@ -135,7 +130,6 @@ export default function PlannedRecipeScreen ({navigation}) {
   const addIngredientToTable = (ingredient) => {
     // Round up to nearest quarter
     ingredient.amount = Math.ceil(4 * ingredient.amount) / 4
-    console.log(IngredientToText(ingredient));
     return new Promise((resolve, reject) => {
       shoppingdb.transaction(tx => {
         tx.executeSql('INSERT INTO ShoppingList (text, checked) values (?, ?)', [IngredientToText(ingredient), false], 
@@ -155,9 +149,7 @@ export default function PlannedRecipeScreen ({navigation}) {
     let volumeArray = []
     let weightArray = []
     plannedRecipes.forEach((recipe) => {
-      console.log(recipe.name)
       formatIngredients(recipe.ingredients, recipe.inCart).forEach((ingredient) => {
-        console.log(ingredient.name)
         // Check if unit is whole
         if(ingredient.unit == 0){
           let foundStoredIngedientIndex = wholeArray.findIndex(storedIngredient => storedIngredient.name == ingredient.name)
@@ -204,10 +196,8 @@ export default function PlannedRecipeScreen ({navigation}) {
         }
       })
     })
-    console.log("Combined")
     const fullList = wholeArray.concat(volumeArray.concat(weightArray))
     CreateAndFillShoppingListTable(fullList);
-    console.log("Here, we handle sending to shopping!")
   }
 
   /* Function that handles the button press of 'clear planned recipes' */

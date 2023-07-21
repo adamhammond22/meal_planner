@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, TouchableOpacity } from 'react-native';
+import InputScrollView from 'react-native-input-scroll-view'
+import { SafeAreaView, View, Text, TouchableOpacity, TextInput } from 'react-native';
+import { Checkbox } from 'react-native-paper';
+import { shoppingListStyles } from '../styleSheets/shoppingListStyle';
+import { globalStyles, loadFonts } from '../styleSheets/globalStyle';
 
 
 /* Import SQLite functions */
@@ -15,12 +19,15 @@ export default function ShoppingListScreen() {
     CreateShoppingListTable()
   }, []);
 
+  loadFonts
+
   /* isLoading is true if we're currently loading our list of shopping items */
   const [isLoading, setIsLoading] = useState(true);
   const [listCount, setListCount] = useState(0)
 
   /* shoppingList is the state containing the list of items on the shopping list */
   const [shoppingList, setShoppingList] = useState([]);
+  const [checkState, setCheckState] = useState(false);
 
   /* Creates a table to store our shopping items in. Each item contains id: text: (string) and checked: (Int of 1 or 0 which can be
   assigned through true/false) */
@@ -33,11 +40,6 @@ export default function ShoppingListScreen() {
       );
     });
   }
-
-  console.log('----------')
-  shoppingList.forEach((item) => {
-    console.log(item)
-  })
 
   /* SQLLite Function that loads all items from database into the shoppingList state.
   Updates setsIsLoading state to false when completed */
@@ -67,7 +69,6 @@ export default function ShoppingListScreen() {
       tempArray.push({id: newItemId, text: '', checked: false})
       setShoppingList(tempArray)
       setListCount(listCount + 1)
-      console.log('Added to list, id: ' + newItemId)
     })
     /* Upon failure, remain on this screen*/
     .catch((error) => {
@@ -97,15 +98,15 @@ export default function ShoppingListScreen() {
     const removeId = tempArray[indexToRemove].id
     tempArray = tempArray.filter((_, index) => index !== indexToRemove);
     // Update Tag Array
-    setTagArray(tempArray)
+    setShoppingList(tempArray)
     // Update Tag Count
-    setTagsCount(tagsCount - 1)
+    setListCount(listCount - 1)
     DeleteItemFromDataBase(removeId);
   }
 
   /* This function removes the item corisponding to the itemId from the database */
   const DeleteItemFromDataBase = (itemId) => {
-    db.transaction(
+    shoppingdb.transaction(
       tx => {
         tx.executeSql(`DELETE FROM ShoppingList where id = ?;`, [itemId]);
       },
@@ -113,6 +114,25 @@ export default function ShoppingListScreen() {
       null
     );
   };
+
+  
+  const UpdateItemText = (newText, item, index) => {
+    let tempArray = shoppingList
+    tempArray[index].text = newText
+    item.text = newText
+    setShoppingList(tempArray)
+    UpdateItemInDataBase(item, item.id)
+  }
+
+  const SwitchItemChecked = ( item, index) => {
+    console.log(shoppingList[index].checked)
+    let tempArray = shoppingList
+    tempArray[index].checked = !tempArray[index].checked
+    item.checked = tempArray[index].checked
+    setShoppingList(tempArray)
+    UpdateItemInDataBase(item, item.id)
+    setCheckState(!checkState)
+  }
 
   /* This function overrideds the existing item at itemID with the new overridingItem's properties (text and checked) */
   const UpdateItemInDataBase = (overridingItem, itemId) => {
@@ -134,16 +154,58 @@ export default function ShoppingListScreen() {
     );
   }
 
+  let itemsJSXList = []
+
+  function loadListView() {
+    itemsJSXList.length = 0
+    shoppingList.forEach((item, index) => {
+      itemsJSXList.push(
+        <View  key={index} style = {shoppingListStyles.itemPanelStyle}>
+          {/* Checkbox */}
+          <View style = {shoppingListStyles.checkBoxContainerStyle}>
+          <Checkbox
+            status = {item.checked ? 'checked' : 'unchecked'}
+            onPress={() => SwitchItemChecked(item, index)}
+          />
+          </View>
+          {/* Tag Input */}
+          <TextInput
+            style={shoppingListStyles.itemInputNameStyle}
+            editable
+            multiline={true}
+            numberOfLines={1}
+            blurOnSubmit={true}
+            onChangeText={value => UpdateItemText(value, item, index)}
+            defaultValue={item.text}
+            placeholder='Item Name'
+          />
+          {/* Delete Tag Button */}
+          <TouchableOpacity style = {shoppingListStyles.itemDeleteButtonStyle}
+          onPress={() => RemoveItem(index)} >
+            <Text style={[globalStyles.buttonTextStyle, {color:'red'}]}>Delete</Text>
+          </TouchableOpacity>
+        </View>
+      )
+    });
+    itemsJSXList.push(
+      <TouchableOpacity  key={shoppingList.length} style = {shoppingListStyles.itemAddButtonStyle}
+      onPress={() => AddItem()}>
+        <Text style = {shoppingListStyles.itemAddButtonTextStyle}>Add New Tag</Text>
+      </TouchableOpacity>
+    );
+  }
+
+  loadListView()
+
   return (
-    <>
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text>Shopping List Screen</Text>
-        <TouchableOpacity 
-        onPress={() => AddItem()}>
-          <Text>ADD Item</Text>
-        </TouchableOpacity>
-      </View>
-    </>
+    <SafeAreaView>
+      <InputScrollView style={globalStyles.wrapper} keyboardOffset = {120}>
+          <Text style = {shoppingListStyles.listTitleStyle}>
+            Shopping List
+          </Text>
+          {itemsJSXList}
+        </InputScrollView>
+    </SafeAreaView>
   );
 }
 

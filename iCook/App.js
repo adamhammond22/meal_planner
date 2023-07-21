@@ -105,7 +105,7 @@ const App = () => {
           <Tab.Screen name="Home" component={Home} />
           <Tab.Screen name="Calendar" component={MealCartScreen} />
           <Tab.Screen name="Planned Recipes" component={PlannedRecipeScreen} options={{unmountOnBlur: true}}/>
-          <Tab.Screen name="Shopping List" component={ShoppingListScreen} />
+          <Tab.Screen name="Shopping List" component={ShoppingListScreen} options={{unmountOnBlur: true}}/>
           <Tab.Screen name="Login" component={LoginScreen} />
         </Tab.Navigator>
       </NavigationContainer>
