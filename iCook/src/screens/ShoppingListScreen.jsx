@@ -27,6 +27,7 @@ export default function ShoppingListScreen() {
 
   /* shoppingList is the state containing the list of items on the shopping list */
   const [shoppingList, setShoppingList] = useState([]);
+  /* Checkstate exists to be toggled and force a reload when a checkbox is toggled */
   const [checkState, setCheckState] = useState(false);
 
   /* Creates a table to store our shopping items in. Each item contains id: text: (string) and checked: (Int of 1 or 0 which can be
@@ -55,6 +56,7 @@ export default function ShoppingListScreen() {
           /* When the callback is completed, update our 2 states */
           setShoppingList(shoppingItemArray)
           setListCount(shoppingItemArray.length)
+          /* Mark as Finished Loading */
           setIsLoading(false);
         });
         (_, error) => console.log("ShoppingListScreen.jsx: loadShoppingList() error: ", error) // Error callback
@@ -97,9 +99,9 @@ export default function ShoppingListScreen() {
     let tempArray = shoppingList
     const removeId = tempArray[indexToRemove].id
     tempArray = tempArray.filter((_, index) => index !== indexToRemove);
-    // Update Tag Array
+    // Update Item Array
     setShoppingList(tempArray)
-    // Update Tag Count
+    // Update Item Count
     setListCount(listCount - 1)
     DeleteItemFromDataBase(removeId);
   }
@@ -115,22 +117,27 @@ export default function ShoppingListScreen() {
     );
   };
 
-  
+  /* This function updates the text in one of the items, and pushes those changes to the database */
   const UpdateItemText = (newText, item, index) => {
     let tempArray = shoppingList
     tempArray[index].text = newText
     item.text = newText
+    // Update the visible list
     setShoppingList(tempArray)
+    // Update the database
     UpdateItemInDataBase(item, item.id)
   }
 
+  /* This function updates the check in one of the items, and pushes that change to the database */
   const SwitchItemChecked = ( item, index) => {
-    console.log(shoppingList[index].checked)
     let tempArray = shoppingList
     tempArray[index].checked = !tempArray[index].checked
     item.checked = tempArray[index].checked
+    // Update the visible list
     setShoppingList(tempArray)
+    // Update the database
     UpdateItemInDataBase(item, item.id)
+    // Toggle the checkState to force a reload
     setCheckState(!checkState)
   }
 
@@ -156,6 +163,7 @@ export default function ShoppingListScreen() {
 
   let itemsJSXList = []
 
+  /* This loads all the jsx needed for the list of items */
   function loadListView() {
     itemsJSXList.length = 0
     shoppingList.forEach((item, index) => {
@@ -168,7 +176,7 @@ export default function ShoppingListScreen() {
             onPress={() => SwitchItemChecked(item, index)}
           />
           </View>
-          {/* Tag Input */}
+          {/* Item Input */}
           <TextInput
             style={shoppingListStyles.itemInputNameStyle}
             editable
@@ -179,7 +187,7 @@ export default function ShoppingListScreen() {
             defaultValue={item.text}
             placeholder='Item Name'
           />
-          {/* Delete Tag Button */}
+          {/* Delete Item Button */}
           <TouchableOpacity style = {shoppingListStyles.itemDeleteButtonStyle}
           onPress={() => RemoveItem(index)} >
             <Text style={[globalStyles.buttonTextStyle, {color:'red'}]}>Delete</Text>
@@ -187,10 +195,11 @@ export default function ShoppingListScreen() {
         </View>
       )
     });
+    {/* Add new Item Button */}
     itemsJSXList.push(
       <TouchableOpacity  key={shoppingList.length} style = {shoppingListStyles.itemAddButtonStyle}
       onPress={() => AddItem()}>
-        <Text style = {shoppingListStyles.itemAddButtonTextStyle}>Add New Tag</Text>
+        <Text style = {shoppingListStyles.itemAddButtonTextStyle}>Add New Item</Text>
       </TouchableOpacity>
     );
   }
