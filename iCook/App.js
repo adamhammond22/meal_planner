@@ -5,15 +5,15 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import LottieView from 'lottie-react-native';
-import { loadFonts, primaryContainerColor, primaryTextColor } from './src/styleSheets/globalStyle';
+import { loadFonts, primaryBackgroundColor, primaryContainerColor, primaryTextColor } from './src/styleSheets/globalStyle';
 
-import { ViewRecipe, LoadRecipe, EditRecipe } from './src/viewRecipe'
+import { ViewRecipe, LoadRecipe, EditRecipe } from './src/screens/viewRecipeScreen'
 import MultipleRecipesScreen from './src/screens/multipleRecipesScreen'
 
-import CalendarScreen from './src/screens/CalendarScreen.jsx'; 
+import MealCartScreen from './src/screens/MealCartScreen.jsx'; 
+import PlannedRecipeScreen from './src/screens/PlannedRecipesScreen';
+import ShoppingListScreen from './src/screens/ShoppingListScreen';
 import LoginScreen from './src/screens/LoginScreen.jsx'; 
-import ShopScreen from './src/screens/ShopScreen.jsx'; 
-import ShareScreen from './src/screens/ShareScreen.jsx';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -64,7 +64,7 @@ const App = () => {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: primaryBackgroundColor}}>
       <NavigationContainer>
         <Tab.Navigator
           screenOptions={({ route }) => ({
@@ -88,7 +88,7 @@ const App = () => {
             tabBarActiveTintColor: 'silver',
             tabBarInactiveTintColor: 'gray',
             headerStyle: {
-              backgroundColor: primaryContainerColor,
+              backgroundColor: primaryBackgroundColor,
             },
             headerTitleStyle: {
               fontFamily: 'Tangerine-Regular',
@@ -103,9 +103,9 @@ const App = () => {
           })}
         >
           <Tab.Screen name="Home" component={Home} />
-          <Tab.Screen name="Calendar" component={CalendarScreen} />
-          <Tab.Screen name="Shop" component={ShopScreen} />
-          <Tab.Screen name="Share" component={ShareScreen} />
+          <Tab.Screen name="Calendar" component={MealCartScreen} />
+          <Tab.Screen name="Planned Recipes" component={PlannedRecipeScreen} options={{unmountOnBlur: true}}/>
+          <Tab.Screen name="Shopping List" component={ShoppingListScreen} options={{unmountOnBlur: true}}/>
           <Tab.Screen name="Login" component={LoginScreen} />
         </Tab.Navigator>
       </NavigationContainer>

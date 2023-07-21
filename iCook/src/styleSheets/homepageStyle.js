@@ -75,12 +75,14 @@ const homeStyles = StyleSheet.create({
     textAlign:"left",
   },
   images:{
-    height:100,
-    width:100,
+    height:130,
+    width:130,
     flexWrap:"wrap",
     flexDirection:"column",
     justifyContent:"center",
     resizeMode: 'contain',
+    marginTop: 10,
+    borderRadius: 12,
   },
   seperator:{
     marginVertical: 8,
