@@ -300,9 +300,9 @@ const MultipleRecipesScreen = ({navigation}) => {
     <TouchableOpacity  style={homeStyles.recipeWrapper}
     onPress={() => navigateToRecipe(item.id)} >
       
-      <View style={[{flexDirection: 'row'}, {paddingLeft: 10}]}>
+      <View style={[{flexDirection: 'row'}, {paddingLeft: 10}, {align: 'center'}]}>
         <Image source={{ uri: item.image }} style={homeStyles.images} />
-        <View style={[{flexDirection: 'column'}, {flexGrow: 1}, {flexShrink: 1}]}>
+        <View style={[{flexDirection: 'column'}, {flexGrow: 1}, {flexShrink: 1}, {marginRight: 5}]}>
           <Text style={homeStyles.recipe}>{item.name}</Text>
           <Text numberOfLines={2} ellipsizeMode="tail" style={homeStyles.descripText}>{item.description}</Text>
           <Text numberOfLines={2} ellipsizeMode="tail" style={homeStyles.descripText}>{formatTags(item.tags)}</Text>
