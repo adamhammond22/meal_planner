@@ -28,17 +28,17 @@ const UnitConversion = [
   // Teaspoon to Tablespoon
   {conversionMult: 3, newUnit: 2, minNewUnitConvert: 1},
   // Tablespoon to Fl Oz
-  {conversionMult: 2, newUnit: 3, minNewUnitConvert: 0.125},
+  {conversionMult: 2, newUnit: 3, minNewUnitConvert: 2},
   // Fl OZ to Cup
   {conversionMult: 8, newUnit: 4, minNewUnitConvert: 0.125},
   // Cups to Pint
-  {conversionMult: 2, newUnit: 5, minNewUnitConvert: 1},
+  {conversionMult: 2, newUnit: 5, minNewUnitConvert: 2},
   // Cups to Quart
   {conversionMult: 2, newUnit: 6, minNewUnitConvert: 0.5},
-  // Cups to Gallon
-  {conversionMult: 4, newUnit: 7, minNewUnitConvert: 0.25},
+  // Quarts to Gallon
+  {conversionMult: 4, newUnit: 7, minNewUnitConvert: 0.5},
   // Gallon to Gallon
-  {conversionMult: 16, newUnit: 7, minNewUnitConvert: -1},
+  {conversionMult: 1, newUnit: 7, minNewUnitConvert: -1},
   // Oz to Pound
   {conversionMult: 1, newUnit: 9, minNewUnitConvert: -1},
   // Pound to Pound
@@ -85,7 +85,7 @@ export default function PlannedRecipeScreen ({navigation}) {
   }
 
   const UpgradeToProperUnit = (ingredient) => {
-    while(ingredient.amount >= UnitConversion[ingredient.unit].minNewUnitConvert &&
+    while(ingredient.amount / UnitConversion[ingredient.unit].conversionMult >= UnitConversion[ingredient.unit].minNewUnitConvert &&
       UnitConversion[ingredient.unit].minNewUnitConvert > 0){
       const newUnit = UnitConversion[ingredient.unit].newUnit
       const newAmount = ingredient.amount / UnitConversion[ingredient.unit].conversionMult
@@ -99,13 +99,15 @@ export default function PlannedRecipeScreen ({navigation}) {
   a single type (volume or weight). Ingredient1 must be in lesser or equal units to ingredient2 */
   const CombineIngredents = (ingredient1, ingredient2) => {
       let conversionIngreident = ingredient1;
+      console.log('Before Iteration: "unit": ' + conversionIngreident.unit + ' "amount": ' + conversionIngreident.amount +
+      ' -- To Go To: ' + ingredient2.unit)
       while(conversionIngreident.unit < ingredient2.unit){
         const newUnit = UnitConversion[conversionIngreident.unit].newUnit
         const newAmount = conversionIngreident.amount / UnitConversion[conversionIngreident.unit].conversionMult
         conversionIngreident = {name: ingredient1.name, unit: newUnit, amount: newAmount}
       }
+      console.log('After Iteration: "unit": ' + conversionIngreident.unit + ' "amount": ' + conversionIngreident.amount)
       conversionIngreident.amount = conversionIngreident.amount + ingredient2.amount
-      console.log('Before Conversion: ' + conversionIngreident)
       return UpgradeToProperUnit(conversionIngreident)
   }
 
@@ -124,6 +126,7 @@ export default function PlannedRecipeScreen ({navigation}) {
         []
       );
     });
+    console.log('----------------Loading To Database------------------------')
     ingredientsList.forEach((ingredient) => {
       addIngredientToTable(ingredient)
     })
@@ -132,6 +135,7 @@ export default function PlannedRecipeScreen ({navigation}) {
   const addIngredientToTable = (ingredient) => {
     // Round up to nearest quarter
     ingredient.amount = Math.ceil(4 * ingredient.amount) / 4
+    console.log(IngredientToText(ingredient));
     return new Promise((resolve, reject) => {
       shoppingdb.transaction(tx => {
         tx.executeSql('INSERT INTO ShoppingList (text, checked) values (?, ?)', [IngredientToText(ingredient), false], 
@@ -156,10 +160,10 @@ export default function PlannedRecipeScreen ({navigation}) {
         console.log(ingredient.name)
         // Check if unit is whole
         if(ingredient.unit == 0){
-          let foundStoredIngredent = wholeArray.find(storedIngredient => storedIngredient.name == ingredient.name)
+          let foundStoredIngedientIndex = wholeArray.findIndex(storedIngredient => storedIngredient.name == ingredient.name)
           // Ingredent already exists in array
-          if(foundStoredIngredent != null){
-            foundStoredIngredent.amount = foundStoredIngredent.amount + ingredient.amount;
+          if(foundStoredIngedientIndex >= 0){
+            wholeArray[foundStoredIngedientIndex].amount = wholeArray[foundStoredIngedientIndex].amount + ingredient.amount;
           }
           // No Existing Ingredient in array
           else{
@@ -168,13 +172,13 @@ export default function PlannedRecipeScreen ({navigation}) {
         }
         // Check if unit is volume
         else if(ingredient.unit < 8){
-          let foundStoredIngredent = volumeArray.find(storedIngredient => storedIngredient.name == ingredient.name)
+          let foundStoredIngedientIndex = volumeArray.findIndex(storedIngredient => storedIngredient.name == ingredient.name)
           // Ingredent already exists in array
-          if(foundStoredIngredent != null){
-            if(foundStoredIngredent.unit < ingredient.unit){
-              foundStoredIngredent = CombineIngredents(foundStoredIngredent, ingredient);
+          if(foundStoredIngedientIndex >= 0){
+            if(volumeArray[foundStoredIngedientIndex].unit < ingredient.unit){
+              volumeArray[foundStoredIngedientIndex] = CombineIngredents(volumeArray[foundStoredIngedientIndex], ingredient);
             }else{
-              foundStoredIngredent = CombineIngredents(ingredient, foundStoredIngredent);
+              volumeArray[foundStoredIngedientIndex] = CombineIngredents(ingredient, volumeArray[foundStoredIngedientIndex]);
             }
           }
           // No Existing Ingredient in array
@@ -184,13 +188,13 @@ export default function PlannedRecipeScreen ({navigation}) {
         }
         // Unit is weight
         else {
-          let foundStoredIngredent = weightArray.find(storedIngredient => storedIngredient.name == ingredient.name)
+          let foundStoredIngedientIndex = weightArray.findIndex(storedIngredient => storedIngredient.name == ingredient.name)
           // Ingredent already exists in array
-          if(foundStoredIngredent != null){
-            if(foundStoredIngredent.unit < ingredient.unit){
-              foundStoredIngredent = CombineIngredents(foundStoredIngredent, ingredient);
+          if(foundStoredIngedientIndex >= 0){
+            if(weightArray[foundStoredIngedientIndex].unit < ingredient.unit){
+              weightArray[foundStoredIngedientIndex] = CombineIngredents(weightArray[foundStoredIngedientIndex], ingredient);
             }else{
-              foundStoredIngredent = CombineIngredents(ingredient, foundStoredIngredent);
+              weightArray[foundStoredIngedientIndex] = CombineIngredents(ingredient, weightArray[foundStoredIngedientIndex]);
             }
           }
           // No Existing Ingredient in array
