@@ -47,7 +47,8 @@ export const globalStyles = StyleSheet.create({
         fontSize: 15,
         color: primaryContainerColor,
         textAlign: 'center',
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        color: 'red'
     },
 
     // Image Styles ----------------------------------------------------------------------
