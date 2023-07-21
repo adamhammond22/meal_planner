@@ -12,8 +12,39 @@ import { plannedRecipeStyles } from '../styleSheets/plannedRecipeStyle';
 //import formatTags function from helpers
 import { formatTags } from '../components/Helpers';
 
+import { Unit, IngredientToText } from './viewRecipeScreen';
+
+
+
 /* Init SQLite database obj */
 const db = SQLite.openDatabase('recipe.db');
+
+/* Init SQLite database obj */
+const shoppingdb = SQLite.openDatabase('shoppingList.db');
+
+const UnitConversion = [
+  // Whole to Whole
+  {conversionMult: 1, newUnit: 0, minNewUnitConvert: -1},
+  // Teaspoon to Tablespoon
+  {conversionMult: 3, newUnit: 2, minNewUnitConvert: 1},
+  // Tablespoon to Fl Oz
+  {conversionMult: 2, newUnit: 3, minNewUnitConvert: 0.125},
+  // Fl OZ to Cup
+  {conversionMult: 8, newUnit: 4, minNewUnitConvert: 0.125},
+  // Cups to Pint
+  {conversionMult: 2, newUnit: 5, minNewUnitConvert: 1},
+  // Cups to Quart
+  {conversionMult: 2, newUnit: 6, minNewUnitConvert: 0.5},
+  // Cups to Gallon
+  {conversionMult: 4, newUnit: 7, minNewUnitConvert: 0.25},
+  // Gallon to Gallon
+  {conversionMult: 16, newUnit: 7, minNewUnitConvert: -1},
+  // Oz to Pound
+  {conversionMult: 1, newUnit: 9, minNewUnitConvert: -1},
+  // Pound to Pound
+  {conversionMult: 1, newUnit: 9, minNewUnitConvert: -1},
+
+]
 
 /* PlannedRecipeScreen returns JSX to render our screen, and takes a naviation prop */
 export default function PlannedRecipeScreen ({navigation}) {
@@ -37,9 +68,141 @@ export default function PlannedRecipeScreen ({navigation}) {
   const [plannedRecipes, setPlannedRecipes] = useState([]);
   /* ========== Helper Functions ========== */
 
+  function formatIngredients(databaseIngredientString, inCartMult) {
+    if(databaseIngredientString == null){
+      return [];
+    }
+    returnIngridentList = [];
+    var databaseIngredientsArray = databaseIngredientString.split('*')
+    databaseIngredientsArray.forEach((element) => {
+      if (element == '') {
+        return
+      }
+      var ingredientInfo = element.split('~')
+      returnIngridentList.push({amount: parseFloat(ingredientInfo[0]) * inCartMult, unit: parseInt(ingredientInfo[1]), name: ingredientInfo[2]})
+    })
+    return returnIngridentList
+  }
+
+  const UpgradeToProperUnit = (ingredient) => {
+    while(ingredient.amount >= UnitConversion[ingredient.unit].minNewUnitConvert &&
+      UnitConversion[ingredient.unit].minNewUnitConvert > 0){
+      const newUnit = UnitConversion[ingredient.unit].newUnit
+      const newAmount = ingredient.amount / UnitConversion[ingredient.unit].conversionMult
+      ingredient = {name: ingredient.name, unit: newUnit, amount: newAmount}
+      console.log(ingredient)
+    }
+    return ingredient
+  }
+
+  /* Returns the combination of ingredient. Must be passed ingredients of
+  a single type (volume or weight). Ingredient1 must be in lesser or equal units to ingredient2 */
+  const CombineIngredents = (ingredient1, ingredient2) => {
+      let conversionIngreident = ingredient1;
+      while(conversionIngreident.unit < ingredient2.unit){
+        const newUnit = UnitConversion[conversionIngreident.unit].newUnit
+        const newAmount = conversionIngreident.amount / UnitConversion[conversionIngreident.unit].conversionMult
+        conversionIngreident = {name: ingredient1.name, unit: newUnit, amount: newAmount}
+      }
+      conversionIngreident.amount = conversionIngreident.amount + ingredient2.amount
+      console.log('Before Conversion: ' + conversionIngreident)
+      return UpgradeToProperUnit(conversionIngreident)
+  }
+
+  const CreateAndFillShoppingListTable = (ingredientsList) =>{
+    shoppingdb.transaction(tx => {
+      tx.executeSql(
+        'DROP TABLE ShoppingList',
+        [],
+        []
+      );
+    });
+    shoppingdb.transaction(tx => {
+      tx.executeSql(
+        'CREATE TABLE IF NOT EXISTS ShoppingList (id INTEGER PRIMARY KEY AUTOINCREMENT, text TEXT, checked INTEGER);',
+        [],
+        []
+      );
+    });
+    ingredientsList.forEach((ingredient) => {
+      addIngredientToTable(ingredient)
+    })
+  }
+
+  const addIngredientToTable = (ingredient) => {
+    // Round up to nearest quarter
+    ingredient.amount = Math.ceil(4 * ingredient.amount) / 4
+    return new Promise((resolve, reject) => {
+      shoppingdb.transaction(tx => {
+        tx.executeSql('INSERT INTO ShoppingList (text, checked) values (?, ?)', [IngredientToText(ingredient), false], 
+        (_, { insertId }) => resolve(insertId),
+        (_, error) => reject(error)
+        );
+      },
+      null,
+      null
+      );
+    })
+  };
 
   /* Function that handles the button press of 'send to shopping' */
   const handleSendToShopping = () => {
+    let wholeArray = []
+    let volumeArray = []
+    let weightArray = []
+    plannedRecipes.forEach((recipe) => {
+      console.log(recipe.name)
+      formatIngredients(recipe.ingredients, recipe.inCart).forEach((ingredient) => {
+        console.log(ingredient.name)
+        // Check if unit is whole
+        if(ingredient.unit == 0){
+          let foundStoredIngredent = wholeArray.find(storedIngredient => storedIngredient.name == ingredient.name)
+          // Ingredent already exists in array
+          if(foundStoredIngredent != null){
+            foundStoredIngredent.amount = foundStoredIngredent.amount + ingredient.amount;
+          }
+          // No Existing Ingredient in array
+          else{
+            volumeArray.push(ingredient);
+          }
+        }
+        // Check if unit is volume
+        else if(ingredient.unit < 8){
+          let foundStoredIngredent = volumeArray.find(storedIngredient => storedIngredient.name == ingredient.name)
+          // Ingredent already exists in array
+          if(foundStoredIngredent != null){
+            if(foundStoredIngredent.unit < ingredient.unit){
+              foundStoredIngredent = CombineIngredents(foundStoredIngredent, ingredient);
+            }else{
+              foundStoredIngredent = CombineIngredents(ingredient, foundStoredIngredent);
+            }
+          }
+          // No Existing Ingredient in array
+          else{
+            volumeArray.push(UpgradeToProperUnit(ingredient));
+          }
+        }
+        // Unit is weight
+        else {
+          let foundStoredIngredent = weightArray.find(storedIngredient => storedIngredient.name == ingredient.name)
+          // Ingredent already exists in array
+          if(foundStoredIngredent != null){
+            if(foundStoredIngredent.unit < ingredient.unit){
+              foundStoredIngredent = CombineIngredents(foundStoredIngredent, ingredient);
+            }else{
+              foundStoredIngredent = CombineIngredents(ingredient, foundStoredIngredent);
+            }
+          }
+          // No Existing Ingredient in array
+          else{
+            weightArray.push(UpgradeToProperUnit(ingredient));
+          }
+        }
+      })
+    })
+    console.log("Combined")
+    const fullList = wholeArray.concat(volumeArray.concat(weightArray))
+    CreateAndFillShoppingListTable(fullList);
     console.log("Here, we handle sending to shopping!")
   }
 

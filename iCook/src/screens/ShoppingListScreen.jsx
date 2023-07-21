@@ -22,7 +22,6 @@ export default function ShoppingListScreen() {
   /* shoppingList is the state containing the list of items on the shopping list */
   const [shoppingList, setShoppingList] = useState([]);
 
-
   /* Creates a table to store our shopping items in. Each item contains id: text: (string) and checked: (Int of 1 or 0 which can be
   assigned through true/false) */
   const CreateShoppingListTable = () =>{
@@ -34,6 +33,11 @@ export default function ShoppingListScreen() {
       );
     });
   }
+
+  console.log('----------')
+  shoppingList.forEach((item) => {
+    console.log(item)
+  })
 
   /* SQLLite Function that loads all items from database into the shoppingList state.
   Updates setsIsLoading state to false when completed */
@@ -129,7 +133,6 @@ export default function ShoppingListScreen() {
       null,
     );
   }
-  
 
   return (
     <>

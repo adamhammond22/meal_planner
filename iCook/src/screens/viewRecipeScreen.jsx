@@ -20,7 +20,7 @@ import { globalStyles, loadFonts } from '../styleSheets/globalStyle';
 const db = SQLite.openDatabase('recipe.db');
 
 // An "enum" for units
-const Unit = [
+export const Unit = [
     {key: 0, value: 'Whole'},
     {key: 1, value: 'Teaspoon'},
     {key: 2, value: 'Tablespoon'},
@@ -68,6 +68,32 @@ function formatTags(recipe, databaseTagsString) {
     }
     recipe.tags.push(element)
   })
+}
+
+export const IngredientToText = (ingredient) => {
+  console.log(ingredient)
+  // If no unit selected
+  if (ingredient.unit == 0){
+    // If should be singular
+    if((ingredient.amount > 0 && ingredient.amount <= 1) || ingredient.name.charAt(ingredient.name.length -1) == 's'){
+      return ingredient.amount + ' ' + ingredient.name
+    }
+    // If should be plural
+    else{
+      return ingredient.amount + ' ' +ingredient.name + 's'
+    }
+  } 
+  // If unit selected
+  else {
+    // If should be singular
+    if((ingredient.amount > 0 && ingredient.amount <= 1) || ingredient.name.charAt(ingredient.name.length -1) == 's'){
+      return ingredient.amount +' '+ Unit[ingredient.unit].value + ' of ' + ingredient.name
+    }
+    // If should be plural
+    else{
+      return ingredient.amount + ' ' + Unit[ingredient.unit].value+'s of ' + ingredient.name
+    }
+  }
 }
 
 /* Sets the components of loaded recipe individually to account for the fact that not all components are in the
@@ -186,44 +212,11 @@ export const ViewRecipe = ({ route, navigation}) => {
     const ingredientList = []
     // This loop compiles all the ingredents into ingredients list to be direclty shown with .push
     loadedRecipe.ingredients.forEach((element, index) => {
-      // If no unit selected
-      if (element.unit == 0){
-        // If should be singular
-        if(element.amount > 0 && element.amount <= 1){
-          ingredientList.push(
-            <Text key={index} style={viewStyles.recipeIngredientStyle}>
-              {element.amount} {element.name}
-            </Text>
-          );
-        }
-        // If should be plural
-        else{
-          ingredientList.push(
-            <Text key={index} style={viewStyles.recipeIngredientStyle}>
-              {element.amount} {element.name}s
-            </Text>
-          )
-        }
-      } 
-      // If unit selected
-      else {
-        // If should be singular
-        if(element.amount > 0 && element.amount <= 1){
-          ingredientList.push(
-            <Text key={index} style={viewStyles.recipeIngredientStyle}>
-              {element.amount} {Unit[element.unit].value} of {element.name}
-            </Text>
-          )
-        }
-        // If should be plural
-        else{
-          ingredientList.push(
-            <Text key={index} style={viewStyles.recipeIngredientStyle}>
-              {element.amount} {Unit[element.unit].value}s of {element.name}
-            </Text>
-          )
-        }
-      }
+      ingredientList.push(
+        <Text key={index} style={viewStyles.recipeIngredientStyle}>
+          {IngredientToText(element)}
+        </Text>
+      )
     });
 
     // List to contain JSX for tags list (initial render)
