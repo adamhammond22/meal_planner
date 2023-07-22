@@ -197,7 +197,7 @@ export const fakeRecipes = [
     name: 'Homemade Pizza',
     desc: 'Customizable pizza with your favorite toppings',
     inst: 'Make pizza dough, spread sauce, add toppings, and bake in the oven',
-    ingr: '2~4~All-purpose flour*1~2~Active dry yeast*1~2~Sugar*1~4~Salt*1~2~Warm water*1~4~Tomato sauce*1~4~Dried basil*1~4~Dried oregano*1~4~Garlic powder*1~4~Onion powder*1~4~Red pepper flakes*2~4~Shredded mozzarella cheese*Assorted toppings (pepperoni, mushrooms, bell peppers, onions, etc.)*',
+    ingr: '2~4~All-purpose flour*1~2~Active dry yeast*1~2~Sugar*1~4~Salt*1~2~Warm water*1~4~Tomato sauce*1~4~Dried basil*1~4~Dried oregano*1~4~Garlic powder*1~4~Onion powder*1~4~Red pepper flakes*2~4~Shredded mozzarella cheese*',
     tag: '',
     image: '~~~24'
   },
