@@ -51,17 +51,17 @@ const App = () => {
     }, 3000);
   }, []);
 
-  if (isLoading){//} || !fontsLoaded) {
-    return (
-      <View style={styles.loadingContainer}>
-        <LottieView
-          source={require('./assets/co-chef.json')}
-          autoPlay
-          loop
-        />
-      </View>
-    );
-  }
+  // if (isLoading){//} || !fontsLoaded) {
+  //   return (
+  //     <View style={styles.loadingContainer}>
+  //       <LottieView
+  //         source={require('./assets/co-chef.json')}
+  //         autoPlay
+  //         loop
+  //       />
+  //     </View>
+  //   );
+  // }
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
