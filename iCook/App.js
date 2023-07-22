@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, SafeAreaView, View, TouchableOpacity } from 'react-native'
+import { StyleSheet, SafeAreaView, View, TouchableOpacity, Touchable } from 'react-native'
 import { NavigationContainer } from '@react-navigation/native'
+import { useNavigation } from '@react-navigation/native';
 // import { NavigationScreenProps } from 'react-navigation';
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -43,40 +44,7 @@ function Home({ navigation }) {
     </Stack.Navigator>
   );
 }
-function HomeScreen({ navigation }) {
-  return (
-    
-    
-      <Button
-        title="Go to Settings"
-        onPress={() => navigation.navigate(MultipleRecipesScreen)}
-      />
-  );
-}
 
-function MyTabBar({ navigation }) {
-  return (
-    <Button
-      title="Go somewhere"
-      onPress={() => {
-        // Navigate using the `navigation` prop that you received
-        navigation.navigate(MultipleRecipesScreen);
-      }}
-    />
-  );
-}
-
-
-const customTab = (
-  <TouchableOpacity>
-   onPress => {() => navigation.navigate(MultipleRecipesScreen) }
-  </TouchableOpacity>
-
-);
-
-const navToHome =({navigation}) => (
-  navigation.navigate(MultipleRecipesScreen)
-);
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -112,6 +80,7 @@ const App = () => {
     <SafeAreaView style={{ flex: 1, backgroundColor: primaryBackgroundColor}}>
       <NavigationContainer>
         <Tab.Navigator 
+        initialRouteName="Multi-Screen"
           screenOptions={({ route }) => ({
             tabBarIcon: ({ focused, color, size }) => {
               let iconName;
@@ -146,9 +115,18 @@ const App = () => {
               backgroundColor: primaryContainerColor,
             },
           })}
-          // tabBar={props => <MyTabBar {...props} />}
         >
-          <Tab.Screen name="Home" component={Home} />
+          <Tab.Screen name="Home" component={Home} 
+           options={({ navigation }) => ({
+            tabBarButton: (props) => (
+              <TouchableOpacity
+              {...props}
+              onPress={() => {
+                navigation.navigate("Multi-Screen");
+              }}
+            />
+            ),
+          })}/>
           <Tab.Screen name="Calendar" component={MealCartScreen} />
           <Tab.Screen name="Planned Recipes" component={PlannedRecipeScreen} options={{unmountOnBlur: true}}/>
           <Tab.Screen name="Shopping List" component={ShoppingListScreen} options={{unmountOnBlur: true}}/>
@@ -159,10 +137,6 @@ const App = () => {
   );
 };
 
-// ptions={{ tabBarButton: (props) => (
-//   <TouchableOpacity {...props} onPress = {() => navigation.navigate(MultipleRecipesScreen) } />
-//    ),
-//  }} 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
