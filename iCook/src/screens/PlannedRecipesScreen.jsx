@@ -340,12 +340,14 @@ export default function PlannedRecipeScreen ({navigation}) {
   return (
     <View style={plannedRecipeStyles.mainContainerStyle}>
 
+      <Text style={plannedRecipeStyles.title}>Planned Recipes</Text>
+
       <TouchableOpacity style={plannedRecipeStyles.sendToShoppingStyle}
         onPress={() => handleSendToShopping()}>
         <Text style={plannedRecipeStyles.sendToShoppingTextStyle}>
           Compile New Shopping List
         </Text>
-        <Icon name='shoppingcart' size={25} style={plannedRecipeStyles.sendToShoppingIconStyle}/>
+        {/* <Icon name='shoppingcart' size={25} style={plannedRecipeStyles.sendToShoppingIconStyle}/> */}
       </TouchableOpacity>
 
       {/* Render our recipes in a list */}

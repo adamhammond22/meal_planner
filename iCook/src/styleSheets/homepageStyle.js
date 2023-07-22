@@ -68,6 +68,7 @@ const homeStyles = StyleSheet.create({
     // textDecorationLine:'underline',
     // textTransform: 'uppercase',
     marginBottom: 15,
+    marginTop: 15
   },
   description:{
     fontFamily: 'Orienta-Regular',

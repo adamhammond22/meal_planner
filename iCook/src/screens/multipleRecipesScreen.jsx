@@ -15,9 +15,11 @@ import { CustomSearchBar } from '../components/Searchbar';
 /* Import Fake Recipes */
 import { fakeRecipes } from '../../assets/fakeRecipes';
 // Import loadFonts from the global Style Sheet
-import { loadFonts } from '../styleSheets/globalStyle';
+import { loadFonts, primaryTextColor } from '../styleSheets/globalStyle';
 
 import { formatTags } from '../components/Helpers';
+
+import  EvilIcons from '@expo/vector-icons/EvilIcons';
 
 /* Init SQLite database obj */
 const db = SQLite.openDatabase('recipe.db');
@@ -326,14 +328,10 @@ const updateRecipeInCart = (givenRecipeId) => {
           <View style={homeStyles.recipeButtonRowStyle}>
 
           {/* Add To Shopping Button */}
-          <TouchableOpacity onPress={() => updateRecipeInCart(item.id)}>
-            <Text style={[homeStyles.recipeButton]} >Add to Planned Recipes</Text>
-          </TouchableOpacity>
+          <EvilIcons name="cart" size={32} color={primaryTextColor} onPress={() => updateRecipeInCart(item.id)} style={[{paddingRight: 130}]}/> 
 
           {/* Delete Button */}
-          <TouchableOpacity onPress={() => deleteAlert(item.id)}>
-            <Text style={[homeStyles.recipeButton]}> Delete </Text>
-          </TouchableOpacity>
+          <EvilIcons name="trash" size={32} color={primaryTextColor} onPress={() => updateRecipeInCart(item.id)} />
 
           </View>
 
@@ -397,7 +395,7 @@ const updateRecipeInCart = (givenRecipeId) => {
 
         {/* <Button title={"New Recipe"} onPress= {() => navigateToRecipe(null) } /> */}
         <TouchableOpacity onPress= {() => navigateToRecipe(null) }>
-          <Text style={[homeStyles.button, homeStyles.newRecipeButtonAdditionsStyle]}> Adds New Recipe </Text>
+          <Text style={[homeStyles.button, homeStyles.newRecipeButtonAdditionsStyle]}> Add New Recipe </Text>
         </TouchableOpacity>
       </SafeAreaView>
   )

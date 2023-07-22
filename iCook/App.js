@@ -38,11 +38,6 @@ function Home() {
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
 
-  /*const [fontsLoaded] = useFonts({
-    'Orienta': require('./assets/fonts/Orienta-Regular.ttf'),
-    'Ovo-Regular': require('./assets/fonts/Ovo-Regular.ttf'),
-    'TangerineRegular': require('./assets/fonts/Tangerine-Regular.ttf'),
-  });*/
   loadFonts()
 
   useEffect(() => {
@@ -75,10 +70,10 @@ const App = () => {
                 iconName = focused ? 'book' : 'book-outline';
               } else if (route.name === 'Calendar') {
                 iconName = focused ? 'calendar' : 'calendar-outline';
-              } else if (route.name === 'Shop') {
-                iconName = focused ? 'cart' : 'cart-outline';
-              } else if (route.name === 'Share') {
-                iconName = focused ? 'share-social' : 'share-social-outline';
+              } else if (route.name === 'Meal Planner') {
+                iconName = focused ? 'file-tray-full' : 'file-tray-full-outline';
+              } else if (route.name === 'Shopping List') {
+                iconName = focused ? 'receipt' : 'receipt-outline';
               } else if (route.name === 'Login') {
                 iconName = focused ? 'log-in' : 'log-in-outline';
               }
@@ -104,7 +99,7 @@ const App = () => {
         >
           <Tab.Screen name="Home" component={Home} />
           <Tab.Screen name="Calendar" component={MealCartScreen} />
-          <Tab.Screen name="Planned Recipes" component={PlannedRecipeScreen} options={{unmountOnBlur: true}}/>
+          <Tab.Screen name="Meal Planner" component={PlannedRecipeScreen} options={{unmountOnBlur: true}}/>
           <Tab.Screen name="Shopping List" component={ShoppingListScreen} options={{unmountOnBlur: true}}/>
           <Tab.Screen name="Login" component={LoginScreen} />
         </Tab.Navigator>

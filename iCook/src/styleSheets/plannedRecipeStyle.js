@@ -45,6 +45,7 @@ const plannedRecipeStyles = StyleSheet.create({
     flexGrow: 1,
     backgroundColor: primaryContainerColor,
     padding: 8,
+    paddingBottom: 25
   },
 
   //recipe description styling
@@ -78,7 +79,7 @@ const plannedRecipeStyles = StyleSheet.create({
     display:'flex',
     backgroundColor: primaryContainerColor,
     justifyContent:"space-between",
-    alignItems: 'center',
+    alignItems: 'center'
   },
 
   // inCart text, icon, and button styling
@@ -100,19 +101,26 @@ const plannedRecipeStyles = StyleSheet.create({
   // Send to Shopping Button -------------------------------------------------------------------------------
 
   sendToShoppingStyle: {
+    borderWidth: 1,
     backgroundColor: primaryTextColor,
+    marginLeft: 20,
+    marginRight: 20,
+    marginTop: 5,
+    marginBottom: 10,
     flexDirection: 'row',
     justifyContent: 'center',
     alignSelf: 'center',
-    borderRadius: 10,
-    padding: 5,
-    margin: 5,
+    borderRadius: 7,
+    paddingTop: 5,
+    paddingBottom: 5,
+    paddingRight: 50,
+    paddingLeft: 50
   },
 
   sendToShoppingTextStyle: {
     fontFamily: 'Orienta-Regular',
-    fontSize: 20,
-    color: primaryContainerColor,
+    fontSize: 18,
+    color: primaryContainerColor
   },
 
   sendToShoppingIconStyle: {
@@ -122,14 +130,20 @@ const plannedRecipeStyles = StyleSheet.create({
  // Clear Planned Recipes Button -------------------------------------------------------------------------------
 
  clearPlannedRecipesStyle: {
-  backgroundColor: primaryTextColor,
-  flexDirection: 'row',
-  justifyContent: 'center',
-  alignSelf: 'center',
-  borderRadius: 10,
-  padding: 5,
-  margin: 5,
-  marginBottom: 60,
+  borderWidth: 1,
+    backgroundColor: primaryTextColor,
+    marginLeft: 20,
+    marginRight: 20,
+    marginTop: 10,
+    marginBottom: 25,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    borderRadius: 7,
+    paddingTop: 5,
+    paddingBottom: 5,
+    paddingRight: 50,
+    paddingLeft: 50
 },
 
 clearPlannedRecipesTextStyle: {
@@ -137,7 +151,7 @@ clearPlannedRecipesTextStyle: {
   flex: 1,
   flexWrap: 1,
   alignContent: 'center',
-  fontSize: 10,
+  fontSize: 18,
   color: primaryContainerColor,
 },
 
@@ -145,6 +159,14 @@ clearPlannedRecipesIconStyle: {
   paddingLeft: 10,
   color: primaryContainerColor,
 },
+
+title: {
+  marginTop: 30,
+  fontFamily: 'Tangerine-Regular',
+  fontSize: 64,
+  color: primaryTextColor,
+  textAlign: 'center'
+}
 
 });
 export {plannedRecipeStyles}
