@@ -159,7 +159,7 @@ export default function PlannedRecipeScreen ({navigation}) {
           }
           // No Existing Ingredient in array
           else{
-            volumeArray.push(ingredient);
+            wholeArray.push(ingredient);
           }
         }
         // Check if unit is volume
