@@ -324,7 +324,7 @@ export default function PlannedRecipeScreen ({navigation}) {
   if (isLoading) {
     return (
       <SafeAreaView>
-        <View>
+        <View style={plannedRecipeStyles.loading}>
           <Text>Loading recipes...</Text>
         </View>
       </SafeAreaView>

@@ -123,6 +123,10 @@ const homeStyles = StyleSheet.create({
   debugEndLineStyle:{
     borderBottomColor: 'black',
     borderBottomWidth: 3,
-  }
+  },
+  loading: {
+    backgroundColor: primaryBackgroundColor,
+    height: '100%',
+  },
 });
 export {homeStyles}

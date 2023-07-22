@@ -167,8 +167,13 @@ title: {
   fontFamily: 'Tangerine-Regular',
   fontSize: 64,
   color: primaryTextColor,
-  textAlign: 'center'
-}
+  textAlign: 'center',
+},
+
+loading: {
+  backgroundColor: primaryBackgroundColor,
+  height: '100%',
+},
 
 });
 export {plannedRecipeStyles}

@@ -118,7 +118,6 @@ const App = () => {
             />
             ),
           })}/>
-          <Tab.Screen name="Calendar" component={MealCartScreen} />
           <Tab.Screen name="Meal Planner" component={PlannedRecipeScreen} options={{unmountOnBlur: true}}/>
           <Tab.Screen name="Shopping List" component={ShoppingListScreen} options={{unmountOnBlur: true}}/>
         </Tab.Navigator>
