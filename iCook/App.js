@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, SafeAreaView, View } from 'react-native'
+import { StyleSheet, SafeAreaView, View, TouchableOpacity } from 'react-native'
 import { NavigationContainer } from '@react-navigation/native'
+// import { NavigationScreenProps } from 'react-navigation';
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -14,19 +15,27 @@ import MealCartScreen from './src/screens/MealCartScreen.jsx';
 import PlannedRecipeScreen from './src/screens/PlannedRecipesScreen';
 import ShoppingListScreen from './src/screens/ShoppingListScreen';
 import LoginScreen from './src/screens/LoginScreen.jsx'; 
+import { Button } from 'react-native-paper';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 
 // Create a new Home component that includes your Stack Navigator
-function Home() {
+function Home({ navigation }) {
   return (
     <Stack.Navigator initialRouteName="Multi-Screen">
       <Stack.Screen
         name="Multi-Screen"
         component={MultipleRecipesScreen}
         options={{ headerShown: false }}
+        // onPress={() => navigation.navigate(MultipleRecipesScreen)}
+        // options={({ navigation }) => ({
+        //   HomeScreen: () => (
+        //     <TouchableOpacity onPress={() => navigation.replace(MultipleRecipesScreen)} />
+        //   ),
+        // })}
+    
       />
       <Stack.Screen name="View-Recipe" component={ViewRecipe} />
       <Stack.Screen name="Edit-Recipe" component={EditRecipe} />
@@ -34,6 +43,40 @@ function Home() {
     </Stack.Navigator>
   );
 }
+function HomeScreen({ navigation }) {
+  return (
+    
+    
+      <Button
+        title="Go to Settings"
+        onPress={() => navigation.navigate(MultipleRecipesScreen)}
+      />
+  );
+}
+
+function MyTabBar({ navigation }) {
+  return (
+    <Button
+      title="Go somewhere"
+      onPress={() => {
+        // Navigate using the `navigation` prop that you received
+        navigation.navigate(MultipleRecipesScreen);
+      }}
+    />
+  );
+}
+
+
+const customTab = (
+  <TouchableOpacity>
+   onPress => {() => navigation.navigate(MultipleRecipesScreen) }
+  </TouchableOpacity>
+
+);
+
+const navToHome =({navigation}) => (
+  navigation.navigate(MultipleRecipesScreen)
+);
 
 const App = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -63,10 +106,12 @@ const App = () => {
     );
   }
 
+
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: primaryBackgroundColor}}>
       <NavigationContainer>
-        <Tab.Navigator
+        <Tab.Navigator 
           screenOptions={({ route }) => ({
             tabBarIcon: ({ focused, color, size }) => {
               let iconName;
@@ -101,6 +146,7 @@ const App = () => {
               backgroundColor: primaryContainerColor,
             },
           })}
+          // tabBar={props => <MyTabBar {...props} />}
         >
           <Tab.Screen name="Home" component={Home} />
           <Tab.Screen name="Calendar" component={MealCartScreen} />
@@ -113,6 +159,10 @@ const App = () => {
   );
 };
 
+// ptions={{ tabBarButton: (props) => (
+//   <TouchableOpacity {...props} onPress = {() => navigation.navigate(MultipleRecipesScreen) } />
+//    ),
+//  }} 
 const styles = StyleSheet.create({
   container: {
     flex: 1,

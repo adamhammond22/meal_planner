@@ -77,6 +77,7 @@ const editStyles = StyleSheet.create({
   },
   // Consistant width to have all units afterward line up. 75 should be wide enough for the allowed 6 characters
   ingredientInputAmountStyle: {
+ 
     width: 75,
     minWidth: 75, 
     maxWidth: 75, 
@@ -105,11 +106,12 @@ const editStyles = StyleSheet.create({
     marginBottom: 10
   },
   ingredientInputUnitStyle: {
+    
     height: 40
   },
   // Needs flexGrow to fill remaining space, needs flexShrink to not overflow
   ingredientInputNameStyle: {
-    flexGrow: 1, 
+    flexGrow: 3, 
     flexShrink: 1, 
     borderWidth:  1,
     marginTop: 5, 
