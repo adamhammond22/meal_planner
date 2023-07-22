@@ -43,9 +43,11 @@ const plannedRecipeStyles = StyleSheet.create({
     display: 'flex',
     flexDirection: 'column',
     flexGrow: 1,
+    flexWrap: 'wrap',
     backgroundColor: primaryContainerColor,
     padding: 8,
-    paddingBottom: 25
+    paddingBottom: 25,
+    width: '80%',
   },
 
   //recipe description styling
