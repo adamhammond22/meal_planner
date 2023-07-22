@@ -331,7 +331,7 @@ const updateRecipeInCart = (givenRecipeId) => {
           <EvilIcons name="cart" size={32} color={primaryTextColor} onPress={() => updateRecipeInCart(item.id)} style={[{paddingRight: 130}]}/> 
 
           {/* Delete Button */}
-          <EvilIcons name="trash" size={32} color={primaryTextColor} onPress={() => updateRecipeInCart(item.id)} />
+          <EvilIcons name="trash" size={32} color={primaryTextColor} onPress={() => deleteAlert(item.id)}/>
 
           </View>
 
