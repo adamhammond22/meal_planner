@@ -68,14 +68,10 @@ const App = () => {
 
               if (route.name === 'Home') {
                 iconName = focused ? 'book' : 'book-outline';
-              } else if (route.name === 'Calendar') {
-                iconName = focused ? 'calendar' : 'calendar-outline';
               } else if (route.name === 'Meal Planner') {
                 iconName = focused ? 'file-tray-full' : 'file-tray-full-outline';
               } else if (route.name === 'Shopping List') {
                 iconName = focused ? 'receipt' : 'receipt-outline';
-              } else if (route.name === 'Login') {
-                iconName = focused ? 'log-in' : 'log-in-outline';
               }
 
               return <Ionicons name={iconName} size={size} color={color} />;
@@ -98,10 +94,8 @@ const App = () => {
           })}
         >
           <Tab.Screen name="Home" component={Home} />
-          <Tab.Screen name="Calendar" component={MealCartScreen} />
           <Tab.Screen name="Meal Planner" component={PlannedRecipeScreen} options={{unmountOnBlur: true}}/>
           <Tab.Screen name="Shopping List" component={ShoppingListScreen} options={{unmountOnBlur: true}}/>
-          <Tab.Screen name="Login" component={LoginScreen} />
         </Tab.Navigator>
       </NavigationContainer>
     </SafeAreaView>

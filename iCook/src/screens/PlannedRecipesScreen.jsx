@@ -57,7 +57,6 @@ export default function PlannedRecipeScreen ({navigation}) {
 
   /* useEffect calls this every time this application is loaded, we make sure a table exists and call loadPlannedRecipes() */
   useEffect(() => {
-    console.log("Creating")
     CreateTable()
   }, []);
   
@@ -198,7 +197,6 @@ export default function PlannedRecipeScreen ({navigation}) {
     })
     const fullList = wholeArray.concat(volumeArray.concat(weightArray))
     CreateAndFillShoppingListTable(fullList);
-    console.log('New Shopping List Compiled')
   }
 
   /* Function that handles the button press of 'clear planned recipes' */
@@ -243,7 +241,6 @@ export default function PlannedRecipeScreen ({navigation}) {
   /* SQLLite Function that loads all Recipes with nonZero inCart fields from the DB
   Updates the plannedRecipes state and setsIsLoading state to false when completed */
   const loadPlannedRecipes = () => {
-    console.log("loading planned recipes")
     db.transaction(tx => {
       tx.executeSql('SELECT * FROM Recipes WHERE inCart > 0;', [],
         (_, results) => {
@@ -261,7 +258,6 @@ export default function PlannedRecipeScreen ({navigation}) {
 
   /*SQLite Function that updates the given recipe id, incrementing inCart by 1 */
   const incrementRecipeInCart = (givenRecipeId) => {
-    console.log("incrementing")
     db.transaction(
       tx => {
         tx.executeSql(`UPDATE Recipes SET inCart = inCart + 1 WHERE id = ?`,
@@ -272,7 +268,6 @@ export default function PlannedRecipeScreen ({navigation}) {
 
   /*SQLite Function that updates the given recipe id, decrementing inCart by 1 */
   const decrementRecipeInCart = (givenRecipeId) => {
-    console.log("decrimenting")
     db.transaction(
       tx => {
         tx.executeSql(`UPDATE Recipes SET inCart = inCart - 1 WHERE id = ?`,
