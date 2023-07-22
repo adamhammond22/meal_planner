@@ -15,7 +15,7 @@ import MultipleRecipesScreen from './src/screens/multipleRecipesScreen'
 import MealCartScreen from './src/screens/MealCartScreen.jsx'; 
 import PlannedRecipeScreen from './src/screens/PlannedRecipesScreen';
 import ShoppingListScreen from './src/screens/ShoppingListScreen';
-import LoginScreen from './src/screens/LoginScreen.jsx'; 
+import ShareScreen from './src/screens/ShareScreen.jsx'; 
 import { Button } from 'react-native-paper';
 
 const Stack = createNativeStackNavigator();
@@ -86,6 +86,8 @@ const App = () => {
                 iconName = focused ? 'file-tray-full' : 'file-tray-full-outline';
               } else if (route.name === 'Shopping List') {
                 iconName = focused ? 'receipt' : 'receipt-outline';
+              } else if (route.name === 'Share') {
+                iconName = focused ? 'share-social' : 'share-social-outline';
               }
 
               return <Ionicons name={iconName} size={size} color={color} />;
@@ -121,6 +123,7 @@ const App = () => {
           <Tab.Screen name="Calendar" component={MealCartScreen} />
           <Tab.Screen name="Meal Planner" component={PlannedRecipeScreen} options={{unmountOnBlur: true}}/>
           <Tab.Screen name="Shopping List" component={ShoppingListScreen} options={{unmountOnBlur: true}}/>
+          <Tab.Screen name="Share" component={ShareScreen} />
         </Tab.Navigator>
       </NavigationContainer>
     </SafeAreaView>
