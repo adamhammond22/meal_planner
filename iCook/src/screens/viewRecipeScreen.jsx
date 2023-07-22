@@ -1,4 +1,4 @@
-/* ViewRecipe.js contains the ViewRecipe component used to view a singular recipe */
+/* ViewRecipe.jsx contains the ViewRecipe component used to view a singular recipe */
 
 import React, { useState, useEffect } from 'react'
 // Import react-native components
@@ -12,15 +12,19 @@ import { SelectList } from 'react-native-dropdown-select-list'
 // import image picker
 import * as ImagePicker from 'expo-image-picker';
 // Import for various style sheets
-import { editStyles } from './styleSheets/editRecipeStyle'
-import { viewStyles } from './styleSheets/viewRecipeStyle'
-import { globalStyles, loadFonts } from './styleSheets/globalStyle';
+import { editStyles } from '../styleSheets/editRecipeStyle'
+import { viewStyles } from '../styleSheets/viewRecipeStyle'
+import { globalStyles, loadFonts } from '../styleSheets/globalStyle';
 
 // Init SQLite database obj
 const db = SQLite.openDatabase('recipe.db');
 
+/* import preloaded static URI iamges for debug recipes */
+import { fakeRecipeImages } from '../../assets/fakeRecipes';
+
+
 // An "enum" for units
-const Unit = [
+export const Unit = [
     {key: 0, value: 'Whole'},
     {key: 1, value: 'Teaspoon'},
     {key: 2, value: 'Tablespoon'},
@@ -70,10 +74,34 @@ function formatTags(recipe, databaseTagsString) {
   })
 }
 
+export const IngredientToText = (ingredient) => {
+  // If no unit selected
+  if (ingredient.unit == 0){
+    // If should be singular
+    if((ingredient.amount > 0 && ingredient.amount <= 1) || ingredient.name.charAt(ingredient.name.length -1) == 's'){
+      return ingredient.amount + ' ' + ingredient.name
+    }
+    // If should be plural
+    else{
+      return ingredient.amount + ' ' +ingredient.name + 's'
+    }
+  } 
+  // If unit selected
+  else {
+    // If should be singular
+    if((ingredient.amount > 0 && ingredient.amount <= 1)){
+      return ingredient.amount + ' ' + Unit[ingredient.unit].value + ' of ' + ingredient.name
+    }
+    // If should be plural
+    else{
+      return ingredient.amount + ' ' + Unit[ingredient.unit].value+'s of ' + ingredient.name
+    }
+  }
+}
+
 /* Sets the components of loaded recipe individually to account for the fact that not all components are in the
 database currently */
 function setLoadedRecipe(recipe){
-  console.log("~setLoadedRecipe: loading recipe from db")
   loadedRecipe.name = recipe.name
   /* Check if recipe object has a description */
   if (recipe.description) {
@@ -141,7 +169,7 @@ export const ViewRecipe = ({ route, navigation}) => {
   useEffect(() => {
     db.transaction(tx => {
       tx.executeSql(
-        'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, ingredients TEXT, instructions TEXT, image BLOB, tags TEXT)',
+        'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, ingredients TEXT, instructions TEXT, image BLOB, tags TEXT, inCart INTEGER)',
         [],
         () => loadRecipe(loadedRecipe.id)
       );
@@ -185,44 +213,11 @@ export const ViewRecipe = ({ route, navigation}) => {
     const ingredientList = []
     // This loop compiles all the ingredents into ingredients list to be direclty shown with .push
     loadedRecipe.ingredients.forEach((element, index) => {
-      // If no unit selected
-      if (element.unit == 0){
-        // If should be singular
-        if(element.amount > 0 && element.amount <= 1){
-          ingredientList.push(
-            <Text key={index} style={viewStyles.recipeIngredientStyle}>
-              {element.amount} {element.name}
-            </Text>
-          );
-        }
-        // If should be plural
-        else{
-          ingredientList.push(
-            <Text key={index} style={viewStyles.recipeIngredientStyle}>
-              {element.amount} {element.name}s
-            </Text>
-          )
-        }
-      } 
-      // If unit selected
-      else {
-        // If should be singular
-        if(element.amount > 0 && element.amount <= 1){
-          ingredientList.push(
-            <Text key={index} style={viewStyles.recipeIngredientStyle}>
-              {element.amount} {Unit[element.unit].value} of {element.name}
-            </Text>
-          )
-        }
-        // If should be plural
-        else{
-          ingredientList.push(
-            <Text key={index} style={viewStyles.recipeIngredientStyle}>
-              {element.amount} {Unit[element.unit].value}s of {element.name}
-            </Text>
-          )
-        }
-      }
+      ingredientList.push(
+        <Text key={index} style={viewStyles.recipeIngredientStyle}>
+          {IngredientToText(element)}
+        </Text>
+      )
     });
 
     // List to contain JSX for tags list (initial render)
@@ -251,7 +246,7 @@ export const ViewRecipe = ({ route, navigation}) => {
         </Text> 
         {/* View Image */}
         <View style={globalStyles.imageContainerStyle}>
-        {loadedRecipe.image && <Image source={{ uri: loadedRecipe.image }} style={[globalStyles.imageStyle, {marginTop: 10}]} />}
+        {loadedRecipe.image && <Image source={processURI(loadedRecipe.image)} style={globalStyles.imageStyle} />}
         </View>
         {/* Ingredents section title */}
         <Text 
@@ -469,6 +464,30 @@ export const EditRecipe = ({ route, navigation}) => {
     ingredientArray[ingredientIndex].name = input.replace(/[\~\*]/g, '')
   }
   
+
+  /* process URI is needed in order to process static images used for our debugging example recipes */
+  /* we import an array of required static assets from fakeRcipes.jsx, and the given image URI is'~~~<indexOfAsset>' */
+  processURI = (givenURI) => {
+    
+    /* if the URI is null, we can pass it as a URI and image component will ignore it */
+    if(givenURI == null) {
+      return({
+        uri: givenURI
+      })      
+
+    /*if the URI starts with our unique identifier, pull out the index and access the preloaded static img array */
+    } else if(givenURI.startsWith("~~~")) {
+      return(fakeRecipeImages[givenURI.substring(3)])
+    
+    /* Otherwise it's a locally stored image, simply use the uri we're given */
+    } else {
+      return({
+        uri: givenURI
+      })    
+    }
+  }
+
+
   // Iterates through the ingredients and puts them in ingredientsList to display
   function loadIngredientEdit(){
     ingredientJSXList.length = 0
@@ -668,7 +687,7 @@ export const EditRecipe = ({ route, navigation}) => {
         <TouchableOpacity onPress={() => pickImage()} style={editStyles.uploadImageButtonStyle}>
           <Text style = {globalStyles.buttonTextStyle}>Upload an Image</Text>
         </TouchableOpacity>
-        {image && <Image source={{ uri: image }} style={globalStyles.imageStyle} />}
+        {image && <Image source={processURI(image)} style={globalStyles.imageStyle} />}
       </View>
       {/* Ingredents section title */}
       <Text 

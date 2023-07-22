@@ -3,9 +3,9 @@
 // import react states
 import React, { useState, useEffect } from 'react'
 //import react native components
-import { SafeAreaView, Text, View, TouchableOpacity, FlatList, Alert } from 'react-native'
+import { SafeAreaView, Text, View, TouchableOpacity, FlatList, Alert, Image} from 'react-native'
 // import empty recipe loader
-import { LoadEmptyRecipe } from '../viewRecipe';
+import { LoadEmptyRecipe } from './viewRecipeScreen';
 // import homepage style sheet
 import {homeStyles} from '../styleSheets/homepageStyle';
 /* Import SQLite functions */
@@ -15,11 +15,19 @@ import { CustomSearchBar } from '../components/Searchbar';
 /* Import Fake Recipes */
 import { fakeRecipes } from '../../assets/fakeRecipes';
 // Import loadFonts from the global Style Sheet
-import { loadFonts } from '../styleSheets/globalStyle';
+import { loadFonts, primaryTextColor } from '../styleSheets/globalStyle';
 
+import { formatTags } from '../components/Helpers';
+
+import  EvilIcons from '@expo/vector-icons/EvilIcons';
 
 /* Init SQLite database obj */
 const db = SQLite.openDatabase('recipe.db');
+
+
+/* import preloaded static URI iamges for debug recipes */
+import { fakeRecipeImages } from '../../assets/fakeRecipes';
+
 
 
 /* ========== Helper Function ========== */
@@ -27,12 +35,12 @@ const db = SQLite.openDatabase('recipe.db');
 /* Boolean Function - if ANY recipe field includes this string, return true, otherwise false */
 function recipeIncludesString(recipe, string) {
   const {name, description, ingredients, instructions, tags} = recipe
-  if( name.toLowerCase().includes(string) ||
-    description.toLowerCase().includes(string) ||
-    ingredients.toLowerCase().includes(string) ||
-    instructions.toLowerCase().includes(string) ||
-    tags.toLowerCase().includes(string)
-  ) {  
+  if( (name != null && name.toLowerCase().includes(string)) ||
+    (description != null && description.toLowerCase().includes(string)) ||
+    (ingredients != null && ingredients.toLowerCase().includes(string)) ||
+    (instructions != null && instructions.toLowerCase().includes(string)) ||
+    (tags != null && tags.toLowerCase().includes(string))
+  ) {
     return true
 
   } else {
@@ -60,7 +68,7 @@ function recipeNameContainsQueries(recipe, queryList) {
   for (const query of queryList) {
 
     // if one of the queries appears in the name, return true
-    if(recipeName.toLowerCase().includes(query)) {
+    if(recipeName != null && recipeName.toLowerCase().includes(query)) {
       return true
     }
   }
@@ -90,7 +98,8 @@ const MultipleRecipesScreen = ({navigation}) => {
   /* isLoading is true if we're currently loading our list of recipes */
   const [isLoading, setIsLoading] = useState(true);
 
-  /* Loaded recipes is the state containing the list of currently loaded recipes, we may need ot limit the size of recipes (in the case the user has like 500 recipes) */
+  /* Loaded recipes is the state containing the list of currently loaded recipes, we may need ot limit the 
+  size of recipes (in the case the user has like 500 recipes) */
   const [loadedRecipes, setLoadedRecipes] = useState([]);
 
   /* Shown recipes is the state containing the list of currently shown recipes, this is what the search function modifies */
@@ -106,8 +115,9 @@ const MultipleRecipesScreen = ({navigation}) => {
   const CreateTable = () =>{
     db.transaction(tx => {
       tx.executeSql(
-        // ingredients is currently set to store a TEXT type, as I expect us to parse them into a text, but we can change the data type if there's something better
-        'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, ingredients TEXT, instructions TEXT, image BLOB, tags TEXT);',
+        /* ingredients is currently set to store a TEXT type, as I expect us to parse them into a text, but we can 
+        change the data type if there's something better */
+        'CREATE TABLE IF NOT EXISTS Recipes (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, description TEXT, ingredients TEXT, instructions TEXT, image BLOB, tags TEXT, inCart INTEGER);',
         [],
         () => loadRecipes()
       );
@@ -154,7 +164,7 @@ const MultipleRecipesScreen = ({navigation}) => {
     for (const rec of fakeRecipes) {
       new Promise((resolve, reject) => {
         db.transaction(tx => {
-          tx.executeSql('INSERT INTO Recipes (name, description, ingredients, instructions, image, tags) values (?, ?, ?, ?, ?, ?)', [rec.name, rec.desc, rec.ingr, rec.inst, null, rec.tag], 
+          tx.executeSql('INSERT INTO Recipes (name, description, ingredients, instructions, image, tags, inCart) values (?, ?, ?, ?, ?, ?, ?)', [rec.name, rec.desc, rec.ingr, rec.inst, rec.image, rec.tag, 0], 
           (_, { insertId }) => resolve(insertId),
           (_, error) => reject(error)
           );
@@ -189,8 +199,7 @@ const MultipleRecipesScreen = ({navigation}) => {
     
     return new Promise((resolve, reject) => {
       db.transaction(tx => {
-        //tx.executeSql('INSERT INTO Recipes (name, description, ingredients, instructions) values (?, ?, ?, ?)', [recipeName, '', [], ''], 
-        tx.executeSql('INSERT INTO Recipes (name, description, ingredients, instructions) values (?, ?, ?, ?)', [recipeName, ' ', '' , ''], 
+        tx.executeSql('INSERT INTO Recipes (name, image, description, ingredients, instructions, tags, inCart) values (?, ?, ?, ?, ?, ?, ?)', [recipeName, null, '', '' , '', '', 0], 
         (_, { insertId }) => resolve(insertId),
         (_, error) => reject(error)
         );
@@ -205,12 +214,22 @@ const MultipleRecipesScreen = ({navigation}) => {
   const deleteRecipe = (recipeId) => {
     db.transaction(
       tx => {
-        tx.executeSql(`DELETE FROM Recipes where id = ?;`, [recipeId]);
+        tx.executeSql(`DELETE FROM Recipes where id = ?`, [recipeId]);
       },
       null,
       loadRecipes
     );
   };
+
+/*SQLite Function that updates the given recipe id, incrementing inCart by 1 */
+const updateRecipeInCart = (givenRecipeId) => {
+  db.transaction(
+    tx => {
+      tx.executeSql(`UPDATE Recipes SET inCart = inCart + 1 WHERE id = ?`,
+      [givenRecipeId]);
+    },
+  );
+};
 
   const deleteAlert = (recipeId) => {
     Alert.alert('Delete Recipe?', 'Are you sure you want to delete this recipe?', 
@@ -272,51 +291,54 @@ const MultipleRecipesScreen = ({navigation}) => {
 
   /* ========== Rendering & Returing JSX ========== */
 
-  function formatTags(tagString) {
-    if (tagString==null || tagString =='') {
-      return '(No Tags)'
+  /* process URI is needed in order to process static images used for our debugging example recipes */
+  /* we import an array of required static assets from fakeRcipes.jsx, and the given image URI is'~~~<indexOfAsset>' */
+  processURI = (givenURI) => {
+    
+    /* if the URI is null, we can pass it as a URI and image component will ignore it */
+    if(givenURI == null) {
+      return({
+        uri: givenURI
+      })      
+
+    /*if the URI starts with our unique identifier, pull out the index and access the preloaded static img array */
+    } else if(givenURI.startsWith("~~~")) {
+      return(fakeRecipeImages[givenURI.substring(3)])
+    
+    /* Otherwise it's a locally stored image, simply use the uri we're given */
+    } else {
+      return({
+        uri: givenURI
+      })    
     }
-    tagArray = tagString.split("@")
-    formattedString = 'Tags: '
-    firstTag = true
-    tagArray.forEach((tag) => {
-      if(tag == '') {
-        return formattedString
-      }
-      if(firstTag) {
-        formattedString += tag
-        firstTag = false
-      }
-      else {
-        formattedString += ' | ' + tag
-      }
-      
-    })
-    return formattedString
   }
 
   /* Function rendering a single database item into jsx */
   const renderRecipes = ({ item }) => (
     <TouchableOpacity  style={homeStyles.recipeWrapper}
     onPress={() => navigateToRecipe(item.id)} >
-      
-      <Text style={homeStyles.recipe}>{item.name}</Text>
-      <Text numberOfLines={2} ellipsizeMode="tail" style={homeStyles.descripText}>{item.description}</Text>
-      <Text numberOfLines={2} ellipsizeMode="tail" style={homeStyles.descripText}>{formatTags(item.tags)}</Text>
 
-      <View style={homeStyles.recipeButtonRowStyle}>
+      <View style={[{flexDirection: 'row'}, {paddingLeft: 10}, {align: 'center'}]}>
+        <Image source={processURI(item.image)} style={homeStyles.images} />
+        <View style={[{flexDirection: 'column'}, {flexGrow: 1}, {flexShrink: 1}, {marginRight: 5}]}>
+          <Text style={homeStyles.recipe}>{item.name}</Text>
+          <Text numberOfLines={2} ellipsizeMode="tail" style={homeStyles.descripText}>{item.description}</Text>
+          <Text numberOfLines={2} ellipsizeMode="tail" style={homeStyles.descripText}>{formatTags(item.tags)}</Text>
 
-        {/* Add To Shopping Button */}
-        <TouchableOpacity onPress={() => console.log("not implemented!")}>
-          <Text style={[homeStyles.recipeButton]} >Add to Shopping</Text>
-        </TouchableOpacity>
+          <View style={homeStyles.recipeButtonRowStyle}>
 
-        {/* Delete Button */}
-        <TouchableOpacity onPress={() => deleteAlert(item.id)}>
-          <Text style={[homeStyles.recipeButton]}> Delete </Text>
-        </TouchableOpacity>
+          {/* Add To Shopping Button */}
+          <EvilIcons name="cart" size={32} color={primaryTextColor} onPress={() => updateRecipeInCart(item.id)} style={[{paddingRight: 130}]}/> 
 
+          {/* Delete Button */}
+          <EvilIcons name="trash" size={32} color={primaryTextColor} onPress={() => updateRecipeInCart(item.id)} />
+
+          </View>
+
+        </View>
       </View>
+
+
 
     </TouchableOpacity >
   );
@@ -373,7 +395,7 @@ const MultipleRecipesScreen = ({navigation}) => {
 
         {/* <Button title={"New Recipe"} onPress= {() => navigateToRecipe(null) } /> */}
         <TouchableOpacity onPress= {() => navigateToRecipe(null) }>
-          <Text style={[homeStyles.button, homeStyles.newRecipeButtonAdditionsStyle]}> Adds New Recipe </Text>
+          <Text style={[homeStyles.button, homeStyles.newRecipeButtonAdditionsStyle]}> Add New Recipe </Text>
         </TouchableOpacity>
       </SafeAreaView>
   )
