@@ -135,7 +135,7 @@ const plannedRecipeStyles = StyleSheet.create({
     marginLeft: 20,
     marginRight: 20,
     marginTop: 10,
-    marginBottom: 25,
+    marginBottom: 70,
     flexDirection: 'row',
     justifyContent: 'center',
     alignSelf: 'center',
